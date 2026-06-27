@@ -22,7 +22,7 @@ const grotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "SARIRO 3D — AI & Technology Education | Mimo Patra",
+  title: "Sariro — AI & Technology Education | Mimo Patra",
   description:
     "Teaching the future. We teach thinking, not just coding. Cohort-based AI courses, school workshops, and free learning resources by educator Mimo Patra.",
   keywords: [
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
   authors: [{ name: "Mimo Patra" }],
   icons: { icon: "/logo.svg" },
   openGraph: {
-    title: "SARIRO 3D — AI & Technology Education",
+    title: "Sariro — AI & Technology Education",
     description: "Teaching the future. We teach thinking, not just coding.",
     siteName: "Sariro",
     type: "website",
