@@ -105,7 +105,7 @@ export default function CoursesPage() {
 
             {/* Filter pills */}
             <div
-              className="inline-flex p-1.5 rounded-2xl glass-panel gap-1 self-start md:self-auto"
+              className="flex flex-wrap p-1.5 rounded-2xl glass-panel gap-1 self-start md:self-auto"
               role="tablist"
               aria-label="Filter courses by audience"
             >
@@ -117,7 +117,7 @@ export default function CoursesPage() {
                     onClick={() => setFilter(f.key)}
                     role="tab"
                     aria-selected={active}
-                    className={`relative px-4 py-2.5 rounded-xl text-sm font-bold transition-all ${
+                    className={`relative px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-colors duration-200 flex-1 sm:flex-initial justify-center ${
                       active ? 'text-white' : 'text-slate-700 hover:text-blue-600'
                     }`}
                     style={{ fontFamily: 'var(--font-grotesk)' }}
@@ -129,7 +129,7 @@ export default function CoursesPage() {
                         transition={{ type: 'spring', stiffness: 320, damping: 28 }}
                       />
                     )}
-                    <span className="relative flex items-center gap-2">
+                    <span className="relative flex items-center gap-1.5 sm:gap-2 justify-center whitespace-nowrap">
                       {f.label}
                       <span
                         className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${

@@ -78,26 +78,26 @@ function BrandNavbar() {
         initial={{ y: -80, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="fixed top-0 left-0 right-0 z-50 px-4 sm:px-6"
+        className="fixed top-0 left-0 right-0 z-50 px-3 sm:px-6"
       >
         <div
           className={`mx-auto max-w-7xl mt-3 transition-all duration-300 ${
             scrolled
-              ? 'glass-panel rounded-2xl px-4 sm:px-6 py-3 shadow-xl'
-              : 'bg-transparent px-2 py-4'
+              ? 'glass-panel rounded-2xl px-5 sm:px-6 py-3 shadow-xl'
+              : 'bg-transparent px-3 sm:px-2 py-4'
           }`}
         >
-          <div className="flex items-center justify-between gap-6">
+          <div className="flex items-center justify-between gap-2 sm:gap-6">
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-2.5 group">
+            <Link href="/" className="flex items-center gap-2 sm:gap-2.5 group flex-shrink-0">
               <div className="relative">
                 <div className="absolute inset-0 bg-blue-500 blur-lg opacity-40 group-hover:opacity-70 transition-opacity rounded-xl" />
-                <div className="relative w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-violet-600 flex items-center justify-center shadow-lg shadow-blue-500/30">
-                  <GraduationCap className="w-5 h-5 text-white" strokeWidth={2.5} />
+                <div className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-blue-600 to-violet-600 flex items-center justify-center shadow-lg shadow-blue-500/30">
+                  <GraduationCap className="w-4 h-4 sm:w-5 sm:h-5 text-white" strokeWidth={2.5} />
                 </div>
               </div>
               <div className="flex flex-col leading-none">
-                <span className="font-bold text-lg tracking-tight text-slate-900" style={{ fontFamily: 'var(--font-jakarta)' }}>
+                <span className="font-bold text-base sm:text-lg tracking-tight text-slate-900" style={{ fontFamily: 'var(--font-jakarta)' }}>
                   {BRAND.name}
                 </span>
                 <span className="text-[10px] uppercase tracking-[0.18em] text-slate-500 font-semibold" style={{ fontFamily: 'var(--font-grotesk)' }}>
@@ -130,20 +130,36 @@ function BrandNavbar() {
               })}
             </nav>
 
-            {/* Desktop CTA */}
-            <Link
-              href="/courses"
-              className="hidden lg:inline-flex btn-tactile btn-tactile-primary px-5 py-2.5 text-sm"
-            >
-              <Sparkles className="w-4 h-4" />
-              Start Learning
-            </Link>
+            {/* Desktop CTA — wrapped in div to prevent .btn-tactile display override on mobile */}
+            <div className="hidden lg:block">
+              <Link
+                href="/courses"
+                className="btn-tactile btn-tactile-primary px-5 py-2.5 text-sm"
+              >
+                <Sparkles className="w-4 h-4" />
+                Start Learning
+              </Link>
+            </div>
 
-            {/* Mobile toggle */}
+            {/* Mobile CTA — compact "Start" pill */}
+            <div className="lg:hidden">
+              <Link
+                href="/courses"
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-br from-blue-600 to-violet-600 text-white text-xs font-bold shadow-lg shadow-blue-500/30 active:scale-95 transition-transform cursor-pointer flex-shrink-0"
+                style={{ minHeight: '40px', fontFamily: 'var(--font-grotesk)' }}
+                aria-label="Start Learning"
+              >
+                <Sparkles className="w-4 h-4 flex-shrink-0" />
+                Start
+              </Link>
+            </div>
+
+            {/* Mobile toggle — properly sized touch target, fully visible */}
             <button
               onClick={() => setMobileOpen((v) => !v)}
-              className="lg:hidden p-2 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+              className="lg:hidden p-2.5 rounded-xl hover:bg-slate-100 active:bg-slate-200 transition-colors cursor-pointer touch-manipulation flex-shrink-0"
               aria-label="Toggle menu"
+              style={{ minHeight: '44px', minWidth: '44px' }}
             >
               {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>

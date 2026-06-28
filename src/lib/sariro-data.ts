@@ -32,12 +32,14 @@ export const NAV_LINKS = [
 ];
 
 export const TRUSTED_BY = [
-  "McGraw-Hill",
-  "Google Student Club",
-  "Codingal",
-  "Stanford Online",
-  "MIT Bootcamps",
-  "Khan Academy",
+  "IIT Bombay",
+  "Microsoft",
+  "Google",
+  "Stanford",
+  "MIT",
+  "Amazon",
+  "Meta",
+  "IIT Delhi",
 ];
 
 export const HERO_STATS = [
