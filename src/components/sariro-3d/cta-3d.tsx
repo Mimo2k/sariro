@@ -109,7 +109,7 @@ export default function CTA3D() {
           <MagneticButton
             strength={0.2}
             as="a"
-            href={`mailto:${BRAND.founderEmail}`}
+            href={`mailto:${BRAND.emails.founder}`}
             className="btn-tactile px-8 py-4 text-base text-white border-2 border-white/30 hover:bg-white/10"
           >
             <Mail className="w-5 h-5" />

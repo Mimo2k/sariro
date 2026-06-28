@@ -1,143 +1,118 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef, ReactNode } from 'react';
-import * as THREE from 'three';
+import { CountUp } from './effects-kit';
 
 /* ===============================================================
-   FLOATING STATS CLUSTER — replaces the old rotating cube
-   - Stat cards float at different Z-depths (layered 3D)
-   - Each card gently bobs + tilts
-   - Mouse-reactive parallax (desktop)
-   - More readable + more premium than a cube
+   FLOATING STATS CLUSTER — A radial cluster of stat cards that
+   float around a central element with scroll-driven parallax.
+   Used by: About page (founder portrait).
 =============================================================== */
 
-type StatFace = {
-  value: string;
+export type ClusterStat = {
+  value: number;
+  suffix?: string;
+  prefix?: string;
   label: string;
-  color: string;
+  accent: string;
+  icon?: ReactNode;
 };
 
 export function FloatingStatsCluster({
   stats,
-  size = 220,
+  className = '',
+  size = 460,
 }: {
-  stats: StatFace[];
+  stats: ClusterStat[];
+  className?: string;
   size?: number;
 }) {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ['start end', 'end start'],
+  });
+  const rotate = useTransform(scrollYProgress, [0, 1], [-12, 12]);
+  const floatY = useTransform(scrollYProgress, [0, 1], [30, -30]);
 
-  const handleMove = (e: React.MouseEvent) => {
-    const el = containerRef.current;
-    if (!el) return;
-    const r = el.getBoundingClientRect();
-    const px = (e.clientX - r.left) / r.width - 0.5;
-    const py = (e.clientY - r.top) / r.height - 0.5;
-    el.style.transform = `perspective(800px) rotateY(${px * 8}deg) rotateX(${-py * 8}deg)`;
-  };
-  const handleLeave = () => {
-    const el = containerRef.current;
-    if (!el) return;
-    el.style.transform = 'perspective(800px) rotateY(0deg) rotateX(0deg)';
-  };
-
-  // Arrange cards in a circular cluster
-  const cardCount = Math.min(stats.length, 6);
-  const radius = size * 0.35;
+  // Place stats on a circle, evenly spaced.
+  const radius = size * 0.42;
 
   return (
     <div
-      ref={containerRef}
-      onMouseMove={handleMove}
-      onMouseLeave={handleLeave}
-      className="relative transition-transform duration-300 ease-out"
-      style={{ width: size, height: size, transformStyle: 'preserve-3d', perspective: '800px' }}
+      ref={ref}
+      className={`relative pointer-events-none ${className}`}
+      style={{ width: size, height: size }}
+      aria-hidden
     >
-      {/* Central glow orb */}
+      {/* Rotating ring backdrop */}
       <motion.div
-        animate={{ scale: [1, 1.15, 1], opacity: [0.3, 0.5, 0.3] }}
-        transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full blur-2xl"
-        style={{
-          width: size * 0.5,
-          height: size * 0.5,
-          background: 'radial-gradient(circle, rgba(37, 99, 235, 0.4), transparent 70%)',
-        }}
-      />
-
-      {/* Central icon */}
-      <motion.div
-        animate={{ y: [0, -6, 0] }}
-        transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10"
-        style={{ transform: 'translate(-50%, -50%) translateZ(60px)' }}
+        style={{ rotate, width: size, height: size }}
+        className="absolute inset-0"
       >
         <div
-          className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-violet-600 flex items-center justify-center shadow-2xl"
-          style={{ boxShadow: '0 20px 50px -15px rgba(37, 99, 235, 0.6)' }}
-        >
-          <span
-            className="text-2xl font-extrabold text-white"
-            style={{ fontFamily: 'var(--font-jakarta)' }}
-          >
-            MP
-          </span>
-        </div>
+          className="absolute inset-6 rounded-full border border-dashed"
+          style={{ borderColor: 'rgba(245, 158, 11, 0.25)' }}
+        />
+        <div
+          className="absolute inset-16 rounded-full border"
+          style={{ borderColor: 'rgba(37, 99, 235, 0.15)' }}
+        />
       </motion.div>
 
-      {/* Floating stat cards around the center */}
-      {stats.slice(0, cardCount).map((stat, i) => {
-        const angle = (i / cardCount) * Math.PI * 2 - Math.PI / 2;
+      {/* Floating stat chips */}
+      {stats.map((stat, i) => {
+        const angle = (i / stats.length) * Math.PI * 2 - Math.PI / 2;
         const x = Math.cos(angle) * radius;
         const y = Math.sin(angle) * radius;
-        const z = 30 + Math.sin(i * 1.2) * 20;
-        const delay = i * 0.5;
-
         return (
           <motion.div
-            key={i}
-            animate={{
-              y: [y, y - 8, y],
-              z: [z, z + 10, z],
-              rotateY: [0, 5, 0],
-            }}
-            transition={{
-              duration: 3 + i * 0.3,
-              repeat: Infinity,
-              ease: 'easeInOut',
-              delay,
+            key={stat.label}
+            style={{
+              x,
+              y,
+              floatY,
             }}
             className="absolute top-1/2 left-1/2"
-            style={{
-              transform: `translate(-50%, -50%) translate(${x}px, ${y}px) translateZ(${z}px)`,
-              transformStyle: 'preserve-3d',
+            initial={{ opacity: 0, scale: 0.6 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true, margin: '-40px' }}
+            transition={{
+              duration: 0.6,
+              delay: i * 0.1,
+              ease: [0.22, 1, 0.36, 1],
             }}
           >
-            <div
-              className="glass-panel rounded-2xl px-3 py-2.5 text-center shadow-xl"
-              style={{
-                borderColor: `${stat.color}40`,
-                borderWidth: '1px',
-                borderStyle: 'solid',
-                boxShadow: `0 10px 30px -10px ${stat.color}80`,
+            <motion.div
+              animate={{ y: [0, -6, 0] }}
+              transition={{
+                duration: 3 + i * 0.4,
+                repeat: Infinity,
+                ease: 'easeInOut',
+                delay: i * 0.2,
               }}
+              style={{ x: '-50%', y: '-50%' }}
+              className="glass-panel rounded-2xl px-3.5 py-2.5 shadow-lg min-w-[120px] text-center"
             >
               <div
-                className="text-lg font-extrabold leading-none"
-                style={{ color: stat.color, fontFamily: 'var(--font-jakarta)' }}
+                className="text-xl font-extrabold leading-none"
+                style={{ color: stat.accent, fontFamily: 'var(--font-jakarta)' }}
               >
-                {stat.value}
+                <CountUp value={stat.value} suffix={stat.suffix} prefix={stat.prefix} />
               </div>
               <div
-                className="text-[8px] font-bold uppercase tracking-wider text-slate-500 mt-0.5"
+                className="mt-1 text-[10px] font-bold uppercase tracking-wider text-slate-500"
                 style={{ fontFamily: 'var(--font-grotesk)' }}
               >
                 {stat.label}
               </div>
-            </div>
+            </motion.div>
           </motion.div>
         );
       })}
     </div>
   );
 }
+
+export default FloatingStatsCluster;

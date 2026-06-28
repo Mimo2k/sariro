@@ -40,37 +40,37 @@ export default function Home() {
   return (
     <BrandLayout>
       {/* =================== HERO =================== */}
-      <section ref={heroRef} className="relative min-h-screen w-full overflow-hidden flex items-center pt-28 pb-16 sm:pb-12">
+      <section ref={heroRef} className="relative min-h-screen w-full overflow-hidden flex items-center pt-28 pb-12">
         {/* Background layers */}
         <div className="absolute inset-0 mesh-bg" />
         <div className="absolute inset-0 grid-bg" />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-white" />
 
-        <div className="relative z-20 w-full max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12 items-center">
-            {/* LEFT: Text content (PRIORITY on mobile — comes first) */}
+        <div className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+            {/* LEFT: Text content (always full width on mobile, never overlapped) */}
             <motion.div style={{ y: heroY, opacity: heroOpacity }} className="max-w-2xl">
               {/* Eyebrow */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-                className="inline-flex items-center gap-2 px-3 py-2 rounded-full glass-panel text-[11px] sm:text-xs font-bold uppercase tracking-wider text-blue-700 mb-5"
+                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glass-panel text-xs font-bold uppercase tracking-wider text-blue-700 mb-6"
                 style={{ fontFamily: 'var(--font-grotesk)' }}
               >
-                <span className="relative flex h-2 w-2 flex-shrink-0">
+                <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-500 opacity-75" />
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-600" />
                 </span>
                 New: Summer 2026 cohort — 12 seats left
               </motion.div>
 
-              {/* Headline — bigger on mobile, readable */}
+              {/* Headline */}
               <motion.h1
                 initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.1 }}
-                className="text-[2.5rem] leading-[1.05] sm:text-5xl lg:text-6xl font-extrabold text-slate-900"
+                className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.05] text-slate-900"
                 style={{ fontFamily: 'var(--font-jakarta)' }}
               >
                 Teaching the{' '}
@@ -79,52 +79,52 @@ export default function Home() {
                 We teach{' '}
                 <span className="relative inline-block">
                   <span className="gradient-text-deep">thinking</span>
-                  <svg className="absolute -bottom-1 left-0 w-full" viewBox="0 0 200 12" fill="none" preserveAspectRatio="none">
+                  <svg className="absolute -bottom-2 left-0 w-full" viewBox="0 0 200 12" fill="none" preserveAspectRatio="none">
                     <path d="M2 9 Q 50 1, 100 6 T 198 4" stroke="#16A34A" strokeWidth="3" strokeLinecap="round" fill="none" />
                   </svg>
                 </span>
                 ,<br /> not just coding.
               </motion.h1>
 
-              {/* Subhead — readable size on mobile */}
+              {/* Subhead */}
               <motion.p
                 initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.2 }}
-                className="mt-5 text-base sm:text-lg text-slate-600 max-w-xl leading-relaxed"
+                className="mt-6 text-lg text-slate-600 max-w-xl"
               >
                 {BRAND.mission}
               </motion.p>
 
-              {/* CTAs — full width on mobile, 44px+ touch targets */}
+              {/* CTAs */}
               <motion.div
                 initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.3 }}
-                className="mt-7 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3"
+                className="mt-8 flex flex-wrap items-center gap-3"
               >
-                <Link href="/courses" className="btn-tactile btn-tactile-primary px-6 py-4 text-base w-full sm:w-auto justify-center">
-                  <Sparkles className="w-5 h-5 flex-shrink-0" />
+                <Link href="/courses" className="btn-tactile btn-tactile-primary px-7 py-4 text-base">
+                  <Sparkles className="w-5 h-5" />
                   Explore Courses
-                  <ArrowRight className="w-5 h-5 flex-shrink-0" />
+                  <ArrowRight className="w-5 h-5" />
                 </Link>
-                <Link href="/about" className="btn-tactile btn-tactile-light px-6 py-4 text-base w-full sm:w-auto justify-center">
-                  <Play className="w-4 h-4 fill-current flex-shrink-0" />
+                <Link href="/about" className="btn-tactile btn-tactile-light px-7 py-4 text-base">
+                  <Play className="w-4 h-4 fill-current" />
                   Meet Mimo
                 </Link>
               </motion.div>
 
-              {/* Hero stats — 2x2 grid on mobile, readable */}
+              {/* Hero stats */}
               <motion.div
                 initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.4 }}
-                className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 max-w-2xl"
+                className="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl"
               >
                 {HERO_STATS.map((s) => (
-                  <div key={s.label} className="glass-panel rounded-xl sm:rounded-2xl px-3 py-3 sm:px-4 sm:py-4 text-center">
+                  <div key={s.label} className="glass-panel rounded-2xl px-4 py-4 text-center">
                     <div
-                      className={`text-xl sm:text-3xl font-extrabold ${
+                      className={`text-2xl sm:text-3xl font-extrabold ${
                         s.accent === 'blue' ? 'text-blue-600' :
                         s.accent === 'green' ? 'text-green-600' :
                         s.accent === 'violet' ? 'text-violet-600' :
@@ -134,7 +134,7 @@ export default function Home() {
                     >
                       {s.value.toLocaleString()}{s.suffix}
                     </div>
-                    <div className="text-[10px] sm:text-xs font-semibold text-slate-500 mt-1 uppercase tracking-wide" style={{ fontFamily: 'var(--font-grotesk)' }}>
+                    <div className="text-xs font-semibold text-slate-500 mt-1 uppercase tracking-wide" style={{ fontFamily: 'var(--font-grotesk)' }}>
                       {s.label}
                     </div>
                   </div>
@@ -142,19 +142,19 @@ export default function Home() {
               </motion.div>
             </motion.div>
 
-            {/* RIGHT: 3D Neural Network — smaller on mobile, below text */}
+            {/* RIGHT: 3D Neural Network — contained card, no overlap on mobile */}
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 1, delay: 0.3 }}
-              className="relative w-full aspect-square max-w-[280px] sm:max-w-[400px] lg:max-w-[500px] mx-auto"
+              className="relative w-full aspect-square max-w-[500px] mx-auto order-first lg:order-last"
             >
               <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-500/20 via-violet-500/20 to-green-500/20 blur-3xl" />
               <div className="relative w-full h-full">
                 {inView && <NeuralNetworkScene scrollProgress={scrollProgressRef} />}
               </div>
               <div className="absolute bottom-0 left-1/2 -translate-x-1/2 text-center">
-                <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.3em] text-slate-400" style={{ fontFamily: 'var(--font-grotesk)' }}>
+                <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-400" style={{ fontFamily: 'var(--font-grotesk)' }}>
                   Live AI Neural Network
                 </p>
               </div>
@@ -162,8 +162,8 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Trusted by — bottom marquee (only on desktop, hidden on mobile to save space) */}
-        <div className="hidden sm:block absolute bottom-0 left-0 right-0 z-20 pb-4 pt-6 bg-gradient-to-t from-white via-white/80 to-transparent">
+        {/* Trusted by — bottom marquee */}
+        <div className="absolute bottom-0 left-0 right-0 z-20 pb-4 pt-6 bg-gradient-to-t from-white via-white/80 to-transparent">
           <div className="max-w-7xl mx-auto px-4">
             <p className="text-center text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-3" style={{ fontFamily: 'var(--font-grotesk)' }}>
               Trusted by educators & learners at

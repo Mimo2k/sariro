@@ -209,7 +209,7 @@ export function CompanionOrb3D() {
 
   return (
     <div
-      className="hidden lg:block fixed bottom-7 left-7 z-50 transition-opacity duration-700"
+      className="fixed bottom-5 left-5 sm:bottom-7 sm:left-7 z-50 transition-opacity duration-700"
       style={{ opacity: visible ? 1 : 0, pointerEvents: visible ? 'auto' : 'none' }}
     >
       {/* Hover label */}

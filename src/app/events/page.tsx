@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -65,11 +65,6 @@ const FORMAT_ICON: Record<string, typeof Video> = {
 
 export default function EventsPage() {
   const [filter, setFilter] = useState<FilterKey>('All');
-
-  // SEO: set document title client-side (since this is a client component)
-  useEffect(() => {
-    document.title = 'Events — Sariro | Cohorts, Hackathons & Workshops';
-  }, []);
 
   const visible =
     filter === 'All' ? EVENTS : EVENTS.filter((e) => e.type === filter);

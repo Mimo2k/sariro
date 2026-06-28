@@ -6,11 +6,12 @@ import { ReactNode, useRef } from 'react';
 import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 
-const GSAPHero3D = dynamic(() => import('./gsap-hero-3d'), { ssr: false });
+const PageHero3D = dynamic(() => import('./page-hero-3d'), { ssr: false });
 
 /* ===============================================================
-   PAGE HERO — Now with GSAP-powered 3D camera scroll
-   Camera orbits the 3D object as you scroll past the hero
+   PAGE HERO — Consistent hero pattern for ALL inner pages.
+   Now includes a UNIQUE 3D scene per page (variant prop).
+   Layout: text LEFT, 3D RIGHT on desktop; stacked on mobile.
 =============================================================== */
 
 export type PageHeroProps = {
@@ -19,7 +20,7 @@ export type PageHeroProps = {
   subtitle: string;
   accentColor?: string;
   breadcrumb: string;
-  variant?: 'courses' | 'schools' | 'events' | 'pricing' | 'about' | 'resources' | 'contact' | 'story';
+  variant?: 'courses' | 'schools' | 'events' | 'pricing' | 'about' | 'resources' | 'contact' | 'story' | 'faq';
   children?: ReactNode;
 };
 
@@ -36,7 +37,7 @@ export default function PageHero({
   const inView = useInView(sectionRef, { margin: '100px' });
 
   return (
-    <section ref={sectionRef} className="relative pt-36 sm:pt-44 pb-16 sm:pb-20 overflow-hidden min-h-[90vh] flex items-center">
+    <section ref={sectionRef} className="relative pt-36 sm:pt-44 pb-16 sm:pb-20 overflow-hidden">
       {/* Background layers */}
       <div className="absolute inset-0 mesh-bg opacity-70" />
       <div className="absolute inset-0 grid-bg opacity-40" />
@@ -46,7 +47,7 @@ export default function PageHero({
         style={{ background: accentColor }}
       />
 
-      <div className="relative max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 w-full">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           {/* LEFT: Text */}
           <div>
@@ -93,7 +94,7 @@ export default function PageHero({
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.7 }}
-              className="mt-6 text-base sm:text-lg text-slate-600 max-w-xl"
+              className="mt-6 text-lg text-slate-600 max-w-xl"
             >
               {subtitle}
             </motion.p>
@@ -111,21 +112,21 @@ export default function PageHero({
             )}
           </div>
 
-          {/* RIGHT: GSAP-powered 3D Scene with scroll camera orbit */}
+          {/* RIGHT: 3D Scene — unique per page */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1, delay: 0.3 }}
-            className="relative w-full aspect-square max-w-[280px] sm:max-w-[400px] lg:max-w-[500px] mx-auto"
+            className="relative w-full aspect-square max-w-[420px] mx-auto"
           >
             {/* Glow behind canvas */}
             <div
               className="absolute inset-0 rounded-full blur-3xl opacity-30"
               style={{ background: `radial-gradient(circle, ${accentColor}, transparent 70%)` }}
             />
-            {/* 3D Canvas with GSAP camera */}
+            {/* 3D Canvas */}
             <div className="relative w-full h-full">
-              {inView && <GSAPHero3D variant={variant} accentColor={accentColor} triggerRef={sectionRef} />}
+              {inView && <PageHero3D variant={variant} accentColor={accentColor} />}
             </div>
           </motion.div>
         </div>

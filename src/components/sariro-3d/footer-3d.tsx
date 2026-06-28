@@ -57,9 +57,9 @@ export default function Footer3D() {
 
             {/* Contact lines */}
             <div className="space-y-2.5 text-sm">
-              <a href={`mailto:${BRAND.email}`} className="flex items-center gap-2.5 text-slate-400 hover:text-white transition-colors">
+              <a href={`mailto:${BRAND.emails.contact}`} className="flex items-center gap-2.5 text-slate-400 hover:text-white transition-colors">
                 <Mail className="w-4 h-4 text-blue-400" />
-                {BRAND.email}
+                {BRAND.emails.contact}
               </a>
               <div className="flex items-center gap-2.5 text-slate-400">
                 <MapPin className="w-4 h-4 text-blue-400" />

@@ -51,7 +51,7 @@ export function StaggerGroup({
     <motion.div
       initial="hidden"
       whileInView="visible"
-      viewport={{ margin: '-40px' }}
+      viewport={{ once: true, margin: '-60px' }}
       variants={{ hidden: {}, visible: { transition: { staggerChildren: stagger } } }}
       className={className}
     >
@@ -75,7 +75,6 @@ export function StaggerItem({
         hidden: { opacity: 0, y, rotateX: -8 },
         visible: { opacity: 1, y: 0, rotateX: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
       }}
-      whileTap={{ scale: 0.97 }}
       className={className}
       style={{ transformStyle: 'preserve-3d' }}
     >
@@ -84,7 +83,7 @@ export function StaggerItem({
   );
 }
 
-/* ---------- TiltCard: hover tilt with glare + touch support ---------- */
+/* ---------- TiltCard: hover tilt with glare (pure DOM mutation, no re-renders) ---------- */
 export function TiltCard({
   children,
   className = '',
@@ -117,24 +116,12 @@ export function TiltCard({
     const g = el.querySelector('[data-tilt-glare]') as HTMLElement | null;
     if (g) g.style.background = 'transparent';
   };
-  // Touch support — tilt based on touch position
-  const handleTouchMove = (e: React.TouchEvent) => {
-    const el = ref.current;
-    if (!el || !e.touches[0]) return;
-    const r = el.getBoundingClientRect();
-    const px = (e.touches[0].clientX - r.left) / r.width - 0.5;
-    const py = (e.touches[0].clientY - r.top) / r.height - 0.5;
-    el.style.transform = `perspective(1000px) rotateY(${px * maxTilt * 0.6}deg) rotateX(${-py * maxTilt * 0.6}deg) translateZ(4px)`;
-  };
-  const handleTouchEnd = handleLeave;
 
   return (
     <div
       ref={ref}
       onMouseMove={handleMove}
       onMouseLeave={handleLeave}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
       className={`relative transition-transform duration-200 ease-out will-change-transform ${className}`}
       style={{ transformStyle: 'preserve-3d' }}
     >
@@ -180,7 +167,7 @@ export function MagneticButton({
     ref: ref as any,
     onMouseMove: handleMove,
     onMouseLeave: handleLeave,
-    className: `transition-transform duration-300 ease-out will-change-transform active:scale-95 ${className}`,
+    className: `transition-transform duration-300 ease-out will-change-transform ${className}`,
     style: { display: 'inline-flex' },
   };
 

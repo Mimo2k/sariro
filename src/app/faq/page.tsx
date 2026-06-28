@@ -2,18 +2,16 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search,
-  MessageCircle,
+  Sparkles,
   ArrowRight,
-  HelpCircle,
-  LifeBuoy,
+  MessageCircle,
+  Rocket,
+  CreditCard,
   GraduationCap,
-  DollarSign,
-  BookOpen,
   Cpu,
-  X,
+  HelpCircle,
 } from 'lucide-react';
 import BrandLayout from '@/components/brand/brand-layout';
 import PageHero from '@/components/brand/page-hero';
@@ -24,149 +22,151 @@ import {
   AccordionContent,
 } from '@/components/ui/accordion';
 import { Input } from '@/components/ui/input';
+import { WaveDivider3D } from '@/components/sariro-3d/kit-3d';
 import {
   Reveal,
-  SplitText,
   TiltCard,
+  SplitText,
   ParallaxOrb,
+  StaggerGroup,
+  StaggerItem,
+  MagneticButton,
 } from '@/components/brand/effects-kit';
+import { BRAND } from '@/lib/sariro-data';
 
 /* ---------------------------------------------------------------
    FAQ data — 12 items across 4 categories
 --------------------------------------------------------------- */
-type Category = 'Getting Started' | 'Pricing' | 'Learning' | 'Technical';
 
-type FAQItem = {
+type FaqCategory = 'Getting Started' | 'Pricing' | 'Learning' | 'Technical';
+
+type FaqItem = {
   id: string;
   question: string;
   answer: string;
-  category: Category;
+  category: FaqCategory;
 };
 
-const FAQ_ITEMS: FAQItem[] = [
+const FAQ_ITEMS: FaqItem[] = [
+  // Getting Started
   {
-    id: 'prerequisites',
-    question: 'Do I need any prior coding experience to join a cohort?',
-    answer:
-      'Nope. Our "AI Foundations: Thinking in Systems" course assumes zero coding background — we start from how to reason about a problem before touching a keyboard. For intermediate and advanced courses, you should be comfortable writing small scripts in Python, but we provide a free prep checklist to get you there before day one.',
+    id: 'faq-1',
     category: 'Getting Started',
-  },
-  {
-    id: 'pricing',
-    question: 'How much does a Sariro cohort cost, and what is included?',
+    question: 'Do I need to know how to code before I start?',
     answer:
-      'Cohorts range from $99 for short workshops to $399 for advanced tracks — one flat price, no upsells. Every cohort includes live sessions, recordings, mentor-reviewed projects, lifetime community access, and a verifiable certificate of completion.',
-    category: 'Pricing',
+      'No. Our AI Foundations: Thinking in Systems course assumes zero coding background. We start with mental models, plain-English explanations, and small guided projects. By week 4 you\u2019ll be writing real Python \u2014 and understanding why each line matters.',
   },
   {
-    id: 'scholarships',
+    id: 'faq-2',
+    category: 'Getting Started',
+    question: 'Which course should I take first?',
+    answer:
+      'If you\u2019re new to AI (or new to thinking about it systematically), start with AI Foundations. If you already code and want depth, jump into Building LLM Applications or Prompt Engineering Mastery. Still unsure? Email us \u2014 we reply within 24 hours with a personal recommendation.',
+  },
+  {
+    id: 'faq-3',
+    category: 'Getting Started',
+    question: 'How much time per week should I expect to commit?',
+    answer:
+      'Plan for 6\u20138 hours per week: 2 hours of live sessions, 1 hour of mentorship, and 3\u20135 hours of project work. Cohorts are designed to fit alongside a full-time job or school load. We\u2019ve had parents, founders, and full-time students all finish strong.',
+  },
+  // Pricing
+  {
+    id: 'faq-4',
+    category: 'Pricing',
+    question: 'What\u2019s included in the course price?',
+    answer:
+      'Every paid cohort includes all live sessions, lifetime recordings, lifetime community access, personalized project feedback, a certificate of completion, and \u2014 importantly \u2014 a real, working AI artifact you can show employers. No upsells, no hidden fees.',
+  },
+  {
+    id: 'faq-5',
+    category: 'Pricing',
     question: 'Do you offer scholarships or financial aid?',
     answer:
-      'Yes. We set aside 15% of every cohort for need-based scholarships and another 5% for students from underrepresented regions. Apply through the contact form with a one-paragraph note about your situation — we reply within 72 hours and never make anyone justify their need in public.',
+      'Yes. We set aside 10% of every cohort for full or partial scholarships, prioritized for students in underrepresented regions and career switchers in financial transition. Apply via our contact page \u2014 mention \u201cscholarship\u201d in the subject line.',
+  },
+  {
+    id: 'faq-6',
     category: 'Pricing',
-  },
-  {
-    id: 'refunds',
-    question: 'What is your refund policy if a cohort is not the right fit?',
+    question: 'Can my school or employer pay for a cohort?',
     answer:
-      'Every enrollment comes with a 14-day, no-questions-asked money-back guarantee. If you attend the first two sessions and decide Sariro is not for you, email support@sariro.com and we refund 100% within 5 business days. No forms, no friction, no awkward exit interviews.',
-    category: 'Pricing',
+      'Absolutely. We invoice schools, districts, and employers directly and can align to CSTA / IB / procurement requirements. For school packages, look at our Schools page; for employer sponsorships, email us and we\u2019ll handle the paperwork.',
   },
+  // Learning
   {
-    id: 'schedule',
-    question: 'When do cohorts meet, and how long is each session?',
-    answer:
-      'Most cohorts meet twice a week for 90 minutes, scheduled in UTC-friendly evening slots that work for both India and the Americas. Every session is recorded and posted within 6 hours, so you can catch up across any time zone without falling behind on cohort discussion.',
+    id: 'faq-7',
     category: 'Learning',
+    question: 'Are cohorts live, or pre-recorded?',
+    answer:
+      'Live. Every Sariro cohort is taught in real time by Mimo or a senior mentor \u2014 you ask questions, get unstuck, and learn alongside 30\u201340 peers. Sessions are recorded and posted within 24 hours for those in other timezones (or who just want to rewatch).',
   },
   {
-    id: 'format',
-    question: 'What format do courses take — live, recorded, or hybrid?',
-    answer:
-      'All Sariro cohorts are live and mentored, never pre-recorded video dumps. Each session mixes a short teach-block, a live build-along, and a Q&A where you can interrupt with questions. Recordings are a backup, not the product — the magic happens when you show up in real time.',
+    id: 'faq-8',
     category: 'Learning',
+    question: 'Will I actually build something I can show employers?',
+    answer:
+      'Yes \u2014 this is non-negotiable. Every cohort ends with at least one portfolio-ready AI artifact: a production RAG app, a fine-tuned CV model, a prompt library with evals, or an agent system. Many of our students ship these directly into their jobs or internships.',
   },
   {
-    id: 'certificate',
-    question: 'Is the certificate worth anything to employers or schools?',
-    answer:
-      'Our certificate verifies that you attended live, completed every project, and passed a final review by a senior mentor — not just that you clicked play on a video. Alumni have used it to land ML internships, switch careers, and earn academic credit at partner universities, but its real value is the portfolio you build alongside it.',
-    category: 'Getting Started',
-  },
-  {
-    id: 'mentor-access',
-    question: 'How much direct access do I get to mentors and to Mimo?',
-    answer:
-      'Every cohort has a dedicated mentor who reviews your projects within 48 hours and runs weekly office hours. Builder-tier students get three 1:1 sessions, and Mimo personally hosts a monthly AMA across all cohorts — plus you can always email founder@sariro.com and he actually reads it.',
+    id: 'faq-9',
     category: 'Learning',
+    question: 'What if I fall behind during a cohort?',
+    answer:
+      'You won\u2019t be alone. Every student gets mentor sessions, asynchronous help in the community, and \u2014 if life happens \u2014 the option to defer to a future cohort at no extra cost. We\u2019d rather you finish strong than finish fast.',
+  },
+  // Technical
+  {
+    id: 'faq-10',
+    category: 'Technical',
+    question: 'What hardware and software do I need?',
+    answer:
+      'A laptop made in the last 5 years (any OS), a stable internet connection, and a modern browser. We use free, cloud-based notebooks for everything compute-heavy \u2014 no GPU required. We\u2019ll send a setup checklist the week before your cohort starts.',
   },
   {
-    id: 'missed-sessions',
-    question: 'What happens if I miss a live session?',
+    id: 'faq-11',
+    category: 'Technical',
+    question: 'Do I need to pay for OpenAI, Anthropic, or other API keys?',
     answer:
-      'Recordings are posted within 6 hours with chapter markers and downloadable slides, so you never lose the content. Your mentor also runs a weekly catch-up office hour where you can ask anything from the missed session, and the cohort Discord stays active between sessions for async help.',
-    category: 'Learning',
+      'No. Sariro covers all API costs during your cohort through a shared, rate-limited key. For your capstone project, we provide a small credit stipend. If you want to build beyond that, we\u2019ll show you how to use free or local alternatives.',
   },
   {
-    id: 'international',
-    question: 'I am an international student — can I still enroll and participate?',
+    id: 'faq-12',
+    category: 'Technical',
+    question: 'Will I get a certificate, and does it mean anything?',
     answer:
-      'Absolutely. We have taught students across 65 nationalities and design every cohort to work across time zones, currencies, and bandwidth constraints. Payments are processed in USD but we support regional pricing on request, and scholarships are explicitly prioritized for students from emerging markets.',
-    category: 'Getting Started',
-  },
-  {
-    id: 'age',
-    question: 'Is there an age requirement to enroll in a Sariro cohort?',
-    answer:
-      'Our standard cohorts are designed for learners 16 and up, but younger students are welcome with a parent or guardian co-enrolled. We also run dedicated high-school and middle-school tracks through our Schools program, where the curriculum is adapted for ages 12 to 18 with age-appropriate projects and safeguarding built in.',
-    category: 'Getting Started',
-  },
-  {
-    id: 'after-cohort',
-    question: 'What happens after my cohort ends — am I on my own?',
-    answer:
-      'Never. Every student gets lifetime access to the Sariro community Discord, alumni project showcases, and ongoing monthly AMAs. You can audit any future cohort of the same course for free, and our alumni network actively hires, mentors, and collaborates with each other long after graduation.',
-    category: 'Learning',
+      'You\u2019ll get a certificate of completion, but the real credential is the project you ship. Employers don\u2019t hire certificates \u2014 they hire builders. Our alumni report that their Sariro portfolio projects are what got them interviews, not the PDF.',
   },
 ];
 
-/* ---------------------------------------------------------------
-   Category config — colors + icons + counts
---------------------------------------------------------------- */
-const CATEGORY_CONFIG: Record<
-  Category,
-  { accent: string; icon: typeof HelpCircle }
-> = {
-  'Getting Started': { accent: '#2563EB', icon: GraduationCap },
-  Pricing: { accent: '#16A34A', icon: DollarSign },
-  Learning: { accent: '#7C3AED', icon: BookOpen },
-  Technical: { accent: '#06B6D4', icon: Cpu },
+/* Category metadata */
+const CATEGORIES: { key: FaqCategory | 'All'; label: string; icon: typeof HelpCircle; accent: string }[] = [
+  { key: 'All', label: 'All', icon: Sparkles, accent: '#06B6D4' },
+  { key: 'Getting Started', label: 'Getting Started', icon: Rocket, accent: '#16A34A' },
+  { key: 'Pricing', label: 'Pricing', icon: CreditCard, accent: '#F59E0B' },
+  { key: 'Learning', label: 'Learning', icon: GraduationCap, accent: '#7C3AED' },
+  { key: 'Technical', label: 'Technical', icon: Cpu, accent: '#2563EB' },
+];
+
+const CATEGORY_ACCENT: Record<FaqCategory, string> = {
+  'Getting Started': '#16A34A',
+  Pricing: '#F59E0B',
+  Learning: '#7C3AED',
+  Technical: '#2563EB',
 };
 
-type FilterKey = 'All' | Category;
-
-const FILTERS: { key: FilterKey; label: string }[] = [
-  { key: 'All', label: 'All' },
-  { key: 'Getting Started', label: 'Getting Started' },
-  { key: 'Pricing', label: 'Pricing' },
-  { key: 'Learning', label: 'Learning' },
-  { key: 'Technical', label: 'Technical' },
-];
-
-export default function FAQPage() {
+export default function FaqPage() {
   const [query, setQuery] = useState('');
-  const [activeCategory, setActiveCategory] = useState<FilterKey>('All');
+  const [activeCategory, setActiveCategory] = useState<FaqCategory | 'All'>('All');
 
-  // SEO: set document title client-side (since this is a client component)
   useEffect(() => {
-    document.title = 'FAQ — Sariro | Frequently Asked Questions';
+    document.title = 'FAQ \u2014 Sariro | Frequently Asked Questions';
   }, []);
 
-  const filtered = useMemo(() => {
+  // Filtered items based on search + category
+  const filteredItems = useMemo(() => {
     const q = query.trim().toLowerCase();
     return FAQ_ITEMS.filter((item) => {
-      const matchesCategory =
-        activeCategory === 'All' || item.category === activeCategory;
+      const matchesCategory = activeCategory === 'All' || item.category === activeCategory;
       if (!matchesCategory) return false;
       if (!q) return true;
       return (
@@ -177,8 +177,28 @@ export default function FAQPage() {
     });
   }, [query, activeCategory]);
 
-  // Reset search clear button visibility
-  const hasQuery = query.trim().length > 0;
+  // Category counts (for the filter pills)
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = { All: FAQ_ITEMS.length };
+    for (const cat of CATEGORIES) {
+      if (cat.key === 'All') continue;
+      counts[cat.key] = FAQ_ITEMS.filter((i) => i.category === cat.key).length;
+    }
+    return counts;
+  }, []);
+
+  // Group filtered items by category for display
+  const groupedFiltered = useMemo(() => {
+    if (activeCategory !== 'All') {
+      return [{ category: activeCategory as FaqCategory, items: filteredItems }];
+    }
+    return (['Getting Started', 'Pricing', 'Learning', 'Technical'] as FaqCategory[])
+      .map((c) => ({
+        category: c,
+        items: filteredItems.filter((i) => i.category === c),
+      }))
+      .filter((g) => g.items.length > 0);
+  }, [filteredItems, activeCategory]);
 
   return (
     <BrandLayout>
@@ -186,17 +206,17 @@ export default function FAQPage() {
         eyebrow="Frequently asked"
         accentColor="#06B6D4"
         breadcrumb="FAQ"
-        variant="contact"
+        variant="faq"
         title={
           <>
             Questions, <span className="gradient-text">answered.</span>
           </>
         }
-        subtitle="Everything you need to know before joining a Sariro cohort — prerequisites, pricing, scholarships, refunds, schedule, and what happens after you graduate. Search, filter, and if your question is not here, just ask us."
+        subtitle="Everything you wanted to know about Sariro \u2014 courses, pricing, learning experience, and the technical setup. Can\u2019t find your question? We reply to every email within 24 hours."
       >
-        <a href="#faq-list" className="btn-tactile px-5 py-3 text-sm text-white" style={{ background: '#06B6D4', boxShadow: '0 10px 0 -1px #0E7490, 0 18px 30px -12px rgba(6,182,212,0.55)', fontFamily: 'var(--font-grotesk)' }}>
-          <HelpCircle className="w-4 h-4" />
-          Jump to answers
+        <a href="#faq-list" className="btn-tactile btn-tactile-primary px-5 py-3 text-sm">
+          <Search className="w-4 h-4" />
+          Browse questions
         </a>
         <Link href="/contact" className="btn-tactile btn-tactile-light px-5 py-3 text-sm">
           <MessageCircle className="w-4 h-4" />
@@ -204,195 +224,80 @@ export default function FAQPage() {
         </Link>
       </PageHero>
 
-      {/* ====== Search + Filter + Accordion ====== */}
-      <section id="faq-list" className="relative py-12 sm:py-16 overflow-hidden">
+      {/* ====== Search + filters ====== */}
+      <section id="faq-list" className="relative py-12 sm:py-16 overflow-hidden scroll-mt-24">
         <ParallaxOrb color="rgba(6, 182, 212, 0.10)" size={420} speed={110} position="top-10 -left-20" />
-        <ParallaxOrb color="rgba(124, 58, 237, 0.08)" size={340} speed={-90} position="bottom-10 -right-20" />
+        <ParallaxOrb color="rgba(124, 58, 237, 0.08)" size={320} speed={-80} position="bottom-10 -right-20" />
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Section heading */}
-          <div className="text-center mb-8">
-            <span
-              className="inline-block text-xs font-bold uppercase tracking-[0.18em] text-cyan-600 mb-3"
-              style={{ fontFamily: 'var(--font-grotesk)' }}
-            >
-              The answers
-            </span>
-            <h2
-              className="text-3xl sm:text-4xl font-extrabold text-slate-900"
-              style={{ fontFamily: 'var(--font-jakarta)' }}
-            >
-              <SplitText text="Find what you're looking for." highlight="looking for." highlightClassName="gradient-text" />
-            </h2>
-            <Reveal delay={0.15}>
-              <p className="mt-3 text-slate-600 max-w-xl mx-auto">
-                Type a question, pick a category, or just scroll — every answer is written by a human who has actually taught the cohort.
-              </p>
-            </Reveal>
-          </div>
-
           {/* Search input */}
-          <Reveal delay={0.1}>
-            <div className="relative mb-5">
+          <Reveal>
+            <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
               <Input
-                type="search"
-                placeholder="Search FAQs — try 'scholarship', 'refund', 'schedule'..."
+                type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                className="h-14 pl-12 pr-12 text-base rounded-2xl border-slate-200 bg-white shadow-sm focus-visible:border-cyan-400 focus-visible:ring-cyan-400/30"
-                aria-label="Search frequently asked questions"
+                placeholder="Search questions... (try 'scholarship' or 'API')"
+                className="h-14 pl-12 pr-4 text-base rounded-2xl"
+                aria-label="Search FAQ"
               />
-              {hasQuery && (
+              {query && (
                 <button
                   onClick={() => setQuery('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-lg hover:bg-slate-100 transition-colors text-slate-400 hover:text-slate-700"
-                  aria-label="Clear search"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-slate-700 transition-colors"
+                  style={{ fontFamily: 'var(--font-grotesk)' }}
                 >
-                  <X className="w-4 h-4" />
+                  Clear
                 </button>
               )}
             </div>
           </Reveal>
 
-          {/* Filter pills */}
-          <Reveal delay={0.15}>
-            <div
-              className="flex flex-wrap p-1.5 rounded-2xl glass-panel gap-1 mb-8"
-              role="tablist"
-              aria-label="Filter FAQs by category"
-            >
-              {FILTERS.map((f) => {
-                const active = activeCategory === f.key;
-                const count =
-                  f.key === 'All'
-                    ? FAQ_ITEMS.length
-                    : FAQ_ITEMS.filter((i) => i.category === f.key).length;
+          {/* Category filter pills */}
+          <Reveal delay={0.1}>
+            <div className="mt-5 flex flex-wrap gap-2 justify-center">
+              {CATEGORIES.map((cat) => {
+                const isActive = activeCategory === cat.key;
+                const count = categoryCounts[cat.key] ?? 0;
                 return (
                   <button
-                    key={f.key}
-                    onClick={() => setActiveCategory(f.key)}
-                    role="tab"
-                    aria-selected={active}
-                    className={`relative px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-colors duration-200 flex-1 sm:flex-initial justify-center ${
-                      active
-                        ? 'text-white shadow-lg'
-                        : 'text-slate-700 hover:text-cyan-600'
+                    key={cat.key}
+                    onClick={() => setActiveCategory(cat.key)}
+                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all border ${
+                      isActive
+                        ? 'text-white border-transparent shadow-lg'
+                        : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
                     }`}
                     style={
-                      active
-                        ? {
-                            background:
-                              'linear-gradient(to right, #06B6D4, #2563EB)',
-                            boxShadow: '0 12px 24px -10px rgba(6,182,212,0.55)',
-                            fontFamily: 'var(--font-grotesk)',
-                          }
+                      isActive
+                        ? { background: cat.accent, fontFamily: 'var(--font-grotesk)', boxShadow: `0 10px 24px -10px ${cat.accent}` }
                         : { fontFamily: 'var(--font-grotesk)' }
                     }
+                    aria-pressed={isActive}
                   >
-                    <span className="relative flex items-center gap-1.5 sm:gap-2 justify-center">
-                      <span className="whitespace-nowrap">{f.label}</span>
-                      <span
-                        className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
-                          active ? 'bg-white/20' : 'bg-slate-100 text-slate-500'
-                        }`}
-                      >
-                        {count}
-                      </span>
+                    <cat.icon className="w-3.5 h-3.5" />
+                    {cat.label}
+                    <span
+                      className={`ml-1 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-[10px] ${
+                        isActive ? 'bg-white/25 text-white' : 'bg-slate-100 text-slate-500'
+                      }`}
+                    >
+                      {count}
                     </span>
                   </button>
                 );
               })}
             </div>
           </Reveal>
+        </div>
+      </section>
 
-          {/* Results count */}
-          <div className="flex items-center justify-between mb-4 px-1">
-            <p className="text-xs text-slate-500" style={{ fontFamily: 'var(--font-grotesk)' }}>
-              {filtered.length} {filtered.length === 1 ? 'answer' : 'answers'} found
-            </p>
-            {(activeCategory !== 'All' || hasQuery) && (
-              <button
-                onClick={() => {
-                  setActiveCategory('All');
-                  setQuery('');
-                }}
-                className="text-xs font-bold text-cyan-600 hover:text-cyan-700 transition-colors"
-                style={{ fontFamily: 'var(--font-grotesk)' }}
-              >
-                Reset filters
-              </button>
-            )}
-          </div>
-
-          {/* Accordion list */}
-          <AnimatePresence mode="wait">
-            {filtered.length > 0 ? (
-              <motion.div
-                key={`${activeCategory}-${query}`}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-              >
-                <TiltCard className="rounded-3xl" maxTilt={2} glare={false}>
-                  <div className="card-3d p-2 sm:p-4">
-                    <Accordion type="single" collapsible className="w-full">
-                      {filtered.map((item) => {
-                        const cfg = CATEGORY_CONFIG[item.category];
-                        const Icon = cfg.icon;
-                        return (
-                          <AccordionItem
-                            key={item.id}
-                            value={item.id}
-                            className="rounded-2xl mb-2 last:mb-0 border border-slate-100 overflow-hidden data-[state=open]:border-cyan-200 transition-colors"
-                          >
-                            <AccordionTrigger className="px-4 sm:px-5 py-4 hover:no-underline hover:bg-slate-50/60 rounded-2xl group">
-                              <span className="flex items-start gap-3 text-left">
-                                <span
-                                  className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5"
-                                  style={{ background: `${cfg.accent}15`, color: cfg.accent }}
-                                >
-                                  <Icon className="w-4 h-4" strokeWidth={2.2} />
-                                </span>
-                                <span className="flex flex-col gap-1.5">
-                                  <span
-                                    className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md self-start"
-                                    style={{
-                                      background: `${cfg.accent}12`,
-                                      color: cfg.accent,
-                                      fontFamily: 'var(--font-grotesk)',
-                                    }}
-                                  >
-                                    {item.category}
-                                  </span>
-                                  <span
-                                    className="text-sm sm:text-base font-bold text-slate-900 leading-snug"
-                                    style={{ fontFamily: 'var(--font-jakarta)' }}
-                                  >
-                                    {item.question}
-                                  </span>
-                                </span>
-                              </span>
-                            </AccordionTrigger>
-                            <AccordionContent className="px-4 sm:px-5 pb-5 pl-16">
-                              <p className="text-sm sm:text-[15px] text-slate-600 leading-relaxed">
-                                {item.answer}
-                              </p>
-                            </AccordionContent>
-                          </AccordionItem>
-                        );
-                      })}
-                    </Accordion>
-                  </div>
-                </TiltCard>
-              </motion.div>
-            ) : (
-              <motion.div
-                key="empty"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="text-center py-16"
-              >
+      {/* ====== FAQ accordion list ====== */}
+      <section className="relative pb-16 sm:pb-20 overflow-hidden">
+        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          {filteredItems.length === 0 ? (
+            <Reveal>
+              <div className="text-center py-16">
                 <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
                   <Search className="w-7 h-7 text-slate-400" />
                 </div>
@@ -400,20 +305,113 @@ export default function FAQPage() {
                   className="text-xl font-extrabold text-slate-900 mb-2"
                   style={{ fontFamily: 'var(--font-jakarta)' }}
                 >
-                  No matches — yet.
+                  No questions match your search.
                 </h3>
-                <p className="text-sm text-slate-600 max-w-sm mx-auto mb-6">
-                  We could not find an FAQ that matches your search. Try a different keyword, or just send us the question directly.
+                <p className="text-slate-600 mb-6">
+                  Try a different keyword, or just email us — we read every message.
                 </p>
-                <Link href="/contact" className="btn-tactile btn-tactile-light px-5 py-2.5 text-sm">
+                <MagneticButton
+                  as="a"
+                  href="/contact"
+                  strength={0.2}
+                  className="btn-tactile btn-tactile-primary px-6 py-3 text-sm"
+                >
                   <MessageCircle className="w-4 h-4" />
                   Ask us directly
-                </Link>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                </MagneticButton>
+              </div>
+            </Reveal>
+          ) : (
+            <div className="space-y-12">
+              {groupedFiltered.map((group) => (
+                <div key={group.category}>
+                  <Reveal>
+                    <div className="flex items-center gap-3 mb-4">
+                      <div
+                        className="w-9 h-9 rounded-xl flex items-center justify-center"
+                        style={{ background: `${CATEGORY_ACCENT[group.category]}15`, color: CATEGORY_ACCENT[group.category] }}
+                      >
+                        {(() => {
+                          const meta = CATEGORIES.find((c) => c.key === group.category);
+                          const Icon = meta?.icon ?? HelpCircle;
+                          return <Icon className="w-5 h-5" strokeWidth={2.2} />;
+                        })()}
+                      </div>
+                      <h2
+                        className="text-lg font-extrabold text-slate-900"
+                        style={{ fontFamily: 'var(--font-jakarta)' }}
+                      >
+                        {group.category}
+                      </h2>
+                      <span
+                        className="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md text-white"
+                        style={{ background: CATEGORY_ACCENT[group.category], fontFamily: 'var(--font-grotesk)' }}
+                      >
+                        {group.items.length} {group.items.length === 1 ? 'question' : 'questions'}
+                      </span>
+                    </div>
+                  </Reveal>
+
+                  <TiltCard className="card-3d p-2 sm:p-4" maxTilt={2}>
+                    <Accordion type="single" collapsible className="w-full">
+                      {group.items.map((item) => (
+                        <AccordionItem key={item.id} value={item.id} className="border-slate-100">
+                          <AccordionTrigger
+                            className="text-left text-base sm:text-lg font-bold text-slate-900 hover:no-underline px-4 py-5 rounded-xl hover:bg-slate-50 transition-colors"
+                            style={{ fontFamily: 'var(--font-jakarta)' }}
+                          >
+                            {item.question}
+                          </AccordionTrigger>
+                          <AccordionContent className="px-4 text-sm sm:text-base text-slate-600 leading-relaxed">
+                            {item.answer}
+                          </AccordionContent>
+                        </AccordionItem>
+                      ))}
+                    </Accordion>
+                  </TiltCard>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
+
+      <WaveDivider3D fromColor="#FFFFFF" toColor="#F8FAFC" />
+
+      {/* ====== Quick stats ====== */}
+      <section className="relative py-12 sm:py-16 bg-slate-50 overflow-hidden">
+        <ParallaxOrb color="rgba(6, 182, 212, 0.10)" size={360} speed={90} position="top-10 right-10" />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <StaggerGroup className="grid grid-cols-2 md:grid-cols-4 gap-4" stagger={0.1}>
+            {[
+              { label: 'Questions answered', value: '12', accent: '#06B6D4', icon: HelpCircle },
+              { label: 'Average reply time', value: '< 24h', accent: '#16A34A', icon: MessageCircle },
+              { label: 'Live cohorts / year', value: '8+', accent: '#7C3AED', icon: Rocket },
+              { label: 'Emails read by humans', value: '100%', accent: '#F59E0B', icon: Sparkles },
+            ].map((s) => (
+              <StaggerItem key={s.label}>
+                <TiltCard className="glass-panel rounded-2xl p-5 text-center h-full" maxTilt={5}>
+                  <s.icon className="w-5 h-5 mx-auto mb-2" style={{ color: s.accent }} />
+                  <div
+                    className="text-2xl font-extrabold text-slate-900"
+                    style={{ fontFamily: 'var(--font-jakarta)' }}
+                  >
+                    {s.value}
+                  </div>
+                  <div
+                    className="text-xs text-slate-500 mt-1"
+                    style={{ fontFamily: 'var(--font-grotesk)' }}
+                  >
+                    {s.label}
+                  </div>
+                </TiltCard>
+              </StaggerItem>
+            ))}
+          </StaggerGroup>
+        </div>
+      </section>
+
+      <WaveDivider3D fromColor="#F8FAFC" toColor="#FFFFFF" />
 
       {/* ====== Bottom CTA ====== */}
       <section className="relative py-20 sm:py-24 overflow-hidden">
@@ -421,33 +419,51 @@ export default function FAQPage() {
         <ParallaxOrb color="rgba(6, 182, 212, 0.12)" size={420} speed={100} position="top-10 left-1/4" />
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <Reveal>
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center mx-auto mb-6 shadow-lg shadow-cyan-500/30">
-              <LifeBuoy className="w-8 h-8 text-white" strokeWidth={2.2} />
-            </div>
+            <span
+              className="inline-block text-xs font-bold uppercase tracking-[0.18em] text-cyan-600 mb-3"
+              style={{ fontFamily: 'var(--font-grotesk)' }}
+            >
+              Still have questions?
+            </span>
           </Reveal>
           <Reveal delay={0.05}>
             <h2
               className="text-3xl sm:text-5xl font-extrabold text-slate-900"
               style={{ fontFamily: 'var(--font-jakarta)' }}
             >
-              <SplitText text="Still have questions?" highlight="questions?" highlightClassName="gradient-text" />
+              <SplitText
+                text="We answer every email. From a real human. Within 24 hours."
+                highlight="real human."
+                highlightClassName="gradient-text"
+              />
             </h2>
           </Reveal>
           <Reveal delay={0.15}>
             <p className="mt-4 text-lg text-slate-600 max-w-2xl mx-auto">
-              We read every message ourselves — no bots, no tickets, no "5–7 business days." Drop us a line and we'll reply within 24 hours, often much faster.
+              No bots, no tickets, no “5–7 business days.” Just us — reading what
+              you wrote and writing back. Try us.
             </p>
           </Reveal>
           <Reveal delay={0.25}>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-              <Link href="/contact" className="btn-tactile px-6 py-3.5 text-white" style={{ background: 'linear-gradient(to right, #06B6D4, #2563EB)', boxShadow: '0 10px 0 -1px #0E7490, 0 18px 30px -12px rgba(6,182,212,0.55)' }}>
+              <MagneticButton
+                as="a"
+                href="/contact"
+                strength={0.25}
+                className="btn-tactile btn-tactile-primary px-6 py-3.5"
+              >
                 <MessageCircle className="w-4 h-4" />
-                Get in touch
+                Contact us
                 <ArrowRight className="w-4 h-4" />
-              </Link>
-              <Link href="/courses" className="btn-tactile btn-tactile-light px-6 py-3.5">
-                Browse courses
-              </Link>
+              </MagneticButton>
+              <MagneticButton
+                as="a"
+                href={`mailto:${BRAND.emails.support}`}
+                strength={0.25}
+                className="btn-tactile btn-tactile-light px-6 py-3.5"
+              >
+                Email support directly
+              </MagneticButton>
             </div>
           </Reveal>
         </div>

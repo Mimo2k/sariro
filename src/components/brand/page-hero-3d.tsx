@@ -5,150 +5,381 @@ import { Sparkles, Environment, Float, MeshDistortMaterial } from '@react-three/
 import { useRef, useMemo, Suspense } from 'react';
 import * as THREE from 'three';
 
+type Variant = 'courses' | 'schools' | 'events' | 'pricing' | 'about' | 'resources' | 'contact' | 'story' | 'faq';
+
 /* ===============================================================
-   PAGE HERO 3D — Reusable 3D scene for EVERY inner page hero.
-   Each page passes a "variant" prop → unique 3D identity.
-   Shares ONE Canvas (perf-friendly), only renders when in view.
+   COURSES: Laptop + Notebook + Pen
 =============================================================== */
-
-type Variant = 'courses' | 'schools' | 'events' | 'pricing' | 'about' | 'resources' | 'contact';
-
-/* ---------- COURSES variant: floating 3D book/cube shapes ---------- */
 function CoursesScene({ color }: { color: string }) {
   const group = useRef<THREE.Group>(null);
   useFrame((state, delta) => {
     if (!group.current) return;
-    group.current.rotation.y += delta * 0.15;
-    group.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.3) * 0.15;
+    group.current.rotation.y += delta * 0.12;
   });
-  const shapes = useMemo(() => {
-    const arr: { pos: [number, number, number]; size: number; type: 'box' | 'octa' }[] = [];
-    for (let i = 0; i < 8; i++) {
-      const angle = (i / 8) * Math.PI * 2;
-      const r = 1.8;
-      arr.push({
-        pos: [Math.cos(angle) * r, Math.sin(angle) * r * 0.5, (Math.random() - 0.5) * 2],
-        size: 0.25 + Math.random() * 0.2,
-        type: i % 2 === 0 ? 'box' : 'octa',
-      });
-    }
-    return arr;
-  }, []);
   return (
     <group ref={group}>
-      {shapes.map((s, i) => (
-        <Float key={i} speed={1.5} floatIntensity={1.5} rotationIntensity={1}>
-          <mesh position={s.pos}>
-            {s.type === 'box' ? <boxGeometry args={[s.size, s.size * 1.3, s.size * 0.3]} /> : <octahedronGeometry args={[s.size]} />}
-            <meshStandardMaterial color={color} metalness={0.6} roughness={0.2} emissive={color} emissiveIntensity={0.2} />
+      {/* Laptop base */}
+      <Float speed={0.8} floatIntensity={0.3} rotationIntensity={0.1}>
+        <group position={[0, -0.1, 0]} rotation={[0.2, -0.15, 0]}>
+          <mesh position={[0, -0.2, 0.25]}>
+            <boxGeometry args={[1.5, 0.05, 1.0]} />
+            <meshStandardMaterial color="#D1D5DB" metalness={0.7} roughness={0.3} />
           </mesh>
-        </Float>
-      ))}
-      {/* Central distorted orb */}
-      <mesh>
-        <icosahedronGeometry args={[0.5, 3]} />
-        <MeshDistortMaterial color={color} speed={2} distort={0.3} roughness={0.2} metalness={0.5} />
-      </mesh>
+          <mesh position={[0, -0.17, 0.2]}>
+            <boxGeometry args={[1.25, 0.005, 0.65]} />
+            <meshStandardMaterial color="#374151" metalness={0.3} roughness={0.7} />
+          </mesh>
+          {/* Screen */}
+          <group position={[0, -0.2, -0.25]} rotation={[-1.35, 0, 0]}>
+            <mesh position={[0, 0.55, -0.03]}>
+              <boxGeometry args={[1.5, 1.05, 0.05]} />
+              <meshStandardMaterial color="#C4CAD2" metalness={0.75} roughness={0.25} />
+            </mesh>
+            <mesh position={[0, 0.55, 0.01]}>
+              <planeGeometry args={[1.4, 0.95]} />
+              <meshStandardMaterial color="#0F172A" metalness={0.3} roughness={0.05} />
+            </mesh>
+            {/* Colorful cards on screen */}
+            <mesh position={[-0.3, 0.6, 0.02]}><planeGeometry args={[0.5, 0.6]} /><meshBasicMaterial color="#14B8A6" transparent opacity={0.8} /></mesh>
+            <mesh position={[0.2, 0.7, 0.02]}><planeGeometry args={[0.45, 0.22]} /><meshBasicMaterial color="#7C3AED" transparent opacity={0.7} /></mesh>
+            <mesh position={[0.25, 0.42, 0.02]}><planeGeometry args={[0.35, 0.16]} /><meshBasicMaterial color="#F59E0B" transparent opacity={0.6} /></mesh>
+          </group>
+        </group>
+      </Float>
+      {/* Notebook */}
+      <Float speed={1.3} floatIntensity={0.4} rotationIntensity={0.2}>
+        <group position={[1.35, 0.25, 0]} rotation={[-0.2, -0.6, 0.12]}>
+          <mesh><boxGeometry args={[0.8, 0.15, 1.05]} /><meshStandardMaterial color="#14B8A6" metalness={0.3} roughness={0.4} /></mesh>
+          <mesh position={[0.41, 0, 0]}><boxGeometry args={[0.04, 0.13, 1.03]} /><meshStandardMaterial color="#FFFFFF" metalness={0.05} roughness={0.5} /></mesh>
+          <mesh position={[-0.41, 0, 0]}><boxGeometry args={[0.025, 0.15, 1.05]} /><meshStandardMaterial color="#0F766E" metalness={0.3} roughness={0.4} /></mesh>
+          <mesh position={[0.15, -0.25, 0.35]}><boxGeometry args={[0.08, 0.35, 0.02]} /><meshStandardMaterial color="#F43F5E" metalness={0.2} roughness={0.3} /></mesh>
+        </group>
+      </Float>
+      {/* Pen */}
+      <Float speed={1.8} floatIntensity={0.4} rotationIntensity={0.3}>
+        <group position={[-1.1, 0.3, 0.2]} rotation={[0, 0, 0.6]}>
+          <mesh position={[0, -0.25, 0]}><cylinderGeometry args={[0.05, 0.045, 0.4, 16]} /><meshStandardMaterial color="#14B8A6" metalness={0.5} roughness={0.3} /></mesh>
+          <mesh position={[0, 0.05, 0]}><cylinderGeometry args={[0.05, 0.05, 0.25, 16]} /><meshStandardMaterial color="#FFFFFF" metalness={0.2} roughness={0.25} /></mesh>
+          <mesh position={[0, 0.19, 0]}><cylinderGeometry args={[0.052, 0.052, 0.03, 16]} /><meshStandardMaterial color="#D4AF37" metalness={0.95} roughness={0.1} /></mesh>
+          <mesh position={[0, 0.32, 0]}><cylinderGeometry args={[0.048, 0.05, 0.15, 16]} /><meshStandardMaterial color="#14B8A6" metalness={0.5} roughness={0.3} /></mesh>
+          <mesh position={[0, -0.48, 0]} rotation={[Math.PI, 0, 0]}><coneGeometry args={[0.035, 0.08, 12]} /><meshStandardMaterial color="#D4AF37" metalness={0.9} roughness={0.15} /></mesh>
+        </group>
+      </Float>
     </group>
   );
 }
 
-/* ---------- SCHOOLS variant: orbiting campus spheres ---------- */
+/* ===============================================================
+   SCHOOLS: Graduation cap + FISH swimming (schools of fish pun!)
+=============================================================== */
 function SchoolsScene({ color }: { color: string }) {
   const group = useRef<THREE.Group>(null);
+  const fishRefs = useRef<THREE.Group[]>([]);
   useFrame((state, delta) => {
     if (!group.current) return;
-    group.current.rotation.y += delta * 0.2;
+    group.current.rotation.y += delta * 0.08;
+    // Fish swim in figure-8 patterns
+    fishRefs.current.forEach((fish, i) => {
+      if (!fish) return;
+      const t = state.clock.elapsedTime * 0.5 + i * 0.8;
+      const radius = 1.5 + i * 0.15;
+      fish.position.x = Math.sin(t) * radius;
+      fish.position.y = Math.sin(t * 2) * 0.4;
+      fish.position.z = Math.cos(t) * radius * 0.7;
+      fish.rotation.y = Math.atan2(Math.cos(t) * radius, -Math.sin(t) * radius * 0.7);
+      fish.rotation.z = Math.sin(t * 2) * 0.15;
+    });
   });
-  const orbits = useMemo(() => {
-    const arr: { pos: [number, number, number]; size: number }[] = [];
-    for (let i = 0; i < 6; i++) {
-      const angle = (i / 6) * Math.PI * 2;
-      arr.push({
-        pos: [Math.cos(angle) * 2, 0, Math.sin(angle) * 2],
-        size: 0.2 + Math.random() * 0.15,
-      });
-    }
-    return arr;
-  }, []);
+
   return (
     <group ref={group}>
-      {/* Central campus */}
-      <mesh>
-        <boxGeometry args={[0.6, 0.8, 0.6]} />
-        <meshStandardMaterial color={color} metalness={0.5} roughness={0.3} emissive={color} emissiveIntensity={0.15} />
-      </mesh>
-      {/* Orbiting nodes */}
-      {orbits.map((o, i) => (
-        <Float key={i} speed={2} floatIntensity={1} rotationIntensity={0.5}>
-          <mesh position={o.pos}>
-            <sphereGeometry args={[o.size, 16, 16]} />
-            <meshStandardMaterial color={i % 2 === 0 ? color : '#7C3AED'} metalness={0.4} roughness={0.3} emissive={i % 2 === 0 ? color : '#7C3AED'} emissiveIntensity={0.3} />
+      {/* Graduation cap floating in center */}
+      <Float speed={1.5} floatIntensity={0.5} rotationIntensity={0.2}>
+        <group position={[0, 0.6, 0]}>
+          {/* Cap base (flat square) */}
+          <mesh rotation={[0, Math.PI / 4, 0]}>
+            <boxGeometry args={[0.7, 0.04, 0.7]} />
+            <meshStandardMaterial color="#0F172A" metalness={0.6} roughness={0.3} />
           </mesh>
-        </Float>
+          {/* Cap dome */}
+          <mesh position={[0, -0.12, 0]}>
+            <sphereGeometry args={[0.18, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2]} />
+            <meshStandardMaterial color="#1E293B" metalness={0.5} roughness={0.3} />
+          </mesh>
+          {/* Tassel */}
+          <mesh position={[0.28, -0.05, 0.28]}><cylinderGeometry args={[0.01, 0.01, 0.25, 4]} /><meshStandardMaterial color={color} metalness={0.3} roughness={0.4} /></mesh>
+          <mesh position={[0.28, -0.2, 0.28]}><sphereGeometry args={[0.04, 8, 8]} /><meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.3} /></mesh>
+        </group>
+      </Float>
+
+      {/* 5 FISH swimming around (schools of fish = "schools" pun) */}
+      {[0, 1, 2, 3, 4].map((i) => {
+        const fishColor = [color, '#7C3AED', '#16A34A', '#F59E0B', '#06B6D4'][i];
+        return (
+          <group
+            key={i}
+            ref={(el) => { if (el) fishRefs.current[i] = el; }}
+            position={[0, 0, 0]}
+          >
+            {/* Fish body (stretched sphere) */}
+            <mesh scale={[1.5, 0.7, 0.5]}>
+              <sphereGeometry args={[0.15, 12, 12]} />
+              <meshStandardMaterial color={fishColor} metalness={0.4} roughness={0.3} emissive={fishColor} emissiveIntensity={0.15} />
+            </mesh>
+            {/* Fish tail (cone) */}
+            <mesh position={[-0.25, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
+              <coneGeometry args={[0.08, 0.15, 4]} />
+              <meshStandardMaterial color={fishColor} metalness={0.4} roughness={0.3} />
+            </mesh>
+            {/* Fish eye */}
+            <mesh position={[0.12, 0.04, 0.06]}>
+              <sphereGeometry args={[0.025, 8, 8]} />
+              <meshStandardMaterial color="#000000" />
+            </mesh>
+          </group>
+        );
+      })}
+    </group>
+  );
+}
+
+/* ===============================================================
+   EVENTS: Calendar + ROOSTER doing morning call + papers in wind
+=============================================================== */
+function EventsScene({ color }: { color: string }) {
+  const group = useRef<THREE.Group>(null);
+  const roosterRef = useRef<THREE.Group>(null);
+  const paperRefs = useRef<THREE.Mesh[]>([]);
+
+  useFrame((state, delta) => {
+    if (!group.current) return;
+    group.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.15) * 0.1;
+
+    // Rooster bobs head (morning call animation)
+    if (roosterRef.current) {
+      const t = state.clock.elapsedTime;
+      // Head bobs up and down like calling
+      roosterRef.current.rotation.z = Math.sin(t * 3) * 0.15;
+      roosterRef.current.position.y = 0.3 + Math.abs(Math.sin(t * 3)) * 0.1;
+    }
+
+    // Papers fly around in wind patterns
+    paperRefs.current.forEach((mesh, i) => {
+      if (!mesh) return;
+      const t = state.clock.elapsedTime * 0.8 + i * 1.2;
+      mesh.position.x = Math.sin(t) * 2 + Math.cos(t * 0.7) * 0.5;
+      mesh.position.y = Math.sin(t * 1.3) * 0.8 + 0.5;
+      mesh.position.z = Math.cos(t * 0.9) * 1.2;
+      mesh.rotation.x = t * 0.5;
+      mesh.rotation.y = t * 0.3;
+      mesh.rotation.z = Math.sin(t * 2) * 0.5;
+    });
+  });
+
+  return (
+    <group ref={group}>
+      {/* Calendar (flat, tilted) */}
+      <Float speed={1} floatIntensity={0.3} rotationIntensity={0.1}>
+        <group rotation={[-0.2, 0.2, 0]} position={[0, -0.3, 0]}>
+          {/* Calendar page */}
+          <mesh><boxGeometry args={[1.1, 0.04, 0.85]} /><meshStandardMaterial color="#FFFFFF" metalness={0.05} roughness={0.4} /></mesh>
+          {/* Top binding bar */}
+          <mesh position={[0, 0.06, -0.38]}><boxGeometry args={[1.1, 0.06, 0.08]} /><meshStandardMaterial color={color} metalness={0.3} roughness={0.35} emissive={color} emissiveIntensity={0.15} /></mesh>
+          {/* Calendar rings */}
+          {[-0.3, 0.3].map((x, i) => (
+            <mesh key={i} position={[x, 0.1, -0.38]} rotation={[0, 0, Math.PI / 2]}>
+              <torusGeometry args={[0.06, 0.015, 8, 16]} />
+              <meshStandardMaterial color="#94A3B8" metalness={0.8} roughness={0.2} />
+            </mesh>
+          ))}
+          {/* Date number on calendar */}
+          <mesh position={[0, 0.025, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+            <circleGeometry args={[0.15, 32]} />
+            <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.2} />
+          </mesh>
+        </group>
+      </Float>
+
+      {/* ROOSTER doing morning call! */}
+      <group ref={roosterRef} position={[0, 0.3, 0.5]}>
+        {/* Body (sphere, orange/brown) */}
+        <mesh scale={[1, 1.2, 1.3]}>
+          <sphereGeometry args={[0.22, 16, 16]} />
+          <meshStandardMaterial color="#D97706" metalness={0.2} roughness={0.5} />
+        </mesh>
+        {/* Head (smaller sphere on top) */}
+        <mesh position={[0.1, 0.25, 0.1]}>
+          <sphereGeometry args={[0.12, 16, 16]} />
+          <meshStandardMaterial color="#F59E0B" metalness={0.2} roughness={0.5} />
+        </mesh>
+        {/* Beak (cone, orange) */}
+        <mesh position={[0.2, 0.22, 0.1]} rotation={[0, 0, -Math.PI / 2]}>
+          <coneGeometry args={[0.04, 0.1, 8]} />
+          <meshStandardMaterial color="#EA580C" metalness={0.3} roughness={0.4} />
+        </mesh>
+        {/* Comb (red cones on top of head) */}
+        {[0, 1, 2].map((i) => (
+          <mesh key={i} position={[0.05 + i * 0.05, 0.36, 0.1]}>
+            <coneGeometry args={[0.025, 0.06, 6]} />
+            <meshStandardMaterial color="#DC2626" metalness={0.2} roughness={0.4} />
+          </mesh>
+        ))}
+        {/* Wattle (small red sphere under beak) */}
+        <mesh position={[0.18, 0.12, 0.1]}>
+          <sphereGeometry args={[0.03, 8, 8]} />
+          <meshStandardMaterial color="#DC2626" metalness={0.2} roughness={0.4} />
+        </mesh>
+        {/* Tail feathers (fanned triangles) */}
+        {[-0.3, -0.35, -0.4].map((x, i) => (
+          <mesh key={i} position={[-0.2, 0.15 + i * 0.05, 0]} rotation={[0, 0, 0.3 + i * 0.2]}>
+            <coneGeometry args={[0.06, 0.25, 4]} />
+            <meshStandardMaterial color={i === 0 ? '#16A34A' : i === 1 ? '#2563EB' : '#7C3AED'} metalness={0.3} roughness={0.4} />
+          </mesh>
+        ))}
+        {/* Legs */}
+        {[-0.05, 0.05].map((x, i) => (
+          <mesh key={i} position={[x, -0.3, 0.05]}>
+            <cylinderGeometry args={[0.015, 0.015, 0.15, 6]} />
+            <meshStandardMaterial color="#F59E0B" metalness={0.3} roughness={0.4} />
+          </mesh>
+        ))}
+        {/* Eyes */}
+        {[-0.01, 0.01].map((z, i) => (
+          <mesh key={i} position={[0.16, 0.27, 0.1 + z * 0.06]}>
+            <sphereGeometry args={[0.018, 8, 8]} />
+            <meshStandardMaterial color="#000000" />
+          </mesh>
+        ))}
+      </group>
+
+      {/* Papers flying in wind */}
+      {[0, 1, 2, 3].map((i) => (
+        <mesh
+          key={i}
+          ref={(el) => { if (el) paperRefs.current[i] = el; }}
+          position={[0, 0, 0]}
+        >
+          <planeGeometry args={[0.2, 0.28]} />
+          <meshStandardMaterial
+            color={i % 2 === 0 ? '#FFFFFF' : '#F8FAFC'}
+            metalness={0.05}
+            roughness={0.5}
+            side={THREE.DoubleSide}
+            transparent
+            opacity={0.8}
+          />
+        </mesh>
       ))}
     </group>
   );
 }
 
-/* ---------- EVENTS variant: 3D timeline with pulses ---------- */
-function EventsScene({ color }: { color: string }) {
+/* ===============================================================
+   PRICING: Coins + PIGGY BANK
+=============================================================== */
+function PricingScene({ color }: { color: string }) {
   const group = useRef<THREE.Group>(null);
-  const pulseRef = useRef<THREE.Mesh>(null);
+  const piggyRef = useRef<THREE.Group>(null);
+  const coinDropRef = useRef<THREE.Mesh>(null);
+
   useFrame((state, delta) => {
     if (!group.current) return;
     group.current.rotation.y += delta * 0.1;
-    if (pulseRef.current) {
-      const t = (state.clock.elapsedTime % 3) / 3;
-      pulseRef.current.position.x = -2 + t * 4;
-      const mat = pulseRef.current.material as THREE.MeshBasicMaterial;
-      mat.opacity = Math.sin(t * Math.PI);
+    // Piggy gentle bob
+    if (piggyRef.current) {
+      piggyRef.current.position.y = Math.sin(state.clock.elapsedTime * 1.5) * 0.05;
+      piggyRef.current.rotation.z = Math.sin(state.clock.elapsedTime * 0.8) * 0.03;
+    }
+    // Coin dropping into piggy bank
+    if (coinDropRef.current) {
+      const t = (state.clock.elapsedTime % 2.5) / 2.5;
+      coinDropRef.current.position.y = 0.7 - t * 0.6;
+      const mat = coinDropRef.current.material as THREE.MeshStandardMaterial;
+      mat.opacity = t < 0.8 ? 1 : 1 - (t - 0.8) * 5;
+      coinDropRef.current.rotation.x = t * Math.PI * 3;
+      coinDropRef.current.rotation.z = t * Math.PI * 2;
     }
   });
+
   return (
     <group ref={group}>
-      {/* Timeline bar */}
-      <mesh rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.04, 0.04, 4, 8]} />
-        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.5} />
-      </mesh>
-      {/* Event nodes on timeline */}
-      {[-1.5, 0, 1.5].map((x, i) => (
-        <mesh key={i} position={[x, 0, 0]}>
-          <sphereGeometry args={[0.2, 16, 16]} />
-          <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.4} metalness={0.5} roughness={0.3} />
+      {/* PIGGY BANK */}
+      <group ref={piggyRef} position={[0, 0, 0]}>
+        {/* Body (pink sphere) */}
+        <mesh scale={[1.2, 1, 1.1]}>
+          <sphereGeometry args={[0.35, 20, 20]} />
+          <meshStandardMaterial color="#F9A8D4" metalness={0.15} roughness={0.4} />
         </mesh>
-      ))}
-      {/* Traveling pulse */}
-      <mesh ref={pulseRef} position={[-2, 0, 0]}>
-        <sphereGeometry args={[0.12, 12, 12]} />
-        <meshBasicMaterial color="#FFFFFF" transparent opacity={0} />
+        {/* Snout (cylinder) */}
+        <mesh position={[0.38, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.1, 0.1, 0.08, 16]} />
+          <meshStandardMaterial color="#F472B6" metalness={0.15} roughness={0.4} />
+        </mesh>
+        {/* Nostrils */}
+        {[-0.03, 0.03].map((y, i) => (
+          <mesh key={i} position={[0.42, y, 0]}>
+            <sphereGeometry args={[0.015, 8, 8]} />
+            <meshStandardMaterial color="#831843" />
+          </mesh>
+        ))}
+        {/* Ears (triangles) */}
+        {[-0.15, 0.15].map((z, i) => (
+          <mesh key={i} position={[0.15, 0.3, z]} rotation={[0, 0, -0.3]}>
+            <coneGeometry args={[0.06, 0.12, 4]} />
+            <meshStandardMaterial color="#F472B6" metalness={0.15} roughness={0.4} />
+          </mesh>
+        ))}
+        {/* Eyes */}
+        {[-0.08, 0.08].map((z, i) => (
+          <mesh key={i} position={[0.28, 0.12, z]}>
+            <sphereGeometry args={[0.025, 8, 8]} />
+            <meshStandardMaterial color="#000000" />
+          </mesh>
+        ))}
+        {/* Coin slot (dark rectangle on top) */}
+        <mesh position={[0, 0.34, 0]} rotation={[Math.PI / 2, 0, 0]}>
+          <boxGeometry args={[0.15, 0.03, 0.01]} />
+          <meshStandardMaterial color="#1F2937" metalness={0.5} roughness={0.3} />
+        </mesh>
+        {/* Legs */}
+        {[[0.15, 0.15], [0.15, -0.15], [-0.15, 0.15], [-0.15, -0.15]].map(([x, z], i) => (
+          <mesh key={i} position={[x, -0.32, z]}>
+            <cylinderGeometry args={[0.03, 0.03, 0.1, 6]} />
+            <meshStandardMaterial color="#F472B6" metalness={0.15} roughness={0.4} />
+          </mesh>
+        ))}
+        {/* Curly tail */}
+        <mesh position={[-0.42, 0.05, 0]} rotation={[0, Math.PI / 2, 0]}>
+          <torusGeometry args={[0.06, 0.015, 8, 16, Math.PI * 1.5]} />
+          <meshStandardMaterial color="#F472B6" metalness={0.15} roughness={0.4} />
+        </mesh>
+      </group>
+
+      {/* Coin dropping into piggy */}
+      <mesh ref={coinDropRef} position={[0, 0.7, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.12, 0.12, 0.03, 24]} />
+        <meshStandardMaterial color={color} metalness={0.9} roughness={0.15} emissive={color} emissiveIntensity={0.2} transparent opacity={1} />
       </mesh>
+
+      {/* Floating coins around */}
+      {[0, 1, 2].map((i) => {
+        const angle = (i / 3) * Math.PI * 2;
+        return (
+          <Float key={i} speed={1.5 + i * 0.3} floatIntensity={0.3} rotationIntensity={0.5}>
+            <mesh position={[Math.cos(angle) * 1.3, Math.sin(angle) * 0.5 + 0.3, Math.sin(angle) * 1.3]} rotation={[Math.PI / 2, 0, 0]}>
+              <cylinderGeometry args={[0.15, 0.15, 0.03, 24]} />
+              <meshStandardMaterial color={i === 1 ? color : '#D4AF37'} metalness={0.9} roughness={0.15} emissive={i === 1 ? color : '#D4AF37'} emissiveIntensity={0.15} />
+            </mesh>
+          </Float>
+        );
+      })}
     </group>
   );
 }
 
-/* ---------- PRICING variant: 3D pillars ---------- */
-function PricingScene({ color }: { color: string }) {
-  const group = useRef<THREE.Group>(null);
-  useFrame((state, delta) => {
-    if (!group.current) return;
-    group.current.rotation.y += delta * 0.12;
-    group.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.2) * 0.1;
-  });
-  return (
-    <group ref={group}>
-      {[-1.2, 0, 1.2].map((x, i) => (
-        <mesh key={i} position={[x, i === 1 ? 0.2 : 0, 0]}>
-          <cylinderGeometry args={[0.25, 0.3, 1 + (i === 1 ? 0.4 : 0), 6]} />
-          <meshStandardMaterial color={i === 1 ? color : '#7C3AED'} metalness={0.6} roughness={0.2} emissive={i === 1 ? color : '#7C3AED'} emissiveIntensity={i === 1 ? 0.3 : 0.15} />
-        </mesh>
-      ))}
-    </group>
-  );
-}
-
-/* ---------- ABOUT variant: glowing AI orb with orbiting ring + nodes ---------- */
+/* ===============================================================
+   ABOUT: Glowing AI orb + orbiting nodes
+=============================================================== */
 function AboutScene({ color }: { color: string }) {
   const orbRef = useRef<THREE.Mesh>(null);
   const ringRef = useRef<THREE.Mesh>(null);
@@ -162,17 +393,14 @@ function AboutScene({ color }: { color: string }) {
   });
   return (
     <group>
-      {/* Central glowing orb */}
       <mesh ref={orbRef}>
         <icosahedronGeometry args={[0.6, 3]} />
         <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.4} metalness={0.7} roughness={0.2} />
       </mesh>
-      {/* Orbiting ring */}
       <mesh ref={ringRef}>
         <torusGeometry args={[1.2, 0.03, 8, 64]} />
         <meshBasicMaterial color={color} transparent opacity={0.5} />
       </mesh>
-      {/* Small orbiting nodes */}
       {[0, 1, 2, 3, 4].map((i) => {
         const angle = (i / 5) * Math.PI * 2;
         return (
@@ -186,76 +414,329 @@ function AboutScene({ color }: { color: string }) {
   );
 }
 
-/* ---------- RESOURCES variant: 3D grid of floating shapes ---------- */
+/* ===============================================================
+   RESOURCES: Floating books + papers
+=============================================================== */
 function ResourcesScene({ color }: { color: string }) {
   const group = useRef<THREE.Group>(null);
   useFrame((state, delta) => {
     if (!group.current) return;
     group.current.rotation.y += delta * 0.08;
   });
-  const grid = useMemo(() => {
-    const arr: [number, number, number][] = [];
-    for (let x = -1; x <= 1; x++) {
-      for (let y = -1; y <= 1; y++) {
-        arr.push([x * 1.2, y * 1.2, (Math.random() - 0.5) * 1]);
-      }
-    }
-    return arr;
-  }, []);
   return (
     <group ref={group}>
-      {grid.map((pos, i) => (
-        <Float key={i} speed={1 + i * 0.1} floatIntensity={0.8} rotationIntensity={0.5}>
-          <mesh position={pos}>
-            <icosahedronGeometry args={[0.2, 0]} />
-            <meshStandardMaterial color={i % 3 === 0 ? color : i % 3 === 1 ? '#7C3AED' : '#16A34A'} metalness={0.4} roughness={0.3} />
+      {[-0.5, 0, 0.5].map((y, i) => (
+        <Float key={`book-${i}`} speed={1 + i * 0.3} floatIntensity={0.4} rotationIntensity={0.2}>
+          <mesh position={[0, y * 0.6, 0]} rotation={[0, i * 0.3, 0.05]}>
+            <boxGeometry args={[0.7 - i * 0.05, 0.12, 0.5]} />
+            <meshStandardMaterial color={i === 0 ? color : i === 1 ? '#7C3AED' : '#16A34A'} metalness={0.3} roughness={0.5} emissive={i === 0 ? color : i === 1 ? '#7C3AED' : '#16A34A'} emissiveIntensity={0.1} />
           </mesh>
         </Float>
+      ))}
+      <Float speed={1.5} floatIntensity={0.6} rotationIntensity={0.4}>
+        <mesh position={[1, 0.3, 0.2]} rotation={[0.2, 0.5, 0.1]}>
+          <planeGeometry args={[0.4, 0.55]} />
+          <meshStandardMaterial color="#FFFFFF" metalness={0.05} roughness={0.4} side={THREE.DoubleSide} />
+        </mesh>
+      </Float>
+      <Float speed={2} floatIntensity={0.8} rotationIntensity={0.5}>
+        <mesh position={[0.8, -0.5, 0.4]}>
+          <sphereGeometry args={[0.1, 16, 16]} />
+          <meshStandardMaterial color="#06B6D4" emissive="#06B6D4" emissiveIntensity={0.5} metalness={0.5} roughness={0.2} />
+        </mesh>
+      </Float>
+    </group>
+  );
+}
+
+/* ===============================================================
+   CONTACT: Paper plane + CAT chasing it!
+=============================================================== */
+function ContactScene({ color }: { color: string }) {
+  const group = useRef<THREE.Group>(null);
+  const planeRef = useRef<THREE.Group>(null);
+  const catRef = useRef<THREE.Group>(null);
+  const catLegRefs = useRef<THREE.Mesh[]>([]);
+  const trailRefs = useRef<THREE.Mesh[]>([]);
+
+  const getPathPoint = (t: number): [number, number, number] => {
+    const x = Math.sin(t) * 2.2;
+    const y = Math.sin(t * 1.5) * 0.8 + 0.2;
+    const z = Math.cos(t * 0.7) * 0.8;
+    return [x, y, z];
+  };
+
+  useFrame((state, delta) => {
+    if (!group.current) return;
+    group.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.15) * 0.1;
+
+    const t = state.clock.elapsedTime * 0.4;
+
+    // Paper plane flies the path
+    if (planeRef.current) {
+      const [px, py, pz] = getPathPoint(t);
+      planeRef.current.position.set(px, py, pz);
+      const [nx, ny, nz] = getPathPoint(t + 0.01);
+      const dx = nx - px, dy = ny - py, dz = nz - pz;
+      planeRef.current.rotation.y = Math.atan2(dx, dz);
+      planeRef.current.rotation.z = -Math.cos(t) * 0.35;
+      planeRef.current.rotation.x = -dy * 0.5;
+    }
+
+    // CAT chases the plane (follows with a delay, running)
+    if (catRef.current) {
+      const catT = t - 0.5; // 0.5 second delay = chasing
+      const [cx, cy, cz] = getPathPoint(catT);
+      catRef.current.position.set(cx, cy - 0.3, cz);
+      const [nx2, ny2, nz2] = getPathPoint(catT + 0.01);
+      catRef.current.rotation.y = Math.atan2(nx2 - cx, nz2 - cz);
+      // Cat bobs while running
+      catRef.current.position.y = (cy - 0.3) + Math.abs(Math.sin(state.clock.elapsedTime * 8)) * 0.05;
+
+      // Legs animate (running)
+      catLegRefs.current.forEach((leg, i) => {
+        if (!leg) return;
+        leg.rotation.x = Math.sin(state.clock.elapsedTime * 8 + i * Math.PI / 2) * 0.5;
+      });
+    }
+
+    // Trail particles
+    trailRefs.current.forEach((mesh, i) => {
+      if (!mesh) return;
+      const tt = t - i * 0.04;
+      const [tx, ty, tz] = getPathPoint(tt);
+      mesh.position.set(tx, ty, tz);
+      const mat = mesh.material as THREE.MeshBasicMaterial;
+      const fade = 1 - i / 20;
+      mat.opacity = fade * 0.6;
+      mesh.scale.setScalar(fade * 0.6 + 0.05);
+    });
+  });
+
+  return (
+    <group ref={group}>
+      {/* PAPER PLANE (simple cone + wings) */}
+      <group ref={planeRef}>
+        <mesh rotation={[Math.PI / 2, 0, 0]}>
+          <coneGeometry args={[0.15, 0.5, 4]} />
+          <meshStandardMaterial color="#FFFFFF" metalness={0.1} roughness={0.3} flatShading />
+        </mesh>
+        <mesh>
+          <planeGeometry args={[0.6, 0.2]} />
+          <meshStandardMaterial color="#F8FAFC" metalness={0.1} roughness={0.3} side={THREE.DoubleSide} flatShading />
+        </mesh>
+      </group>
+
+      {/* CAT chasing the plane! */}
+      <group ref={catRef} position={[0, -0.3, 0]}>
+        {/* Body (stretched sphere) */}
+        <mesh scale={[1.5, 0.8, 0.7]}>
+          <sphereGeometry args={[0.18, 16, 16]} />
+          <meshStandardMaterial color="#F97316" metalness={0.1} roughness={0.5} />
+        </mesh>
+        {/* Head (sphere) */}
+        <mesh position={[0.3, 0.1, 0]}>
+          <sphereGeometry args={[0.13, 16, 16]} />
+          <meshStandardMaterial color="#F97316" metalness={0.1} roughness={0.5} />
+        </mesh>
+        {/* Ears (cones) */}
+        {[-0.05, 0.05].map((z, i) => (
+          <mesh key={i} position={[0.32, 0.22, z]}>
+            <coneGeometry args={[0.04, 0.08, 4]} />
+            <meshStandardMaterial color="#F97316" metalness={0.1} roughness={0.5} />
+          </mesh>
+        ))}
+        {/* Inner ears (pink) */}
+        {[-0.05, 0.05].map((z, i) => (
+          <mesh key={`inner-${i}`} position={[0.33, 0.21, z]}>
+            <coneGeometry args={[0.02, 0.05, 4]} />
+            <meshStandardMaterial color="#FCA5A5" metalness={0.1} roughness={0.4} />
+          </mesh>
+        ))}
+        {/* Eyes */}
+        {[-0.04, 0.04].map((z, i) => (
+          <mesh key={`eye-${i}`} position={[0.4, 0.13, z]}>
+            <sphereGeometry args={[0.02, 8, 8]} />
+            <meshStandardMaterial color="#000000" />
+          </mesh>
+        ))}
+        {/* Nose */}
+        <mesh position={[0.42, 0.07, 0]}>
+          <sphereGeometry args={[0.012, 8, 8]} />
+          <meshStandardMaterial color="#EC4899" />
+        </mesh>
+        {/* Tail (curved cylinder) */}
+        <mesh position={[-0.3, 0.1, 0]} rotation={[0, 0, 0.8]}>
+          <cylinderGeometry args={[0.02, 0.03, 0.3, 8]} />
+          <meshStandardMaterial color="#F97316" metalness={0.1} roughness={0.5} />
+        </mesh>
+        {/* Tail tip (white) */}
+        <mesh position={[-0.42, 0.25, 0]}>
+          <sphereGeometry args={[0.035, 8, 8]} />
+          <meshStandardMaterial color="#FFFFFF" metalness={0.1} roughness={0.4} />
+        </mesh>
+        {/* 4 Legs (animated running) */}
+        {[[0.15, 0.08], [0.15, -0.08], [-0.15, 0.08], [-0.15, -0.08]].map(([x, z], i) => (
+          <mesh
+            key={`leg-${i}`}
+            ref={(el) => { if (el) catLegRefs.current[i] = el; }}
+            position={[x, -0.12, z]}
+          >
+            <cylinderGeometry args={[0.02, 0.02, 0.12, 6]} />
+            <meshStandardMaterial color="#F97316" metalness={0.1} roughness={0.5} />
+          </mesh>
+        ))}
+      </group>
+
+      {/* Trail particles */}
+      {Array.from({ length: 20 }).map((_, i) => (
+        <mesh key={`trail-${i}`} ref={(el) => { if (el) trailRefs.current[i] = el; }}>
+          <sphereGeometry args={[0.04, 6, 6]} />
+          <meshBasicMaterial color={i < 7 ? color : i < 14 ? '#7C3AED' : '#FFFFFF'} transparent opacity={0} />
+        </mesh>
       ))}
     </group>
   );
 }
 
-/* ---------- CONTACT variant: message particles flowing ---------- */
-function ContactScene({ color }: { color: string }) {
+/* ===============================================================
+   STORY: Cosmic open book with glowing star particles
+=============================================================== */
+function StoryScene({ color }: { color: string }) {
   const group = useRef<THREE.Group>(null);
-  const particlesRef = useRef<THREE.Mesh[]>([]);
+  const bookRef = useRef<THREE.Group>(null);
+  const particleRefs = useRef<THREE.Mesh[]>([]);
+
   useFrame((state, delta) => {
     if (!group.current) return;
-    group.current.rotation.y += delta * 0.1;
-    particlesRef.current.forEach((mesh, i) => {
+    group.current.rotation.y += delta * 0.08;
+    if (bookRef.current) {
+      bookRef.current.rotation.z = Math.sin(state.clock.elapsedTime * 0.4) * 0.05;
+    }
+    particleRefs.current.forEach((mesh, i) => {
       if (!mesh) return;
-      const t = (state.clock.elapsedTime * 0.5 + i * 0.3) % 1;
-      mesh.position.y = -2 + t * 4;
+      const t = state.clock.elapsedTime * (0.4 + i * 0.05);
+      const r = 1.2 + Math.sin(t * 0.5 + i) * 0.2;
+      const angle = (i / 12) * Math.PI * 2 + t * 0.3;
+      mesh.position.set(
+        Math.cos(angle) * r,
+        Math.sin(t + i) * 0.6,
+        Math.sin(angle) * r
+      );
       const mat = mesh.material as THREE.MeshBasicMaterial;
-      mat.opacity = Math.sin(t * Math.PI) * 0.8;
+      mat.opacity = 0.5 + Math.sin(t * 2 + i) * 0.3;
     });
   });
-  const positions = useMemo(() => {
-    const arr: [number, number, number][] = [];
-    for (let i = 0; i < 10; i++) {
-      arr.push([(Math.random() - 0.5) * 2.5, 0, (Math.random() - 0.5) * 2]);
-    }
-    return arr;
-  }, []);
+
   return (
     <group ref={group}>
-      {/* Central message orb */}
-      <mesh>
-        <icosahedronGeometry args={[0.5, 3]} />
-        <MeshDistortMaterial color={color} speed={2} distort={0.35} roughness={0.2} metalness={0.5} />
+      {/* Open book */}
+      <group ref={bookRef} rotation={[0, 0, 0]}>
+        {/* Left page */}
+        <mesh position={[-0.32, 0, 0]} rotation={[0, -0.35, 0]}>
+          <boxGeometry args={[0.6, 0.04, 0.8]} />
+          <meshStandardMaterial color="#FFFFFF" metalness={0.1} roughness={0.4} />
+        </mesh>
+        {/* Right page */}
+        <mesh position={[0.32, 0, 0]} rotation={[0, 0.35, 0]}>
+          <boxGeometry args={[0.6, 0.04, 0.8]} />
+          <meshStandardMaterial color="#FFFFFF" metalness={0.1} roughness={0.4} />
+        </mesh>
+        {/* Spine */}
+        <mesh position={[0, 0, 0]}>
+          <boxGeometry args={[0.06, 0.06, 0.8]} />
+          <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.3} metalness={0.5} roughness={0.3} />
+        </mesh>
+      </group>
+
+      {/* Glowing central orb (the story spark) */}
+      <mesh position={[0, 0.4, 0]}>
+        <icosahedronGeometry args={[0.18, 3]} />
+        <MeshDistortMaterial color={color} speed={2} distort={0.4} roughness={0.2} metalness={0.5} emissive={color} emissiveIntensity={0.5} />
       </mesh>
-      {/* Rising message particles */}
-      {positions.map((pos, i) => (
+
+      {/* Cosmic star particles */}
+      {Array.from({ length: 12 }).map((_, i) => (
         <mesh
           key={i}
-          ref={(el) => { if (el) particlesRef.current[i] = el; }}
-          position={[pos[0], -2, pos[2]]}
+          ref={(el) => { if (el) particleRefs.current[i] = el; }}
         >
-          <sphereGeometry args={[0.06, 8, 8]} />
-          <meshBasicMaterial color={i % 2 === 0 ? color : '#FFFFFF'} transparent opacity={0} />
+          <sphereGeometry args={[0.03 + (i % 3) * 0.01, 8, 8]} />
+          <meshBasicMaterial
+            color={i % 3 === 0 ? color : i % 3 === 1 ? '#FCD34D' : '#FFFFFF'}
+            transparent
+            opacity={0.8}
+          />
         </mesh>
       ))}
+    </group>
+  );
+}
+
+/* ===============================================================
+   FAQ: Floating question-mark bubbles bouncing around
+=============================================================== */
+function FaqScene({ color }: { color: string }) {
+  const group = useRef<THREE.Group>(null);
+  const bubbleRefs = useRef<THREE.Group[]>([]);
+
+  useFrame((state, delta) => {
+    if (!group.current) return;
+    group.current.rotation.y += delta * 0.05;
+
+    // Bubbles float and bob independently
+    bubbleRefs.current.forEach((bubble, i) => {
+      if (!bubble) return;
+      const t = state.clock.elapsedTime * (0.5 + i * 0.1);
+      bubble.position.y = Math.sin(t) * 0.4 + (i % 2 === 0 ? 0.3 : -0.2);
+      bubble.position.x = Math.cos(t * 0.7 + i) * 0.3;
+      bubble.rotation.z = Math.sin(t * 0.5) * 0.1;
+    });
+  });
+
+  const bubbleColors = [color, '#7C3AED', '#16A34A', '#F59E0B', '#06B6D4', '#EC4899'];
+
+  return (
+    <group ref={group}>
+      {/* Floating question-mark bubbles (speech bubble shapes) */}
+      {[0, 1, 2, 3, 4, 5].map((i) => {
+        const angle = (i / 6) * Math.PI * 2;
+        const r = 1.3;
+        const c = bubbleColors[i];
+        return (
+          <group
+            key={i}
+            ref={(el) => { if (el) bubbleRefs.current[i] = el; }}
+            position={[Math.cos(angle) * r, 0, Math.sin(angle) * r]}
+          >
+            {/* Bubble body (sphere) */}
+            <mesh>
+              <sphereGeometry args={[0.22 + (i % 3) * 0.05, 16, 16]} />
+              <meshStandardMaterial color={c} transparent opacity={0.85} metalness={0.2} roughness={0.3} emissive={c} emissiveIntensity={0.15} />
+            </mesh>
+            {/* Bubble tail (small cone pointing down) */}
+            <mesh position={[0, -0.2, 0]} rotation={[Math.PI, 0, 0]}>
+              <coneGeometry args={[0.06, 0.1, 8]} />
+              <meshStandardMaterial color={c} transparent opacity={0.85} metalness={0.2} roughness={0.3} />
+            </mesh>
+            {/* "?" mark — represented as a small white torus + sphere */}
+            <mesh position={[0, 0.05, 0.15]} rotation={[Math.PI / 2, 0, 0]}>
+              <torusGeometry args={[0.06, 0.015, 8, 16, Math.PI * 1.5]} />
+              <meshStandardMaterial color="#FFFFFF" emissive="#FFFFFF" emissiveIntensity={0.3} />
+            </mesh>
+            <mesh position={[0.05, -0.05, 0.15]}>
+              <sphereGeometry args={[0.02, 8, 8]} />
+              <meshStandardMaterial color="#FFFFFF" emissive="#FFFFFF" emissiveIntensity={0.3} />
+            </mesh>
+          </group>
+        );
+      })}
+
+      {/* Central glowing orb */}
+      <mesh>
+        <icosahedronGeometry args={[0.3, 3]} />
+        <MeshDistortMaterial color={color} speed={2} distort={0.3} roughness={0.2} metalness={0.5} emissive={color} emissiveIntensity={0.3} />
+      </mesh>
     </group>
   );
 }
@@ -277,6 +758,8 @@ export default function PageHero3D({
       case 'about': return <AboutScene color={accentColor} />;
       case 'resources': return <ResourcesScene color={accentColor} />;
       case 'contact': return <ContactScene color={accentColor} />;
+      case 'story': return <StoryScene color={accentColor} />;
+      case 'faq': return <FaqScene color={accentColor} />;
       default: return <CoursesScene color={accentColor} />;
     }
   })();

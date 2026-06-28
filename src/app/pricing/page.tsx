@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
@@ -77,11 +76,6 @@ const COMPARISON: { label: string; values: (boolean | string)[] }[] = [
 ];
 
 export default function PricingPage() {
-  // SEO: set document title client-side (since this is a client component)
-  useEffect(() => {
-    document.title = 'Pricing — Sariro | Simple, Honest, No Surprises';
-  }, []);
-
   return (
     <BrandLayout>
       <PageHero
@@ -193,15 +187,33 @@ export default function PricingPage() {
                             </span>
                           </div>
                         ) : (
-                          <div className="flex items-baseline gap-1.5">
-                            <span className="text-2xl font-bold text-slate-500">$</span>
-                            <span
-                              className="text-5xl font-extrabold"
-                              style={{ color: accent, fontFamily: 'var(--font-jakarta)' }}
-                            >
-                              <CountUp value={tier.price} duration={2} />
-                            </span>
-                            <span className="text-sm text-slate-500">/ {tier.period}</span>
+                          <div>
+                            {/* Strikethrough original price + discount badge */}
+                            {tier.originalPrice && (
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="text-lg font-bold text-slate-400 line-through" style={{ fontFamily: 'var(--font-jakarta)' }}>
+                                  ${tier.originalPrice}
+                                </span>
+                                <span className="px-2 py-0.5 rounded-md bg-red-100 text-red-600 text-[10px] font-bold uppercase tracking-wide" style={{ fontFamily: 'var(--font-grotesk)' }}>
+                                  50% OFF
+                                </span>
+                              </div>
+                            )}
+                            <div className="flex items-baseline gap-1.5">
+                              <span className="text-2xl font-bold text-slate-500">$</span>
+                              <span
+                                className="text-5xl font-extrabold"
+                                style={{ color: accent, fontFamily: 'var(--font-jakarta)' }}
+                              >
+                                <CountUp value={tier.price} duration={2} />
+                              </span>
+                              <span className="text-sm text-slate-500">/ {tier.period}</span>
+                            </div>
+                            {tier.originalPrice && (
+                              <p className="text-xs font-bold text-green-600 mt-1" style={{ fontFamily: 'var(--font-grotesk)' }}>
+                                You save ${tier.originalPrice - tier.price}
+                              </p>
+                            )}
                           </div>
                         )}
                       </div>
@@ -463,7 +475,7 @@ export default function PricingPage() {
             {[
               {
                 q: 'Do you offer scholarships?',
-                a: 'Yes. We reserve 15% of every cohort for needs-based scholarships. Email contact@sariro.com with a one-paragraph note about your situation.',
+                a: 'Yes. We reserve 15% of every cohort for needs-based scholarships. Email hello@sariro.ai with a one-paragraph note about your situation.',
               },
               {
                 q: 'Can my employer pay for this?',

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
@@ -24,6 +24,7 @@ import {
   TiltCard,
   MagneticButton,
   SplitText,
+  CountUp,
   ParallaxOrb,
   StickyScrollSection,
 } from '@/components/brand/effects-kit';
@@ -47,11 +48,6 @@ const FILTERS: { key: FilterKey; label: string; count: number }[] = [
 
 export default function CoursesPage() {
   const [filter, setFilter] = useState<FilterKey>('All');
-
-  // SEO: set document title client-side (since this is a client component)
-  useEffect(() => {
-    document.title = 'Courses — Sariro | AI Cohort-Based Learning';
-  }, []);
 
   const visible =
     filter === 'All' ? COURSES : COURSES.filter((c) => c.audience === filter);
@@ -107,9 +103,9 @@ export default function CoursesPage() {
               </Reveal>
             </div>
 
-            {/* Filter pills — wraps on mobile, inline on desktop */}
+            {/* Filter pills */}
             <div
-              className="flex flex-wrap p-1.5 rounded-2xl glass-panel gap-1 self-start md:self-auto"
+              className="inline-flex p-1.5 rounded-2xl glass-panel gap-1 self-start md:self-auto"
               role="tablist"
               aria-label="Filter courses by audience"
             >
@@ -121,15 +117,20 @@ export default function CoursesPage() {
                     onClick={() => setFilter(f.key)}
                     role="tab"
                     aria-selected={active}
-                    className={`relative px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-colors duration-200 flex-1 sm:flex-initial justify-center ${
-                      active
-                        ? 'text-white bg-gradient-to-r from-blue-600 to-violet-600 shadow-lg shadow-blue-500/30'
-                        : 'text-slate-700 hover:text-blue-600'
+                    className={`relative px-4 py-2.5 rounded-xl text-sm font-bold transition-all ${
+                      active ? 'text-white' : 'text-slate-700 hover:text-blue-600'
                     }`}
                     style={{ fontFamily: 'var(--font-grotesk)' }}
                   >
-                    <span className="relative flex items-center gap-1.5 sm:gap-2 justify-center">
-                      <span className="whitespace-nowrap">{f.label}</span>
+                    {active && (
+                      <motion.span
+                        layoutId="course-filter-pill"
+                        className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 shadow-lg shadow-blue-500/30"
+                        transition={{ type: 'spring', stiffness: 320, damping: 28 }}
+                      />
+                    )}
+                    <span className="relative flex items-center gap-2">
+                      {f.label}
                       <span
                         className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
                           active ? 'bg-white/20' : 'bg-slate-100 text-slate-500'
@@ -144,33 +145,25 @@ export default function CoursesPage() {
             </div>
           </div>
 
-          {/* Catalog grid — simple grid, no remount on filter change */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {visible.map((course, i) => {
+          {/* Catalog grid */}
+          <StaggerGroup
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            stagger={0.1}
+          >
+            {visible.map((course) => {
               const accent = ACCENT_HEX[course.accent] ?? '#2563EB';
               return (
-                <motion.div
-                  key={course.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: i * 0.05, ease: [0.22, 1, 0.36, 1] }}
-                >
-                  <Link
-                    href={`/courses/${course.id}`}
-                    className="block group/card focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 rounded-[1.25rem]"
-                    aria-label={`View details for ${course.title}`}
-                  >
-                    <FlipCard3D
-                      height="420px"
-                      className="h-[420px]"
-                      front={<CourseFront course={course} accent={accent} />}
-                      back={<CourseBack course={course} accent={accent} />}
-                    />
-                  </Link>
-                </motion.div>
+                <StaggerItem key={course.id}>
+                  <FlipCard3D
+                    height="420px"
+                    className="h-[420px]"
+                    front={<CourseFront course={course} accent={accent} />}
+                    back={<CourseBack course={course} accent={accent} />}
+                  />
+                </StaggerItem>
               );
             })}
-          </div>
+          </StaggerGroup>
 
           {/* Empty state (shouldn't happen, but be safe) */}
           {visible.length === 0 && (
@@ -355,7 +348,14 @@ function CourseFront({
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500" style={{ fontFamily: 'var(--font-grotesk)' }}>
               Price
             </span>
-            <div className="flex items-baseline gap-1">
+            <div className="flex items-baseline gap-2">
+              {/* Strikethrough original price */}
+              {course.originalPrice && (
+                <span className="text-sm font-bold text-slate-400 line-through" style={{ fontFamily: 'var(--font-jakarta)' }}>
+                  ${course.originalPrice}
+                </span>
+              )}
+              {/* Current price */}
               <span
                 className="text-2xl font-extrabold"
                 style={{ color: accent, fontFamily: 'var(--font-jakarta)' }}
@@ -364,6 +364,12 @@ function CourseFront({
               </span>
               <span className="text-xs text-slate-500">USD</span>
             </div>
+            {/* Discount badge */}
+            {course.originalPrice && (
+              <span className="inline-block mt-1 px-2 py-0.5 rounded-md bg-red-100 text-red-600 text-[10px] font-bold uppercase tracking-wide" style={{ fontFamily: 'var(--font-grotesk)' }}>
+                50% OFF · Save ${course.originalPrice - course.price}
+              </span>
+            )}
           </div>
           <div className="text-right">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1 justify-end" style={{ fontFamily: 'var(--font-grotesk)' }}>
@@ -442,17 +448,30 @@ function CourseBack({
               <div className="text-[10px] font-bold uppercase tracking-wider text-white/60" style={{ fontFamily: 'var(--font-grotesk)' }}>
                 Investment
               </div>
-              <div className="text-2xl font-extrabold" style={{ fontFamily: 'var(--font-jakarta)' }}>
-                ${course.price}
+              <div className="flex items-baseline gap-2">
+                {course.originalPrice && (
+                  <span className="text-sm font-bold text-white/40 line-through" style={{ fontFamily: 'var(--font-jakarta)' }}>
+                    ${course.originalPrice}
+                  </span>
+                )}
+                <div className="text-2xl font-extrabold" style={{ fontFamily: 'var(--font-jakarta)' }}>
+                  ${course.price}
+                </div>
               </div>
+              {course.originalPrice && (
+                <span className="inline-block mt-1 px-2 py-0.5 rounded-md bg-red-500/20 text-red-300 text-[10px] font-bold uppercase tracking-wide" style={{ fontFamily: 'var(--font-grotesk)' }}>
+                  50% OFF
+                </span>
+              )}
             </div>
-            <span
-              className="px-4 py-2 rounded-xl bg-white text-slate-900 text-xs font-bold flex items-center gap-1.5 group-hover/card:bg-white/90 transition-colors"
+            <Link
+              href="/contact"
+              className="px-4 py-2 rounded-xl bg-white text-slate-900 text-xs font-bold flex items-center gap-1.5 hover:bg-white/90 transition-colors"
               style={{ fontFamily: 'var(--font-grotesk)' }}
             >
-              View details
-              <ArrowRight className="w-3.5 h-3.5 group-hover/card:translate-x-0.5 transition-transform" />
-            </span>
+              Enroll
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
         </div>
       </div>

@@ -4,14 +4,6 @@ import { motion, useScroll, useSpring, AnimatePresence } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { ArrowUp } from 'lucide-react';
 
-/* ===============================================================
-   MOBILE SCROLL-TOP BUTTON
-   - Only shows on mobile/tablet (below lg)
-   - Appears after scrolling 400px down
-   - Bottom-right, 48×48 touch target
-   - Smooth scroll to top on tap
-=============================================================== */
-
 export default function MobileScrollTop() {
   const [visible, setVisible] = useState(false);
   const { scrollYProgress } = useScroll();
@@ -43,21 +35,13 @@ export default function MobileScrollTop() {
           aria-label="Scroll to top"
         >
           <ArrowUp className="w-5 h-5" strokeWidth={2.5} />
-          {/* Progress ring */}
           <svg
             className="absolute inset-0 pointer-events-none -rotate-90"
             width="48"
             height="48"
             viewBox="0 0 48 48"
           >
-            <circle
-              cx="24"
-              cy="24"
-              r="22"
-              fill="none"
-              stroke="rgba(255,255,255,0.2)"
-              strokeWidth="2"
-            />
+            <circle cx="24" cy="24" r="22" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="2" />
             <motion.circle
               cx="24"
               cy="24"
