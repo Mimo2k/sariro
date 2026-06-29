@@ -139,6 +139,9 @@ export function MagneticButton({
   onClick,
   as = 'button',
   href,
+  target,
+  rel,
+  ...rest
 }: {
   children: ReactNode;
   className?: string;
@@ -146,6 +149,9 @@ export function MagneticButton({
   onClick?: () => void;
   as?: 'button' | 'a';
   href?: string;
+  target?: string;
+  rel?: string;
+  [key: string]: unknown;
 }) {
   const ref = useRef<HTMLElement>(null);
 
@@ -169,9 +175,10 @@ export function MagneticButton({
     onMouseLeave: handleLeave,
     className: `transition-transform duration-300 ease-out will-change-transform ${className}`,
     style: { display: 'inline-flex' },
+    ...rest,
   };
 
-  if (as === 'a') return <a {...shared} href={href} onClick={onClick}>{children}</a>;
+  if (as === 'a') return <a {...shared} href={href} target={target} rel={rel} onClick={onClick}>{children}</a>;
   return <button {...shared} onClick={onClick}>{children}</button>;
 }
 

@@ -15,6 +15,10 @@ import {
   CheckCircle2,
   ArrowRight,
   Globe,
+  LifeBuoy,
+  School,
+  Handshake,
+  Briefcase,
 } from 'lucide-react';
 import BrandLayout from '@/components/brand/brand-layout';
 import PageHero from '@/components/brand/page-hero';
@@ -43,18 +47,20 @@ import {
   ParallaxOrb,
   StickyScrollSection,
 } from '@/components/brand/effects-kit';
-import { BRAND } from '@/lib/sariro-data';
+import { BRAND, EMAILS } from '@/lib/sariro-data';
 
-/* Contact info cards (right column) */
+/* Map the icon name string from EMAILS data to a real icon component. */
+const EMAIL_ICONS: Record<string, React.ComponentType<{ className?: string; strokeWidth?: number }>> = {
+  Mail,
+  LifeBuoy,
+  School,
+  Handshake,
+  Briefcase,
+  Sparkles,
+};
+
+/* Contact info cards (right column) — these are NON-email quick facts. */
 const INFO_CARDS = [
-  {
-    icon: Mail,
-    title: 'Email us',
-    value: BRAND.emails.contact,
-    sub: 'Best for course & partnership questions.',
-    accent: '#16A34A',
-    href: `mailto:${BRAND.emails.contact}`,
-  },
   {
     icon: Clock,
     title: 'Response time',
@@ -138,9 +144,9 @@ export default function ContactPage() {
           <Send className="w-4 h-4" />
           Send a message
         </a>
-        <a href={`mailto:${BRAND.emails.contact}`} className="btn-tactile btn-tactile-light px-5 py-3 text-sm">
+        <a href={`mailto:${BRAND.email}`} className="btn-tactile btn-tactile-light px-5 py-3 text-sm">
           <Mail className="w-4 h-4" />
-          {BRAND.emails.contact}
+          {BRAND.email}
         </a>
       </PageHero>
 
@@ -295,15 +301,72 @@ export default function ContactPage() {
 
             {/* RIGHT: info cards (2 cols) */}
             <div className="lg:col-span-2 space-y-4">
+              {/* ====== Email directory (5 mailboxes) ====== */}
               <Reveal>
                 <div className="mb-2">
                   <h2
                     className="text-xl font-extrabold text-slate-900 mb-1"
                     style={{ fontFamily: 'var(--font-jakarta)' }}
                   >
+                    Email directory
+                  </h2>
+                  <p className="text-sm text-slate-500">Pick the inbox that fits. Each one reaches a real human.</p>
+                </div>
+              </Reveal>
+
+              <StaggerGroup className="space-y-3" stagger={0.08}>
+                {EMAILS.map((email) => {
+                  const Icon = EMAIL_ICONS[email.icon] ?? Mail;
+                  return (
+                    <StaggerItem key={email.id}>
+                      <TiltCard className="h-full" maxTilt={4}>
+                        <a
+                          href={`mailto:${email.address}`}
+                          className="block card-3d p-4 group hover:-translate-y-1 cursor-pointer"
+                        >
+                          <div className="flex items-start gap-3">
+                            <div
+                              className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                              style={{ background: `${email.accent}15`, color: email.accent }}
+                            >
+                              <Icon className="w-5 h-5" strokeWidth={2.2} />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-0.5">
+                                <span
+                                  className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded text-white"
+                                  style={{ background: email.accent, fontFamily: 'var(--font-grotesk)' }}
+                                >
+                                  {email.label}
+                                </span>
+                              </div>
+                              <div
+                                className="text-sm font-extrabold text-slate-900 truncate"
+                                style={{ fontFamily: 'var(--font-jakarta)' }}
+                              >
+                                {email.address}
+                              </div>
+                              <div className="text-xs text-slate-500 mt-1 leading-snug">{email.purpose}</div>
+                            </div>
+                            <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-green-600 group-hover:translate-x-1 transition-all shrink-0 mt-1" />
+                          </div>
+                        </a>
+                      </TiltCard>
+                    </StaggerItem>
+                  );
+                })}
+              </StaggerGroup>
+
+              {/* ====== Other ways to reach us (non-email quick facts) ====== */}
+              <Reveal delay={0.2}>
+                <div className="mb-2 mt-6">
+                  <h2
+                    className="text-xl font-extrabold text-slate-900 mb-1"
+                    style={{ fontFamily: 'var(--font-jakarta)' }}
+                  >
                     Other ways to reach us
                   </h2>
-                  <p className="text-sm text-slate-500">Pick whatever's easiest for you.</p>
+                  <p className="text-sm text-slate-500">Quick facts before you hit send.</p>
                 </div>
               </Reveal>
 
@@ -332,24 +395,12 @@ export default function ContactPage() {
                         </div>
                         <div className="text-xs text-slate-500 mt-1">{card.sub}</div>
                       </div>
-                      {card.href && (
-                        <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-green-600 group-hover:translate-x-1 transition-all shrink-0" />
-                      )}
                     </div>
                   );
                   return (
                     <StaggerItem key={card.title}>
                       <TiltCard className="h-full" maxTilt={5}>
-                        {card.href ? (
-                          <a
-                            href={card.href}
-                            className="block card-3d p-5 group hover:-translate-y-1 cursor-pointer"
-                          >
-                            {content}
-                          </a>
-                        ) : (
-                          <div className="block card-3d p-5 group">{content}</div>
-                        )}
+                        <div className="block card-3d p-5 group">{content}</div>
                       </TiltCard>
                     </StaggerItem>
                   );
@@ -425,7 +476,7 @@ export default function ContactPage() {
       </StickyScrollSection>
 
       {/* ====== Trust strip ====== */}
-      <section className="relative py-12 bg-slate-50 overflow-hidden">
+      <section className="relative py-12 mesh-bg-soft-green overflow-hidden">
         <ParallaxOrb color="rgba(37, 99, 235, 0.08)" size={360} speed={90} position="top-10 right-10" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <StaggerGroup className="grid grid-cols-2 md:grid-cols-4 gap-4" stagger={0.1}>

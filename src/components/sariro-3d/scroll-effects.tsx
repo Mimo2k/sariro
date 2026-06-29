@@ -307,8 +307,7 @@ export function CustomCursor() {
       mouseY = e.clientY;
       dot.style.transform = `translate(${mouseX}px, ${mouseY}px) translate(-50%, -50%)`;
 
-      const target = e.target;
-      if (!target || !(target instanceof Element)) return;
+      const target = e.target as HTMLElement;
       const interactive = target.closest('a, button, [role="button"], input, textarea, select, label, [data-cursor]');
       if (interactive) {
         dot.style.width = '12px';

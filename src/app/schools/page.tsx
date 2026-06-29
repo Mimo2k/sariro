@@ -265,13 +265,13 @@ export default function SchoolsPage() {
 
                   {/* Meta row */}
                   <div className="mt-5 grid grid-cols-2 gap-3">
-                    <div className="rounded-xl bg-slate-50 p-3">
-                      <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-0.5" style={{ fontFamily: 'var(--font-grotesk)' }}>
+                    <div className="rounded-xl pill-tint-green p-3">
+                      <div className="text-[10px] font-bold uppercase tracking-wider text-green-700 mb-0.5" style={{ fontFamily: 'var(--font-grotesk)' }}>
                         Reach
                       </div>
                       <div className="text-sm font-bold text-slate-900">{pkg.students}</div>
                     </div>
-                    <div className="rounded-xl bg-slate-50 p-3">
+                    <div className="rounded-xl pill-tint-green p-3">
                       <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-0.5" style={{ fontFamily: 'var(--font-grotesk)' }}>
                         Best for
                       </div>
@@ -308,7 +308,7 @@ export default function SchoolsPage() {
       <WaveDivider3D fromColor="#FFFFFF" toColor="#F8FAFC" />
 
       {/* ====== Process steps ====== */}
-      <section className="relative py-16 sm:py-20 bg-slate-50 overflow-hidden">
+      <section className="relative py-16 sm:py-20 mesh-bg-soft-green overflow-hidden">
         <ParallaxOrb color="rgba(124, 58, 237, 0.08)" size={380} speed={90} position="top-10 right-10" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-14">

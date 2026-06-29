@@ -272,6 +272,86 @@
     radial-gradient(at 80% 80%, rgba(6, 182, 212, 0.10) 0px, transparent 50%);
 }
 
+/* Soft colorful section background — replaces flat slate-50 / gray-50 */
+.mesh-bg-soft {
+  background:
+    radial-gradient(at 10% 0%, rgba(37, 99, 235, 0.08) 0px, transparent 50%),
+    radial-gradient(at 90% 10%, rgba(124, 58, 237, 0.07) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(22, 163, 74, 0.06) 0px, transparent 50%),
+    radial-gradient(at 0% 80%, rgba(6, 182, 212, 0.06) 0px, transparent 50%),
+    linear-gradient(180deg, #FFFFFF 0%, #FAFBFF 100%);
+}
+
+/* Per-accent soft backgrounds — use when a section should match the page accent */
+.mesh-bg-soft-blue {
+  background:
+    radial-gradient(at 10% 0%, rgba(37, 99, 235, 0.10) 0px, transparent 50%),
+    radial-gradient(at 90% 80%, rgba(124, 58, 237, 0.06) 0px, transparent 50%),
+    linear-gradient(180deg, #FFFFFF 0%, #EFF4FF 100%);
+}
+.mesh-bg-soft-green {
+  background:
+    radial-gradient(at 10% 0%, rgba(22, 163, 74, 0.10) 0px, transparent 50%),
+    radial-gradient(at 90% 80%, rgba(6, 182, 212, 0.06) 0px, transparent 50%),
+    linear-gradient(180deg, #FFFFFF 0%, #F0FBF4 100%);
+}
+.mesh-bg-soft-violet {
+  background:
+    radial-gradient(at 10% 0%, rgba(124, 58, 237, 0.10) 0px, transparent 50%),
+    radial-gradient(at 90% 80%, rgba(236, 72, 153, 0.06) 0px, transparent 50%),
+    linear-gradient(180deg, #FFFFFF 0%, #F7F2FF 100%);
+}
+.mesh-bg-soft-amber {
+  background:
+    radial-gradient(at 10% 0%, rgba(245, 158, 11, 0.10) 0px, transparent 50%),
+    radial-gradient(at 90% 80%, rgba(239, 68, 68, 0.06) 0px, transparent 50%),
+    linear-gradient(180deg, #FFFFFF 0%, #FFFBEB 100%);
+}
+.mesh-bg-soft-cyan {
+  background:
+    radial-gradient(at 10% 0%, rgba(6, 182, 212, 0.10) 0px, transparent 50%),
+    radial-gradient(at 90% 80%, rgba(37, 99, 235, 0.06) 0px, transparent 50%),
+    linear-gradient(180deg, #FFFFFF 0%, #ECFEFF 100%);
+}
+.mesh-bg-soft-red {
+  background:
+    radial-gradient(at 10% 0%, rgba(220, 38, 38, 0.08) 0px, transparent 50%),
+    radial-gradient(at 90% 80%, rgba(245, 158, 11, 0.06) 0px, transparent 50%),
+    linear-gradient(180deg, #FFFFFF 0%, #FEF2F2 100%);
+}
+
+/* Pill — colorful brand-tinted instead of gray */
+.pill-tint {
+  background: rgba(37, 99, 235, 0.08);
+  color: #1E40AF;
+  border: 1px solid rgba(37, 99, 235, 0.15);
+}
+.pill-tint-blue {
+  background: rgba(37, 99, 235, 0.08);
+  color: #1E40AF;
+  border: 1px solid rgba(37, 99, 235, 0.18);
+}
+.pill-tint-green {
+  background: rgba(22, 163, 74, 0.08);
+  color: #166534;
+  border: 1px solid rgba(22, 163, 74, 0.18);
+}
+.pill-tint-violet {
+  background: rgba(124, 58, 237, 0.08);
+  color: #6D28D9;
+  border: 1px solid rgba(124, 58, 237, 0.18);
+}
+.pill-tint-amber {
+  background: rgba(245, 158, 11, 0.10);
+  color: #B45309;
+  border: 1px solid rgba(245, 158, 11, 0.20);
+}
+.pill-tint-cyan {
+  background: rgba(6, 182, 212, 0.08);
+  color: #0E7490;
+  border: 1px solid rgba(6, 182, 212, 0.18);
+}
+
 .grid-bg {
   background-image:
     linear-gradient(rgba(37, 99, 235, 0.06) 1px, transparent 1px),

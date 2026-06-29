@@ -1,28 +1,68 @@
 'use client';
 
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Sparkles, Environment, Float, MeshDistortMaterial } from '@react-three/drei';
+import { MeshDistortMaterial, Environment, Sparkles } from '@react-three/drei';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useRef, useState, useCallback, useEffect, useMemo, Suspense } from 'react';
+import { useRef, useState, useEffect, Suspense } from 'react';
 import * as THREE from 'three';
 import { Brain, Hammer, Rocket, Users, ChevronLeft, ChevronRight } from 'lucide-react';
 
-type Phase = 0 | 1 | 2 | 3;
+/* ===============================================================
+   ORYZO SECTION — Arrow + Swipe navigation (NO pinned scroll)
+   - 3D AICore canvas stays fixed behind
+   - 4 text chapters cross-fade based on activeIndex
+   - Left/right arrow buttons + clickable dots + mobile swipe
+   - 5-second auto-play with pause on hover
+=============================================================== */
 
-function AICore({ activePhase }: { activePhase: number }) {
+/* ---------- 3D AI Core: camera orbits based on active chapter ---------- */
+function AICore({ activeIdx, count }: { activeIdx: number; count: number }) {
   const groupRef = useRef<THREE.Group>(null);
   const innerRef = useRef<THREE.Mesh>(null);
   const wireRef = useRef<THREE.Mesh>(null);
   const ring1Ref = useRef<THREE.Mesh>(null);
   const ring2Ref = useRef<THREE.Mesh>(null);
   const nodesRef = useRef<THREE.Group>(null);
-  const targetRotation = useRef(0);
 
-  useEffect(() => {
-    targetRotation.current = (activePhase / 4) * Math.PI * 2;
-  }, [activePhase]);
+  useFrame((state, delta) => {
+    // Target rotation = activeIdx / count * 2π (full 360° spread across chapters)
+    const targetY = (activeIdx / count) * Math.PI * 2;
+    const targetX = (activeIdx / count) * 0.4;
 
-  const nodePositions = useMemo(() => {
+    if (groupRef.current) {
+      // Smooth lerp toward target
+      groupRef.current.rotation.y += (targetY - groupRef.current.rotation.y) * 0.05;
+      groupRef.current.rotation.x += (targetX - groupRef.current.rotation.x) * 0.05;
+    }
+
+    // Inner core breathes
+    if (innerRef.current) {
+      const pulse = 1 + Math.sin(state.clock.elapsedTime * 2) * 0.06;
+      innerRef.current.scale.setScalar(pulse);
+    }
+
+    // Wireframe shell rotates opposite for parallax depth
+    if (wireRef.current) {
+      wireRef.current.rotation.y -= delta * 0.3;
+      wireRef.current.rotation.z += delta * 0.1;
+    }
+
+    // Orbiting rings
+    if (ring1Ref.current) ring1Ref.current.rotation.z += delta * 0.5;
+    if (ring2Ref.current) {
+      ring2Ref.current.rotation.x = Math.PI / 3;
+      ring2Ref.current.rotation.z -= delta * 0.3;
+    }
+
+    // Node cluster rotates
+    if (nodesRef.current) {
+      nodesRef.current.rotation.y += delta * 0.4;
+      nodesRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.3) * 0.2;
+    }
+  });
+
+  // Orbiting data nodes
+  const nodePositions = (() => {
     const arr: [number, number, number][] = [];
     for (let i = 0; i < 8; i++) {
       const angle = (i / 8) * Math.PI * 2;
@@ -30,87 +70,53 @@ function AICore({ activePhase }: { activePhase: number }) {
       arr.push([Math.cos(angle) * r, Math.sin(angle * 2) * 0.5, Math.sin(angle) * r]);
     }
     return arr;
-  }, []);
-
-  useFrame((state, delta) => {
-    if (groupRef.current) {
-      groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, targetRotation.current, delta * 2.5);
-    }
-    if (innerRef.current) {
-      innerRef.current.scale.setScalar(1 + Math.sin(state.clock.elapsedTime * 2) * 0.06);
-    }
-    if (wireRef.current) {
-      wireRef.current.rotation.y -= delta * 0.3;
-      wireRef.current.rotation.z += delta * 0.1;
-    }
-    if (ring1Ref.current) ring1Ref.current.rotation.z += delta * 0.5;
-    if (ring2Ref.current) {
-      ring2Ref.current.rotation.x = Math.PI / 3;
-      ring2Ref.current.rotation.z -= delta * 0.3;
-    }
-    if (nodesRef.current) {
-      nodesRef.current.rotation.y += delta * 0.4;
-      nodesRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.3) * 0.2;
-    }
-  });
+  })();
 
   return (
     <group ref={groupRef}>
+      {/* Inner glowing core */}
       <mesh ref={innerRef}>
         <icosahedronGeometry args={[0.8, 4]} />
         <MeshDistortMaterial color="#2563EB" speed={2} distort={0.3} roughness={0.1} metalness={0.8} emissive="#2563EB" emissiveIntensity={0.4} />
       </mesh>
+
+      {/* Wireframe outer shell */}
       <mesh ref={wireRef} scale={1.6}>
         <icosahedronGeometry args={[0.8, 1]} />
         <meshBasicMaterial color="#7C3AED" wireframe transparent opacity={0.35} />
       </mesh>
+
+      {/* Orbiting rings */}
       <mesh ref={ring1Ref} rotation={[Math.PI / 2, 0, 0]}>
         <torusGeometry args={[2, 0.025, 8, 80]} />
         <meshBasicMaterial color="#16A34A" transparent opacity={0.5} />
       </mesh>
       <mesh ref={ring2Ref}>
-        <torusGeometry args={[2.4, 0.018, 8, 80]} />
-        <meshBasicMaterial color="#06B6D4" transparent opacity={0.3} />
+        <torusGeometry args={[2.3, 0.02, 8, 80]} />
+        <meshBasicMaterial color="#F59E0B" transparent opacity={0.4} />
       </mesh>
+
+      {/* Orbiting data nodes */}
       <group ref={nodesRef}>
         {nodePositions.map((pos, i) => (
-          <Float key={i} speed={2} floatIntensity={0.5} rotationIntensity={0.5}>
-            <mesh position={pos}>
-              <sphereGeometry args={[0.08, 12, 12]} />
-              <meshStandardMaterial color={i % 3 === 0 ? '#2563EB' : i % 3 === 1 ? '#7C3AED' : '#16A34A'} emissive={i % 3 === 0 ? '#2563EB' : i % 3 === 1 ? '#7C3AED' : '#16A34A'} emissiveIntensity={0.6} metalness={0.4} roughness={0.3} />
-            </mesh>
-          </Float>
+          <mesh key={i} position={pos}>
+            <sphereGeometry args={[0.06, 12, 12]} />
+            <meshStandardMaterial
+              color={i % 2 === 0 ? '#2563EB' : '#7C3AED'}
+              emissive={i % 2 === 0 ? '#2563EB' : '#7C3AED'}
+              emissiveIntensity={0.6}
+            />
+          </mesh>
         ))}
       </group>
+
       <pointLight color="#2563EB" intensity={3} distance={6} />
       <pointLight position={[3, 2, 3]} color="#7C3AED" intensity={1.5} distance={8} />
-      <pointLight position={[-3, -2, -3]} color="#16A34A" intensity={1} distance={8} />
     </group>
   );
 }
 
-function CameraRig({ activePhase }: { activePhase: number }) {
-  const targetAngle = useRef(0);
-  const targetRadius = useRef(5.5);
-  const targetY = useRef(0);
-
-  useEffect(() => {
-    targetAngle.current = (activePhase / 4) * Math.PI * 2;
-    targetRadius.current = 5.5 - (activePhase / 3) * 1.5;
-    targetY.current = (activePhase / 3) * 1;
-  }, [activePhase]);
-
-  useFrame((state, delta) => {
-    const cam = state.camera;
-    const camPos = cam.position;
-    camPos.x = THREE.MathUtils.lerp(camPos.x, Math.sin(targetAngle.current) * targetRadius.current, delta * 2);
-    camPos.y = THREE.MathUtils.lerp(camPos.y, targetY.current, delta * 2);
-    camPos.z = THREE.MathUtils.lerp(camPos.z, Math.cos(targetAngle.current) * targetRadius.current, delta * 2);
-    cam.lookAt(0, 0, 0);
-  });
-  return null;
-}
-
+/* ---------- Text chapter data ---------- */
 const TEXT_BLOCKS = [
   { num: '01', title: 'Curiosity', body: 'You start with a question. Why does ChatGPT work? How does a self-driving car see? We meet you there — at the edge of wonder.', icon: Brain, color: '#2563EB' },
   { num: '02', title: 'Foundations', body: 'No copy-paste tutorials. We build the mental models — systems thinking, problem decomposition, abstraction. The thinking behind the typing.', icon: Hammer, color: '#7C3AED' },
@@ -119,28 +125,39 @@ const TEXT_BLOCKS = [
 ];
 
 export default function OryzoSection({ id = 'oryzo' }: { id?: string }) {
-  const [activePhase, setActivePhase] = useState<Phase>(0);
-  const [autoPlay, setAutoPlay] = useState(true);
-  const touchStartX = useRef(0);
+  const [activeIdx, setActiveIdx] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const touchStartX = useRef<number | null>(null);
+  const count = TEXT_BLOCKS.length;
 
-  const next = useCallback(() => { setActivePhase((p) => ((p + 1) % 4) as Phase); setAutoPlay(false); }, []);
-  const prev = useCallback(() => { setActivePhase((p) => ((p - 1 + 4) % 4) as Phase); setAutoPlay(false); }, []);
-  const goTo = useCallback((i: number) => { setActivePhase(i as Phase); setAutoPlay(false); }, []);
+  const goNext = () => setActiveIdx((i) => (i + 1) % count);
+  const goPrev = () => setActiveIdx((i) => (i - 1 + count) % count);
 
+  // Auto-play every 5s, pause on hover
   useEffect(() => {
-    if (!autoPlay) return;
-    const id = setTimeout(() => setActivePhase((p) => ((p + 1) % 4) as Phase), 5000);
-    return () => clearTimeout(id);
-  }, [autoPlay, activePhase]);
+    if (paused) return;
+    const t = setInterval(() => {
+      setActiveIdx((i) => (i + 1) % count);
+    }, 5000);
+    return () => clearInterval(t);
+  }, [paused, count]);
 
-  const handleTouchStart = (e: React.TouchEvent) => { touchStartX.current = e.touches[0].clientX; };
-  const handleTouchEnd = (e: React.TouchEvent) => {
+  // Touch handlers for mobile swipe
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
     const dx = e.changedTouches[0].clientX - touchStartX.current;
-    if (Math.abs(dx) > 50) { if (dx > 0) prev(); else next(); }
+    if (Math.abs(dx) > 50) {
+      if (dx > 0) goPrev();
+      else goNext();
+    }
+    touchStartX.current = null;
   };
 
-  const currentBlock = TEXT_BLOCKS[activePhase];
-  const Icon = currentBlock.icon;
+  const active = TEXT_BLOCKS[activeIdx];
+  const Icon = active.icon;
 
   return (
     <section
@@ -148,23 +165,39 @@ export default function OryzoSection({ id = 'oryzo' }: { id?: string }) {
       data-chapter="oryzo"
       data-chapter-label="Journey"
       className="relative bg-slate-950 overflow-hidden"
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
     >
+      {/* Background */}
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-blue-950/50 to-violet-950/50" />
-        <div className="absolute inset-0 opacity-30" style={{ backgroundImage: 'radial-gradient(circle at 30% 50%, rgba(37, 99, 235, 0.4) 0%, transparent 50%), radial-gradient(circle at 70% 50%, rgba(124, 58, 237, 0.4) 0%, transparent 50%)' }} />
-        <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)', backgroundSize: '64px 64px', maskImage: 'radial-gradient(ellipse at center, black 30%, transparent 80%)', WebkitMaskImage: 'radial-gradient(ellipse at center, black 30%, transparent 80%)' }} />
+        <div className="absolute inset-0 opacity-30" style={{
+          backgroundImage: 'radial-gradient(circle at 30% 50%, rgba(37, 99, 235, 0.4) 0%, transparent 50%), radial-gradient(circle at 70% 50%, rgba(124, 58, 237, 0.4) 0%, transparent 50%)'
+        }} />
+        <div className="absolute inset-0" style={{
+          backgroundImage: 'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)',
+          backgroundSize: '64px 64px',
+          maskImage: 'radial-gradient(ellipse at center, black 30%, transparent 80%)',
+          WebkitMaskImage: 'radial-gradient(ellipse at center, black 30%, transparent 80%)'
+        }} />
       </div>
 
+      {/* 3D Canvas — fixed behind text */}
       <div className="absolute inset-0">
-        <Canvas dpr={[1, 1.5]} camera={{ position: [0, 0, 5.5], fov: 55 }} gl={{ antialias: true, alpha: true, depth: false, powerPreference: 'high-performance' }} style={{ background: 'transparent' }} performance={{ min: 0.5 }}>
+        <Canvas
+          dpr={[1, 1.5]}
+          camera={{ position: [0, 0, 5.5], fov: 55 }}
+          gl={{ antialias: true, alpha: true, depth: false, powerPreference: 'high-performance' }}
+          style={{ background: 'transparent' }}
+          performance={{ min: 0.5 }}
+        >
           <ambientLight intensity={0.4} />
           <directionalLight position={[5, 5, 5]} intensity={1.2} />
           <directionalLight position={[-5, -3, -5]} intensity={0.4} color="#7C3AED" />
           <Suspense fallback={null}>
-            <CameraRig activePhase={activePhase} />
-            <AICore activePhase={activePhase} />
+            <AICore activeIdx={activeIdx} count={count} />
             <Sparkles count={40} scale={10} size={2} speed={0.3} opacity={0.5} color="#2563EB" />
             <Sparkles count={20} scale={8} size={3} speed={0.2} opacity={0.3} color="#7C3AED" />
             <Environment preset="city" />
@@ -172,51 +205,97 @@ export default function OryzoSection({ id = 'oryzo' }: { id?: string }) {
         </Canvas>
       </div>
 
-      <div className="relative min-h-[100svh] flex flex-col items-center justify-center px-5 py-20 sm:py-24">
-        <div className="absolute top-24 left-1/2 -translate-x-1/2 text-center z-10 pointer-events-none">
-          <span className="text-xs font-bold uppercase tracking-[0.3em] text-blue-400" style={{ fontFamily: 'var(--font-grotesk)' }}>— The Sariro Journey —</span>
+      {/* Content — single screen height, no pinning */}
+      <div className="relative h-screen flex flex-col items-center justify-center px-4">
+        {/* Top label */}
+        <div className="absolute top-20 left-1/2 -translate-x-1/2 text-center z-10 pointer-events-none">
+          <span className="text-xs font-bold uppercase tracking-[0.3em] text-blue-400" style={{ fontFamily: 'var(--font-grotesk)' }}>
+            — The Sariro Journey —
+          </span>
         </div>
 
-        <div className="relative z-10 max-w-2xl text-center min-h-[300px] flex items-center justify-center">
+        {/* Active chapter text (cross-fade) — fixed height container so layout doesn't collapse during transition */}
+        <div className="relative z-10 w-full max-w-2xl text-center" style={{ height: '340px' }}>
           <AnimatePresence mode="wait">
             <motion.div
-              key={activePhase}
-              initial={{ opacity: 0, y: 30, filter: 'blur(8px)' }}
-              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-              exit={{ opacity: 0, y: -30, filter: 'blur(8px)' }}
-              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-              className="max-w-xl"
+              key={activeIdx}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+              className="absolute inset-0 flex flex-col items-center justify-center"
             >
-              <div className="absolute inset-0 -z-10 rounded-full blur-3xl opacity-50" style={{ background: `radial-gradient(ellipse 60% 50% at center, ${currentBlock.color}30, transparent 70%)` }} />
+              {/* Number + Icon */}
               <div className="flex items-center justify-center gap-3 mb-6">
-                <span className="text-6xl sm:text-7xl font-extrabold leading-none opacity-30" style={{ fontFamily: 'var(--font-jakarta)', color: currentBlock.color, textShadow: `0 0 40px ${currentBlock.color}80` }}>{currentBlock.num}</span>
-                <div className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-2xl" style={{ background: `linear-gradient(135deg, ${currentBlock.color}, ${currentBlock.color}99)`, boxShadow: `0 20px 50px -20px ${currentBlock.color}` }}>
+                <span
+                  className="text-6xl sm:text-7xl font-extrabold leading-none opacity-25"
+                  style={{ fontFamily: 'var(--font-jakarta)', color: active.color }}
+                >
+                  {active.num}
+                </span>
+                <div
+                  className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-2xl"
+                  style={{ background: `linear-gradient(135deg, ${active.color}, ${active.color}99)`, boxShadow: `0 20px 50px -20px ${active.color}` }}
+                >
                   <Icon className="w-7 h-7 text-white" strokeWidth={2.4} />
                 </div>
               </div>
-              <h3 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white mb-5" style={{ fontFamily: 'var(--font-jakarta)', textShadow: '0 2px 20px rgba(0,0,0,0.8), 0 0 40px rgba(0,0,0,0.5)' }}>{currentBlock.title}</h3>
-              <p className="text-lg sm:text-xl text-white leading-relaxed" style={{ textShadow: '0 1px 12px rgba(0,0,0,0.8)' }}>{currentBlock.body}</p>
+
+              {/* Title */}
+              <h3 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white mb-4" style={{ fontFamily: 'var(--font-jakarta)' }}>
+                {active.title}
+              </h3>
+
+              {/* Body */}
+              <p className="text-base sm:text-lg text-slate-300 leading-relaxed max-w-lg mx-auto px-4">
+                {active.body}
+              </p>
             </motion.div>
           </AnimatePresence>
         </div>
 
-        {/* ARROW NAVIGATION */}
-        <div className="absolute bottom-10 left-0 right-0 flex items-center justify-center gap-4 z-20">
-          <button onClick={prev} className="w-12 h-12 rounded-full bg-white/5 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-white/10 active:scale-90 transition-all cursor-pointer" aria-label="Previous chapter">
-            <ChevronLeft className="w-6 h-6" />
-          </button>
-          <div className="flex items-center gap-2">
-            {TEXT_BLOCKS.map((_, i) => (
-              <button key={i} onClick={() => goTo(i)} className={`rounded-full transition-all duration-300 cursor-pointer ${i === activePhase ? 'w-8 h-2.5 bg-white' : 'w-2.5 h-2.5 bg-white/30 hover:bg-white/50'}`} aria-label={`Go to chapter ${i + 1}`} />
-            ))}
-          </div>
-          <button onClick={next} className="w-12 h-12 rounded-full bg-white/5 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-white/10 active:scale-90 transition-all cursor-pointer" aria-label="Next chapter">
-            <ChevronRight className="w-6 h-6" />
-          </button>
+        {/* Arrow buttons (left + right) */}
+        <button
+          onClick={goPrev}
+          className="absolute left-4 sm:left-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white flex items-center justify-center hover:bg-white/20 hover:border-white/40 transition-all cursor-pointer"
+          aria-label="Previous chapter"
+        >
+          <ChevronLeft className="w-6 h-6" />
+        </button>
+        <button
+          onClick={goNext}
+          className="absolute right-4 sm:right-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white flex items-center justify-center hover:bg-white/20 hover:border-white/40 transition-all cursor-pointer"
+          aria-label="Next chapter"
+        >
+          <ChevronRight className="w-6 h-6" />
+        </button>
+
+        {/* Progress dots (clickable) */}
+        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex items-center gap-3 z-20">
+          {TEXT_BLOCKS.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setActiveIdx(i)}
+              className="rounded-full transition-all cursor-pointer"
+              style={{
+                width: i === activeIdx ? 32 : 8,
+                height: 8,
+                background: i === activeIdx ? '#2563EB' : 'rgba(255,255,255,0.3)',
+              }}
+              aria-label={`Go to chapter ${i + 1}`}
+            />
+          ))}
         </div>
 
-        <div className="absolute bottom-24 left-1/2 -translate-x-1/2 sm:hidden z-10 pointer-events-none">
-          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-500" style={{ fontFamily: 'var(--font-grotesk)' }}>← Swipe →</p>
+        {/* Chapter counter (top-right) */}
+        <div className="absolute top-20 right-8 text-right z-20 pointer-events-none">
+          <span className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400 block" style={{ fontFamily: 'var(--font-grotesk)' }}>
+            Chapter
+          </span>
+          <span className="text-2xl font-extrabold text-white" style={{ fontFamily: 'var(--font-jakarta)' }}>
+            0{activeIdx + 1}
+            <span className="text-slate-500 text-base"> / 0{count}</span>
+          </span>
         </div>
       </div>
     </section>

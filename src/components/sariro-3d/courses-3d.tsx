@@ -3,7 +3,7 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef, useState } from 'react';
 import { ArrowRight, Clock, Layers, Calendar, Star, RotateCw, Check } from 'lucide-react';
-import { COURSES } from '@/lib/sariro-data';
+import { COURSES, getRazorpayLink } from '@/lib/sariro-data';
 import { SplitText3D, TiltCard3D } from './scroll-effects';
 import { FlipCard3D } from './kit-3d';
 
@@ -30,7 +30,7 @@ function CourseCard({ course, index }: { course: typeof COURSES[number]; index: 
           <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold ${a.soft} ${a.text} border ${a.border}`} style={{ fontFamily: 'var(--font-grotesk)' }}>
             {course.level}
           </span>
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700 border border-slate-200" style={{ fontFamily: 'var(--font-grotesk)' }}>
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold pill-tint-blue" style={{ fontFamily: 'var(--font-grotesk)' }}>
             {course.audience}
           </span>
           {course.featured && (
@@ -98,13 +98,16 @@ function CourseCard({ course, index }: { course: typeof COURSES[number]; index: 
             </li>
           ))}
         </ul>
-        <button
+        <a
+          href={getRazorpayLink(course.level)}
+          target="_blank"
+          rel="noopener noreferrer"
           className={`group/btn inline-flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl text-sm font-bold text-white ${a.bg} shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all cursor-pointer`}
           style={{ fontFamily: 'var(--font-grotesk)' }}
         >
           Enroll in cohort
           <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
-        </button>
+        </a>
       </div>
     </div>
   );

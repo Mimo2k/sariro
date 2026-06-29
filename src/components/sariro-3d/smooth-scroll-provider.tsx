@@ -36,8 +36,22 @@ export default function SmoothScrollProvider({ children }: { children: React.Rea
     }
     rafId = requestAnimationFrame(raf);
 
+    // Listen for scroll-lock events from chat bubble / modals.
+    // When locked, stop Lenis entirely so the page can't be scrolled
+    // (only the chat panel, which has data-lenis-prevent, can scroll).
+    const handleScrollLock = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail?.locked) {
+        lenis.stop();
+      } else {
+        lenis.start();
+      }
+    };
+    window.addEventListener('sariro:scroll-lock', handleScrollLock);
+
     return () => {
       cancelAnimationFrame(rafId);
+      window.removeEventListener('sariro:scroll-lock', handleScrollLock);
       lenis.destroy();
       lenisRef.current = null;
     };

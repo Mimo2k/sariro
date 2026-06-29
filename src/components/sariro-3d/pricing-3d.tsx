@@ -2,8 +2,8 @@
 
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
-import { Check, Star, ArrowRight, Sparkles } from 'lucide-react';
-import { PRICING_TIERS } from '@/lib/sariro-data';
+import { Check, Star, ArrowRight, Sparkles, Tag } from 'lucide-react';
+import { PRICING_TIERS, DISCOUNT_LABEL, DISCOUNT_DEADLINE, discountPercent } from '@/lib/sariro-data';
 import { SplitText3D, MagneticButton, TiltCard3D } from './scroll-effects';
 
 const ACCENT_MAP: Record<string, { text: string; bg: string; soft: string; border: string; gradient: string }> = {
@@ -56,9 +56,48 @@ export default function Pricing3D() {
           </p>
         </motion.div>
 
+        {/* Summer launch discount banner */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="mb-10 mx-auto max-w-3xl rounded-2xl p-5 sm:p-6 flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left"
+          style={{
+            background: 'linear-gradient(135deg, rgba(220, 38, 38, 0.10) 0%, rgba(239, 68, 68, 0.10) 100%)',
+            border: '1px solid rgba(220, 38, 38, 0.25)',
+          }}
+        >
+          <div
+            className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 text-white shadow-lg"
+            style={{ background: 'linear-gradient(135deg, #DC2626 0%, #EF4444 100%)' }}
+          >
+            <Tag className="w-6 h-6" strokeWidth={2.4} />
+          </div>
+          <div className="flex-1">
+            <div
+              className="text-xs font-bold uppercase tracking-[0.18em] mb-1"
+              style={{ fontFamily: 'var(--font-grotesk)', color: '#DC2626' }}
+            >
+              Limited-time pricing
+            </div>
+            <h3
+              className="text-lg sm:text-xl font-extrabold text-slate-900"
+              style={{ fontFamily: 'var(--font-jakarta)' }}
+            >
+              {DISCOUNT_LABEL}
+            </h3>
+            <p className="text-sm text-slate-600 mt-1">
+              Locked in for every cohort starting before <span className="font-bold text-slate-900">{DISCOUNT_DEADLINE}</span>. After that, standard pricing resumes.
+            </p>
+          </div>
+        </motion.div>
+      </div>
+
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-stretch">
           {PRICING_TIERS.map((tier, i) => {
             const a = ACCENT_MAP[tier.accent] ?? ACCENT_MAP.blue;
+            const pct = discountPercent(tier.price, tier.originalPrice);
             return (
               <motion.div
                 key={tier.id}
@@ -102,11 +141,37 @@ export default function Pricing3D() {
                           Custom
                         </div>
                       ) : (
-                        <div className="flex items-baseline gap-1">
-                          <span className="text-5xl font-extrabold text-slate-900" style={{ fontFamily: 'var(--font-jakarta)' }}>
-                            ${tier.price}
-                          </span>
-                          <span className="text-sm font-semibold text-slate-500">/ {tier.period}</span>
+                        <div>
+                          {pct > 0 && (
+                            <div className="flex items-center gap-2 mb-2">
+                              <span
+                                className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md text-white shadow-sm"
+                                style={{ background: '#DC2626', fontFamily: 'var(--font-grotesk)' }}
+                              >
+                                Save {pct}%
+                              </span>
+                              <span
+                                className="text-xs font-bold uppercase tracking-wider line-through"
+                                style={{ fontFamily: 'var(--font-grotesk)', color: '#DC2626' }}
+                              >
+                                ${tier.originalPrice}
+                              </span>
+                            </div>
+                          )}
+                          <div className="flex items-baseline gap-1">
+                            <span className="text-5xl font-extrabold text-slate-900" style={{ fontFamily: 'var(--font-jakarta)' }}>
+                              ${tier.price}
+                            </span>
+                            <span className="text-sm font-semibold text-slate-500">/ {tier.period}</span>
+                          </div>
+                          {pct > 0 && (
+                            <p
+                              className="text-xs font-bold mt-1.5"
+                              style={{ fontFamily: 'var(--font-grotesk)', color: '#DC2626' }}
+                            >
+                              You save ${tier.originalPrice! - tier.price!}
+                            </p>
+                          )}
                         </div>
                       )}
                     </div>

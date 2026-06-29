@@ -95,7 +95,7 @@ export default function Navbar3D() {
             {/* Mobile toggle */}
             <button
               onClick={() => setMobileOpen((v) => !v)}
-              className="lg:hidden p-2 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+              className="lg:hidden p-2 rounded-lg hover:bg-blue-50 transition-colors cursor-pointer"
               aria-label="Toggle menu"
             >
               {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}

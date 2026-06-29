@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowRight,
   CalendarDays,
@@ -13,6 +13,11 @@ import {
   Trophy,
   CheckCircle2,
   RotateCw,
+  X,
+  BookOpen,
+  Layers,
+  GraduationCap,
+  Briefcase,
 } from 'lucide-react';
 import BrandLayout from '@/components/brand/brand-layout';
 import PageHero from '@/components/brand/page-hero';
@@ -28,9 +33,11 @@ import {
   ParallaxOrb,
   StickyScrollSection,
 } from '@/components/brand/effects-kit';
-import { COURSES } from '@/lib/sariro-data';
+import { COURSES, discountPercent, DISCOUNT_LABEL, getRazorpayLink } from '@/lib/sariro-data';
 
 type FilterKey = 'All' | 'Students' | 'Professionals';
+
+type Course = (typeof COURSES)[number];
 
 const ACCENT_HEX: Record<string, string> = {
   blue: '#2563EB',
@@ -40,17 +47,19 @@ const ACCENT_HEX: Record<string, string> = {
   cyan: '#06B6D4',
 };
 
-const FILTERS: { key: FilterKey; label: string; count: number }[] = [
-  { key: 'All', label: 'All courses', count: COURSES.length },
-  { key: 'Students', label: 'Students', count: COURSES.filter((c) => c.audience === 'Students').length },
-  { key: 'Professionals', label: 'Professionals', count: COURSES.filter((c) => c.audience === 'Professionals').length },
-];
-
 export default function CoursesPage() {
   const [filter, setFilter] = useState<FilterKey>('All');
+  const [syllabusCourse, setSyllabusCourse] = useState<Course | null>(null);
 
   const visible =
     filter === 'All' ? COURSES : COURSES.filter((c) => c.audience === filter);
+
+  // Re-compute filter counts dynamically (in case COURSES changes)
+  const FILTERS: { key: FilterKey; label: string; count: number }[] = [
+    { key: 'All', label: 'All courses', count: COURSES.length },
+    { key: 'Students', label: 'Students', count: COURSES.filter((c) => c.audience === 'Students').length },
+    { key: 'Professionals', label: 'Professionals', count: COURSES.filter((c) => c.audience === 'Professionals').length },
+  ];
 
   return (
     <BrandLayout>
@@ -105,7 +114,7 @@ export default function CoursesPage() {
 
             {/* Filter pills */}
             <div
-              className="flex flex-wrap p-1.5 rounded-2xl glass-panel gap-1 self-start md:self-auto"
+              className="inline-flex p-1.5 rounded-2xl glass-panel gap-1 self-start md:self-auto"
               role="tablist"
               aria-label="Filter courses by audience"
             >
@@ -117,7 +126,7 @@ export default function CoursesPage() {
                     onClick={() => setFilter(f.key)}
                     role="tab"
                     aria-selected={active}
-                    className={`relative px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-colors duration-200 flex-1 sm:flex-initial justify-center ${
+                    className={`relative px-4 py-2.5 rounded-xl text-sm font-bold transition-all ${
                       active ? 'text-white' : 'text-slate-700 hover:text-blue-600'
                     }`}
                     style={{ fontFamily: 'var(--font-grotesk)' }}
@@ -129,15 +138,8 @@ export default function CoursesPage() {
                         transition={{ type: 'spring', stiffness: 320, damping: 28 }}
                       />
                     )}
-                    <span className="relative flex items-center gap-1.5 sm:gap-2 justify-center whitespace-nowrap">
+                    <span className="relative flex items-center gap-2">
                       {f.label}
-                      <span
-                        className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
-                          active ? 'bg-white/20' : 'bg-slate-100 text-slate-500'
-                        }`}
-                      >
-                        {f.count}
-                      </span>
                     </span>
                   </button>
                 );
@@ -145,8 +147,95 @@ export default function CoursesPage() {
             </div>
           </div>
 
+          {/* Tier explorer — links to dedicated tier pages (not in navbar) */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
+            <Link
+              href="/courses/beginner"
+              className="group rounded-2xl p-5 border-2 border-green-200 hover:border-green-400 hover:shadow-lg hover:shadow-green-500/10 transition-all bg-green-50/50"
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center text-green-600">
+                  <GraduationCap className="w-5 h-5" strokeWidth={2.2} />
+                </div>
+                <div>
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-green-700" style={{ fontFamily: 'var(--font-grotesk)' }}>
+                    Tier 1 · From $199
+                  </div>
+                  <div className="text-base font-extrabold text-slate-900" style={{ fontFamily: 'var(--font-jakarta)' }}>
+                    Beginner
+                  </div>
+                </div>
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed mb-2">
+                5 courses · 5 modules · 30 lessons each. Zero experience required.
+              </p>
+              <div className="text-xs font-bold text-green-600 flex items-center gap-1 group-hover:gap-2 transition-all">
+                Explore beginner track
+                <ArrowRight className="w-3 h-3" />
+              </div>
+            </Link>
+
+            <Link
+              href="/courses/intermediate"
+              className="group rounded-2xl p-5 border-2 border-blue-200 hover:border-blue-400 hover:shadow-lg hover:shadow-blue-500/10 transition-all bg-blue-50/50"
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600">
+                  <Briefcase className="w-5 h-5" strokeWidth={2.2} />
+                </div>
+                <div>
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-blue-700" style={{ fontFamily: 'var(--font-grotesk)' }}>
+                    Tier 2 · From $299
+                  </div>
+                  <div className="text-base font-extrabold text-slate-900" style={{ fontFamily: 'var(--font-jakarta)' }}>
+                    Intermediate
+                  </div>
+                </div>
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed mb-2">
+                6 courses · 7 modules · 42 lessons each. Ship real products.
+              </p>
+              <div className="text-xs font-bold text-blue-600 flex items-center gap-1 group-hover:gap-2 transition-all">
+                Explore intermediate track
+                <ArrowRight className="w-3 h-3" />
+              </div>
+            </Link>
+
+            <Link
+              href="/courses/advanced"
+              className="group rounded-2xl p-5 border-2 border-violet-200 hover:border-violet-400 hover:shadow-lg hover:shadow-violet-500/10 transition-all bg-violet-50/50"
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center text-violet-600">
+                  <Sparkles className="w-5 h-5" strokeWidth={2.2} />
+                </div>
+                <div>
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-violet-700" style={{ fontFamily: 'var(--font-grotesk)' }}>
+                    Tier 3 · From $699
+                  </div>
+                  <div className="text-base font-extrabold text-slate-900" style={{ fontFamily: 'var(--font-jakarta)' }}>
+                    Advanced
+                  </div>
+                </div>
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed mb-2">
+                1 flagship course · 16 modules · 96 lessons. Ship agent products.
+              </p>
+              <div className="text-xs font-bold text-violet-600 flex items-center gap-1 group-hover:gap-2 transition-all">
+                Explore advanced track
+                <ArrowRight className="w-3 h-3" />
+              </div>
+            </Link>
+          </div>
+
           {/* Catalog grid */}
+          {/* Catalog grid.
+              KEY=filter forces StaggerGroup to remount on filter change —
+              without this, new items mount with initial="hidden" but
+              whileInView already fired once, so they stay invisible
+              and the courses "disappear". */}
           <StaggerGroup
+            key={filter}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
             stagger={0.1}
           >
@@ -155,10 +244,10 @@ export default function CoursesPage() {
               return (
                 <StaggerItem key={course.id}>
                   <FlipCard3D
-                    height="420px"
-                    className="h-[420px]"
-                    front={<CourseFront course={course} accent={accent} />}
-                    back={<CourseBack course={course} accent={accent} />}
+                    height="440px"
+                    className="h-[440px]"
+                    front={<CourseFront course={course} accent={accent} onViewSyllabus={() => setSyllabusCourse(course)} />}
+                    back={<CourseBack course={course} accent={accent} onViewSyllabus={() => setSyllabusCourse(course)} />}
                   />
                 </StaggerItem>
               );
@@ -174,10 +263,13 @@ export default function CoursesPage() {
         </div>
       </section>
 
+      {/* ====== Syllabus modal ====== */}
+      <SyllabusModal course={syllabusCourse} onClose={() => setSyllabusCourse(null)} />
+
       <WaveDivider3D fromColor="#FFFFFF" toColor="#F8FAFC" />
 
       {/* ====== Cohort value strip ====== */}
-      <section className="relative py-16 sm:py-20 bg-slate-50 overflow-hidden">
+      <section className="relative py-16 sm:py-20 mesh-bg-soft-blue overflow-hidden">
         <ParallaxOrb color="rgba(22, 163, 74, 0.10)" size={380} speed={80} position="top-20 left-10" />
         <ParallaxOrb color="rgba(245, 158, 11, 0.08)" size={300} speed={-70} position="bottom-10 right-10" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -291,9 +383,11 @@ export default function CoursesPage() {
 function CourseFront({
   course,
   accent,
+  onViewSyllabus,
 }: {
-  course: (typeof COURSES)[number];
+  course: Course;
   accent: string;
+  onViewSyllabus: () => void;
 }) {
   return (
     <div className="card-3d h-full p-6 flex flex-col">
@@ -319,16 +413,20 @@ function CourseFront({
         )}
       </div>
 
-      {/* Level + duration */}
-      <div className="flex items-center gap-3 text-xs text-slate-500 mb-3" style={{ fontFamily: 'var(--font-grotesk)' }}>
-        <span className="font-bold uppercase tracking-wider">{course.level}</span>
+      {/* Level + duration + lessons */}
+      <div className="flex items-center gap-3 text-xs text-slate-500 mb-3 flex-wrap" style={{ fontFamily: 'var(--font-grotesk)' }}>
+        <span className="font-bold uppercase tracking-wider" style={{ color: accent }}>{course.level}</span>
         <span className="w-1 h-1 rounded-full bg-slate-300" />
         <span className="flex items-center gap-1">
-          <Clock className="w-3 h-3" /> {course.durationWeeks} weeks
+          <Clock className="w-3 h-3" /> {course.durationWeeks}w
         </span>
         <span className="w-1 h-1 rounded-full bg-slate-300" />
         <span className="flex items-center gap-1">
-          <LayoutGrid className="w-3 h-3" /> {course.modules} modules
+          <LayoutGrid className="w-3 h-3" /> {course.modules} mods
+        </span>
+        <span className="w-1 h-1 rounded-full bg-slate-300" />
+        <span className="flex items-center gap-1">
+          <BookOpen className="w-3 h-3" /> {course.lessons} lessons
         </span>
       </div>
 
@@ -343,33 +441,51 @@ function CourseFront({
 
       {/* Footer */}
       <div className="mt-auto pt-4 border-t border-slate-100">
-        <div className="flex items-end justify-between">
+        <div className="flex items-end justify-between mb-3">
           <div>
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500" style={{ fontFamily: 'var(--font-grotesk)' }}>
               Price
             </span>
-            <div className="flex items-baseline gap-2">
-              {/* Strikethrough original price */}
-              {course.originalPrice && (
-                <span className="text-sm font-bold text-slate-400 line-through" style={{ fontFamily: 'var(--font-jakarta)' }}>
-                  ${course.originalPrice}
-                </span>
-              )}
-              {/* Current price */}
-              <span
-                className="text-2xl font-extrabold"
-                style={{ color: accent, fontFamily: 'var(--font-jakarta)' }}
-              >
-                ${course.price}
-              </span>
-              <span className="text-xs text-slate-500">USD</span>
-            </div>
-            {/* Discount badge */}
-            {course.originalPrice && (
-              <span className="inline-block mt-1 px-2 py-0.5 rounded-md bg-red-100 text-red-600 text-[10px] font-bold uppercase tracking-wide" style={{ fontFamily: 'var(--font-grotesk)' }}>
-                50% OFF · Save ${course.originalPrice - course.price}
-              </span>
-            )}
+            {(() => {
+              const pct = discountPercent(course.price, course.originalPrice);
+              return pct > 0 ? (
+                <>
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <span
+                      className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded text-white shadow-sm"
+                      style={{ background: '#DC2626', fontFamily: 'var(--font-grotesk)' }}
+                    >
+                      -{pct}%
+                    </span>
+                    <span
+                      className="text-xs font-bold line-through"
+                      style={{ fontFamily: 'var(--font-grotesk)', color: '#DC2626' }}
+                    >
+                      ${course.originalPrice}
+                    </span>
+                  </div>
+                  <div className="flex items-baseline gap-1">
+                    <span
+                      className="text-2xl font-extrabold"
+                      style={{ color: accent, fontFamily: 'var(--font-jakarta)' }}
+                    >
+                      $<CountUp value={course.price} duration={1.5} />
+                    </span>
+                    <span className="text-xs text-slate-500">USD</span>
+                  </div>
+                </>
+              ) : (
+                <div className="flex items-baseline gap-1">
+                  <span
+                    className="text-2xl font-extrabold"
+                    style={{ color: accent, fontFamily: 'var(--font-jakarta)' }}
+                  >
+                    $<CountUp value={course.price} duration={1.5} />
+                  </span>
+                  <span className="text-xs text-slate-500">USD</span>
+                </div>
+              );
+            })()}
           </div>
           <div className="text-right">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1 justify-end" style={{ fontFamily: 'var(--font-grotesk)' }}>
@@ -378,12 +494,22 @@ function CourseFront({
             <span className="text-sm font-bold text-slate-900">{course.nextCohort}</span>
           </div>
         </div>
-        <div
-          className="mt-3 flex items-center justify-center gap-1.5 text-xs font-bold py-2 rounded-lg"
-          style={{ background: `${accent}10`, color: accent, fontFamily: 'var(--font-grotesk)' }}
-        >
-          <RotateCw className="w-3 h-3" />
-          Hover to see outcomes
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            onClick={(e) => { e.stopPropagation(); onViewSyllabus(); }}
+            className="flex items-center justify-center gap-1.5 text-xs font-bold py-2 rounded-lg transition-colors"
+            style={{ background: `${accent}10`, color: accent, fontFamily: 'var(--font-grotesk)' }}
+          >
+            <BookOpen className="w-3 h-3" />
+            Syllabus
+          </button>
+          <div
+            className="flex items-center justify-center gap-1.5 text-xs font-bold py-2 rounded-lg"
+            style={{ background: `${accent}05`, color: '#64748B', fontFamily: 'var(--font-grotesk)' }}
+          >
+            <RotateCw className="w-3 h-3" />
+            Hover: outcomes
+          </div>
         </div>
       </div>
     </div>
@@ -391,14 +517,16 @@ function CourseFront({
 }
 
 /* --------------------------------------------------------------- */
-/* Course card BACK face — outcomes                                 */
+/* Course card BACK face — outcomes + syllabus button              */
 /* --------------------------------------------------------------- */
 function CourseBack({
   course,
   accent,
+  onViewSyllabus,
 }: {
-  course: (typeof COURSES)[number];
+  course: Course;
   accent: string;
+  onViewSyllabus: () => void;
 }) {
   return (
     <div
@@ -443,38 +571,281 @@ function CourseBack({
         </ul>
 
         <div className="mt-6 pt-4 border-t border-white/15">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2">
             <div>
               <div className="text-[10px] font-bold uppercase tracking-wider text-white/60" style={{ fontFamily: 'var(--font-grotesk)' }}>
                 Investment
               </div>
-              <div className="flex items-baseline gap-2">
-                {course.originalPrice && (
-                  <span className="text-sm font-bold text-white/40 line-through" style={{ fontFamily: 'var(--font-jakarta)' }}>
-                    ${course.originalPrice}
-                  </span>
-                )}
-                <div className="text-2xl font-extrabold" style={{ fontFamily: 'var(--font-jakarta)' }}>
-                  ${course.price}
-                </div>
-              </div>
-              {course.originalPrice && (
-                <span className="inline-block mt-1 px-2 py-0.5 rounded-md bg-red-500/20 text-red-300 text-[10px] font-bold uppercase tracking-wide" style={{ fontFamily: 'var(--font-grotesk)' }}>
-                  50% OFF
-                </span>
-              )}
+              {(() => {
+                const pct = discountPercent(course.price, course.originalPrice);
+                return pct > 0 ? (
+                  <div className="flex items-baseline gap-2">
+                    {course.originalPrice && (
+                      <span
+                        className="text-sm font-bold line-through"
+                        style={{ fontFamily: 'var(--font-grotesk)', color: '#FCA5A5' }}
+                      >
+                        ${course.originalPrice}
+                      </span>
+                    )}
+                    <span
+                      className="text-2xl font-extrabold"
+                      style={{ fontFamily: 'var(--font-jakarta)' }}
+                    >
+                      $<CountUp value={course.price} duration={1.5} />
+                    </span>
+                    <span
+                      className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded"
+                      style={{ background: '#DC2626', color: '#FFFFFF', fontFamily: 'var(--font-grotesk)' }}
+                    >
+                      -{pct}%
+                    </span>
+                  </div>
+                ) : (
+                  <div className="text-2xl font-extrabold" style={{ fontFamily: 'var(--font-jakarta)' }}>
+                    $<CountUp value={course.price} duration={1.5} />
+                  </div>
+                );
+              })()}
             </div>
-            <Link
-              href="/contact"
-              className="px-4 py-2 rounded-xl bg-white text-slate-900 text-xs font-bold flex items-center gap-1.5 hover:bg-white/90 transition-colors"
+            <button
+              onClick={(e) => { e.stopPropagation(); e.preventDefault(); onViewSyllabus(); }}
+              className="px-3 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold flex items-center gap-1.5 transition-colors"
+              style={{ fontFamily: 'var(--font-grotesk)' }}
+            >
+              <BookOpen className="w-3.5 h-3.5" />
+              Syllabus
+            </button>
+            <a
+              href={getRazorpayLink(course.level)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3 py-2 rounded-xl bg-white text-slate-900 text-xs font-bold flex items-center gap-1.5 hover:bg-white/90 transition-colors"
               style={{ fontFamily: 'var(--font-grotesk)' }}
             >
               Enroll
               <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
+            </a>
           </div>
         </div>
       </div>
     </div>
+  );
+}
+
+/* --------------------------------------------------------------- */
+/* Syllabus Modal — full module + lesson breakdown                 */
+/* --------------------------------------------------------------- */
+function SyllabusModal({ course, onClose }: { course: Course | null; onClose: () => void }) {
+  /* ---------- Body scroll lock when modal is open ----------
+     Same pattern as ChatBubble: lock body in place + pause Lenis
+     so only the modal's content area scrolls. Restored on close. */
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    if (course) {
+      const scrollY = window.scrollY;
+      const scrollX = window.scrollX;
+      const originalOverflow = document.body.style.overflow;
+      const originalPosition = document.body.style.position;
+      const originalTop = document.body.style.top;
+      const originalLeft = document.body.style.left;
+      const originalWidth = document.body.style.width;
+
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.left = `-${scrollX}px`;
+      document.body.style.width = '100%';
+      document.documentElement.setAttribute('data-scroll-locked', 'true');
+      window.dispatchEvent(new CustomEvent('sariro:scroll-lock', { detail: { locked: true } }));
+
+      return () => {
+        document.body.style.overflow = originalOverflow;
+        document.body.style.position = originalPosition;
+        document.body.style.top = originalTop;
+        document.body.style.left = originalLeft;
+        document.body.style.width = originalWidth;
+        document.documentElement.removeAttribute('data-scroll-locked');
+        window.dispatchEvent(new CustomEvent('sariro:scroll-lock', { detail: { locked: false } }));
+        window.scrollTo(scrollX, scrollY);
+      };
+    }
+  }, [course]);
+
+  return (
+    <AnimatePresence>
+      {course && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={onClose}
+          className="fixed inset-0 z-[60] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4"
+          style={{ overflowY: 'auto', overscrollBehavior: 'contain' }}
+          data-lenis-prevent
+        >
+          <motion.div
+            initial={{ scale: 0.92, y: 30, opacity: 0 }}
+            animate={{ scale: 1, y: 0, opacity: 1 }}
+            exit={{ scale: 0.92, y: 30, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 240, damping: 26 }}
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-3xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col my-8"
+          >
+            {/* Header */}
+            <div
+              className="relative p-6 sm:p-8 text-white overflow-hidden shrink-0"
+              style={{
+                background: `linear-gradient(135deg, ${ACCENT_HEX[course.accent] ?? '#2563EB'} 0%, #0F172A 100%)`,
+              }}
+            >
+              <div
+                className="absolute inset-0 opacity-20 pointer-events-none"
+                style={{
+                  backgroundImage:
+                    'linear-gradient(rgba(255,255,255,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.2) 1px, transparent 1px)',
+                  backgroundSize: '24px 24px',
+                }}
+              />
+              <button
+                onClick={onClose}
+                aria-label="Close syllabus"
+                className="absolute top-4 right-4 w-9 h-9 rounded-lg bg-white/15 hover:bg-white/25 flex items-center justify-center text-white transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+              <div className="relative">
+                <div className="flex items-center gap-2 mb-3 flex-wrap">
+                  <span
+                    className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md bg-white/20"
+                    style={{ fontFamily: 'var(--font-grotesk)' }}
+                  >
+                    {course.level} course
+                  </span>
+                  <span
+                    className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md bg-white/15"
+                    style={{ fontFamily: 'var(--font-grotesk)' }}
+                  >
+                    {course.audience}
+                  </span>
+                  <span
+                    className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md bg-white/15"
+                    style={{ fontFamily: 'var(--font-grotesk)' }}
+                  >
+                    {course.durationWeeks} weeks
+                  </span>
+                </div>
+                <h2
+                  className="text-2xl sm:text-3xl font-extrabold mb-2"
+                  style={{ fontFamily: 'var(--font-jakarta)' }}
+                >
+                  {course.title}
+                </h2>
+                <p className="text-sm text-white/85 mb-4">{course.tagline}</p>
+                <div className="flex items-center gap-4 text-xs flex-wrap" style={{ fontFamily: 'var(--font-grotesk)' }}>
+                  <span className="flex items-center gap-1.5">
+                    <Layers className="w-3.5 h-3.5" />
+                    <strong>{course.modules}</strong> modules
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <BookOpen className="w-3.5 h-3.5" />
+                    <strong>{course.lessons}</strong> lessons
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <Clock className="w-3.5 h-3.5" />
+                    <strong>6</strong> lessons per module
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Body — module list */}
+            <div className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-5">
+              {'syllabus' in course && Array.isArray(course.syllabus) &&
+                (course.syllabus as Array<{ num: string; name: string; project: string; lessons: string[] }>).map((mod, i) => (
+                  <motion.div
+                    key={mod.num}
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.05 * i }}
+                    className="rounded-2xl border border-slate-200 overflow-hidden"
+                  >
+                    <div className="p-4 sm:p-5 bg-slate-50 flex items-start gap-4">
+                      <div
+                        className="shrink-0 w-12 h-12 rounded-xl flex items-center justify-center text-white font-extrabold text-lg"
+                        style={{ background: ACCENT_HEX[course.accent] ?? '#2563EB', fontFamily: 'var(--font-jakarta)' }}
+                      >
+                        {mod.num}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3
+                          className="text-base font-extrabold text-slate-900 mb-1"
+                          style={{ fontFamily: 'var(--font-jakarta)' }}
+                        >
+                          {mod.name}
+                        </h3>
+                        <p className="text-xs text-slate-600">
+                          <strong style={{ color: ACCENT_HEX[course.accent] ?? '#2563EB' }}>Build:</strong> {mod.project}
+                        </p>
+                      </div>
+                    </div>
+                    <ol className="p-4 sm:p-5 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {mod.lessons.map((lesson, li) => (
+                        <li
+                          key={li}
+                          className="flex items-start gap-2 text-xs text-slate-700 leading-relaxed"
+                        >
+                          <span
+                            className="shrink-0 w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-bold mt-0.5"
+                            style={{
+                              background: `${ACCENT_HEX[course.accent] ?? '#2563EB'}15`,
+                              color: ACCENT_HEX[course.accent] ?? '#2563EB',
+                              fontFamily: 'var(--font-grotesk)',
+                            }}
+                          >
+                            {li + 1}
+                          </span>
+                          <span>{lesson}</span>
+                        </li>
+                      ))}
+                    </ol>
+                  </motion.div>
+                ))}
+            </div>
+
+            {/* Footer */}
+            <div className="shrink-0 p-5 border-t border-slate-200 bg-white flex items-center justify-between gap-3">
+              <div>
+                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500" style={{ fontFamily: 'var(--font-grotesk)' }}>
+                  Tuition
+                </div>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-xs font-bold line-through text-red-500">${course.originalPrice}</span>
+                  <span
+                    className="text-xl font-extrabold"
+                    style={{ color: ACCENT_HEX[course.accent] ?? '#2563EB', fontFamily: 'var(--font-jakarta)' }}
+                  >
+                    ${course.price}
+                  </span>
+                  <span className="text-[10px] text-slate-500 uppercase tracking-wider" style={{ fontFamily: 'var(--font-grotesk)' }}>USD</span>
+                </div>
+              </div>
+              <a
+                href={getRazorpayLink(course.level)}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={onClose}
+                className="btn-tactile btn-tactile-primary px-5 py-3 text-sm"
+                style={{ background: ACCENT_HEX[course.accent] ?? '#2563EB' }}
+              >
+                Enroll now
+                <ArrowRight className="w-4 h-4" />
+              </a>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

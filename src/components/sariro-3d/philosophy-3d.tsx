@@ -6,7 +6,16 @@ import Image from 'next/image';
 import { Brain, Hammer, Heart, Users } from 'lucide-react';
 import { MIMO } from '@/lib/sariro-data';
 import { SplitText3D } from './scroll-effects';
-import { FloatingStatsCluster } from '@/components/brand/floating-stats-cluster';
+import { StatPills, type PillStat } from './stat-pills';
+
+/* Stat pills — match the reference design:
+   4 pills around the portrait (top, left, right, bottom). */
+const MIMO_PILLS: PillStat[] = [
+  { value: '12+', label: 'Years teaching', color: '#F59E0B' },
+  { value: '7', label: 'Patents filed', color: '#16A34A' },
+  { value: '5,000+', label: 'Students mentored', color: '#2563EB' },
+  { value: '36', label: 'Papers published', color: '#7C3AED' },
+];
 
 const ICON_MAP = [Brain, Hammer, Heart, Users];
 const ACCENT_STYLES = [
@@ -23,26 +32,26 @@ export default function Philosophy3D() {
     offset: ['start end', 'end start'],
   });
   const portraitY = useTransform(scrollYProgress, [0, 1], [50, -50]);
-  // Removed portraitRotate — was causing text to tilt.
+  const portraitRotate = useTransform(scrollYProgress, [0, 1], [4, -4]);
 
   return (
     <section ref={ref} data-chapter="philosophy" data-chapter-label="Mimo" className="relative py-24 sm:py-32 overflow-hidden bg-white">
       <div className="absolute inset-0 grid-bg opacity-50" />
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
-          {/* Left: Portrait + Floating Stats */}
+          {/* Left: Portrait + 3D Cube */}
           <motion.div
-            style={{ y: portraitY }}
+            style={{ y: portraitY, rotate: portraitRotate }}
             className="lg:col-span-5 lg:sticky lg:top-28"
           >
             <div className="card-3d p-8" style={{ transformStyle: 'preserve-3d', perspective: '1000px' }}>
               <div className="flex flex-col items-center">
-                {/* Portrait Image with Logo Badge */}
-                <div className="relative w-full max-w-[260px] mb-6">
+                {/* Portrait Image with floating stat pills */}
+                <div className="relative w-full max-w-[260px] mb-10 sm:mb-6">
                   {/* Portrait */}
                   <div className="relative w-full aspect-square rounded-2xl overflow-hidden shadow-2xl ring-4 ring-white">
                     <Image
-                      src="/images/mimo-portrait.webp"
+                      src="/images/mimo-portrait.png"
                       alt={`${MIMO.name} — ${MIMO.title}`}
                       fill
                       className="object-cover"
@@ -60,8 +69,8 @@ export default function Philosophy3D() {
                     </div>
                   </div>
 
-                  {/* Sariro Logo Badge — floating top-right */}
-                  <div className="absolute -top-3 -right-3 w-14 h-14 rounded-xl bg-white shadow-xl flex items-center justify-center ring-2 ring-blue-100">
+                  {/* Sariro Logo Badge — pinned to top-right of portrait */}
+                  <div className="absolute -top-3 -right-3 w-14 h-14 rounded-xl bg-white shadow-xl flex items-center justify-center ring-2 ring-blue-100 z-40">
                     <Image
                       src="/images/sariro-logo.svg"
                       alt="Sariro logo"
@@ -71,25 +80,14 @@ export default function Philosophy3D() {
                     />
                   </div>
 
-                  {/* Decorative accent dot — top-left */}
-                  <div className="absolute -top-2 -left-2 w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-violet-600 shadow-lg" />
+                  {/* Decorative accent dot — top-left of portrait */}
+                  <div className="absolute -top-2 -left-2 w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-violet-600 shadow-lg z-40" />
+
+                  {/* Floating stat pills — replace the old rotating cube.
+                      On sm+ they hug the portrait edges (top/left/right/bottom);
+                      on mobile they stack in a 2-col grid below the portrait. */}
+                  <StatPills stats={MIMO_PILLS} size="sm" />
                 </div>
-
-                {/* Floating Stats Cluster — replaces old cube */}
-                <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-slate-400 mb-4 text-center" style={{ fontFamily: 'var(--font-grotesk)' }}>
-                  ✦ Hover to explore the stats ✦
-                </p>
-
-                <FloatingStatsCluster
-                  size={200}
-                  stats={[
-                    { value: 12, suffix: '+', label: 'Years', accent: '#16A34A' },
-                    { value: 5, suffix: 'K+', label: 'Students', accent: '#7C3AED' },
-                    { value: 36, suffix: '', label: 'Papers', accent: '#F59E0B' },
-                    { value: 7, suffix: '', label: 'Patents', accent: '#06B6D4' },
-                    { value: 65, suffix: '+', label: 'Countries', accent: '#2563EB' },
-                  ]}
-                />
 
                 <p className="text-sm text-slate-600 leading-relaxed text-center mt-6">{MIMO.bio}</p>
               </div>

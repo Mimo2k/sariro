@@ -2,8 +2,30 @@
 
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
-import { GraduationCap, Twitter, Youtube, Github, Linkedin, Mail, MapPin } from 'lucide-react';
-import { BRAND, FOOTER_LINKS, NAV_LINKS } from '@/lib/sariro-data';
+import {
+  GraduationCap,
+  Twitter,
+  Youtube,
+  Github,
+  Linkedin,
+  Mail,
+  LifeBuoy,
+  Briefcase,
+  Handshake,
+  Sparkles,
+  MapPin,
+} from 'lucide-react';
+import { BRAND, FOOTER_LINKS, NAV_LINKS, EMAILS } from '@/lib/sariro-data';
+
+/* Map the icon name string from EMAILS data to a real icon component. */
+const EMAIL_ICONS: Record<string, React.ComponentType<{ className?: string; strokeWidth?: number }>> = {
+  Mail,
+  LifeBuoy,
+  School: GraduationCap,
+  Handshake,
+  Briefcase,
+  Sparkles,
+};
 
 export default function Footer3D() {
   const ref = useRef<HTMLElement>(null);
@@ -55,15 +77,36 @@ export default function Footer3D() {
               {BRAND.tagline} Cohort-based AI education for students, schools, and professionals — by educator {BRAND.founder}.
             </p>
 
-            {/* Contact lines */}
-            <div className="space-y-2.5 text-sm">
-              <a href={`mailto:${BRAND.emails.contact}`} className="flex items-center gap-2.5 text-slate-400 hover:text-white transition-colors">
-                <Mail className="w-4 h-4 text-blue-400" />
-                {BRAND.emails.contact}
-              </a>
-              <div className="flex items-center gap-2.5 text-slate-400">
-                <MapPin className="w-4 h-4 text-blue-400" />
-                {BRAND.location}
+            {/* Connect — full email directory */}
+            <div className="space-y-3 text-sm">
+              <h5
+                className="text-[10px] uppercase tracking-[0.18em] text-slate-500 font-bold mb-2"
+                style={{ fontFamily: 'var(--font-grotesk)' }}
+              >
+                Connect
+              </h5>
+              <div className="space-y-1.5">
+                {EMAILS.map((email) => {
+                  const Icon = EMAIL_ICONS[email.icon] ?? Mail;
+                  return (
+                    <a
+                      key={email.id}
+                      href={`mailto:${email.address}`}
+                      className="flex items-center gap-2.5 text-slate-400 hover:text-white transition-colors group"
+                    >
+                      <Icon
+                        className="w-3.5 h-3.5 shrink-0 group-hover:scale-110 transition-transform"
+                        style={{ color: email.accent }}
+                        strokeWidth={2.2}
+                      />
+                      <span className="truncate">{email.address}</span>
+                    </a>
+                  );
+                })}
+              </div>
+              <div className="flex items-center gap-2.5 text-slate-400 pt-2 border-t border-white/5">
+                <MapPin className="w-4 h-4 text-blue-400 shrink-0" />
+                <span className="text-xs">{BRAND.location}</span>
               </div>
             </div>
 

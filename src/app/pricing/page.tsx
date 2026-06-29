@@ -12,6 +12,8 @@ import {
   Sparkles,
   MessageCircle,
   HelpCircle,
+  Tag,
+  Clock,
 } from 'lucide-react';
 import BrandLayout from '@/components/brand/brand-layout';
 import PageHero from '@/components/brand/page-hero';
@@ -27,7 +29,7 @@ import {
   ParallaxOrb,
   StickyScrollSection,
 } from '@/components/brand/effects-kit';
-import { PRICING_TIERS } from '@/lib/sariro-data';
+import { PRICING_TIERS, DISCOUNT_LABEL, DISCOUNT_DEADLINE, discountPercent, getRazorpayLink } from '@/lib/sariro-data';
 
 const ACCENT_HEX: Record<string, string> = {
   blue: '#2563EB',
@@ -54,12 +56,12 @@ const TRUST_BADGES = [
   {
     icon: Users,
     title: 'Lifetime community',
-    body: 'Once you finish a Builder-tier cohort, you\'re in the alumni Slack forever — no renewal.',
+    body: 'Once you finish an Intermediate or Expert cohort, you\'re in the alumni Slack forever — no renewal.',
     accent: '#7C3AED',
   },
 ];
 
-/* Comparison rows: feature × tier (Starter / Builder / School Pro) */
+/* Comparison rows: feature × tier (Beginner / Intermediate / Expert) */
 const COMPARISON: { label: string; values: (boolean | string)[] }[] = [
   { label: 'Cohort enrollment', values: ['1 cohort', '1 advanced cohort', 'Full-semester'] },
   { label: 'Live sessions + recordings', values: [true, true, true] },
@@ -105,6 +107,42 @@ export default function PricingPage() {
         <ParallaxOrb color="rgba(37, 99, 235, 0.10)" size={420} speed={120} position="top-10 -left-20" />
         <ParallaxOrb color="rgba(124, 58, 237, 0.08)" size={340} speed={-90} position="bottom-10 -right-20" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Summer launch discount banner */}
+          <Reveal>
+            <div
+              className="mb-10 mx-auto max-w-3xl rounded-2xl p-5 sm:p-6 flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left"
+              style={{
+                background: 'linear-gradient(135deg, rgba(220, 38, 38, 0.10) 0%, rgba(239, 68, 68, 0.10) 100%)',
+                border: '1px solid rgba(220, 38, 38, 0.25)',
+              }}
+            >
+              <div
+                className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 text-white shadow-lg"
+                style={{ background: 'linear-gradient(135deg, #DC2626 0%, #EF4444 100%)' }}
+              >
+                <Tag className="w-6 h-6" strokeWidth={2.4} />
+              </div>
+              <div className="flex-1">
+                <div
+                  className="text-xs font-bold uppercase tracking-[0.18em] mb-1 flex items-center justify-center sm:justify-start gap-1.5"
+                  style={{ fontFamily: 'var(--font-grotesk)', color: '#DC2626' }}
+                >
+                  <Clock className="w-3.5 h-3.5" />
+                  Limited-time pricing
+                </div>
+                <h3
+                  className="text-lg sm:text-xl font-extrabold text-slate-900"
+                  style={{ fontFamily: 'var(--font-jakarta)' }}
+                >
+                  {DISCOUNT_LABEL}
+                </h3>
+                <p className="text-sm text-slate-600 mt-1">
+                  Locked in for every cohort starting before <span className="font-bold text-slate-900">{DISCOUNT_DEADLINE}</span>. After that, standard pricing resumes.
+                </p>
+              </div>
+            </div>
+          </Reveal>
+
           {/* 3D stage wrapper */}
           <div style={{ perspective: '1500px' }}>
           <StaggerGroup
@@ -114,6 +152,7 @@ export default function PricingPage() {
             {PRICING_TIERS.map((tier) => {
               const accent = ACCENT_HEX[tier.accent] ?? '#2563EB';
               const isPopular = tier.popular;
+              const pct = discountPercent(tier.price, tier.originalPrice);
 
               return (
                 <StaggerItem key={tier.id}>
@@ -188,14 +227,20 @@ export default function PricingPage() {
                           </div>
                         ) : (
                           <div>
-                            {/* Strikethrough original price + discount badge */}
-                            {tier.originalPrice && (
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className="text-lg font-bold text-slate-400 line-through" style={{ fontFamily: 'var(--font-jakarta)' }}>
-                                  ${tier.originalPrice}
+                            {/* Discount badge row */}
+                            {pct > 0 && (
+                              <div className="flex items-center gap-2 mb-2">
+                                <span
+                                  className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md text-white shadow-sm"
+                                  style={{ background: '#DC2626', fontFamily: 'var(--font-grotesk)' }}
+                                >
+                                  Save {pct}%
                                 </span>
-                                <span className="px-2 py-0.5 rounded-md bg-red-100 text-red-600 text-[10px] font-bold uppercase tracking-wide" style={{ fontFamily: 'var(--font-grotesk)' }}>
-                                  50% OFF
+                                <span
+                                  className="text-xs font-bold uppercase tracking-wider line-through"
+                                  style={{ fontFamily: 'var(--font-grotesk)', color: '#DC2626' }}
+                                >
+                                  ${tier.originalPrice}
                                 </span>
                               </div>
                             )}
@@ -209,9 +254,9 @@ export default function PricingPage() {
                               </span>
                               <span className="text-sm text-slate-500">/ {tier.period}</span>
                             </div>
-                            {tier.originalPrice && (
-                              <p className="text-xs font-bold text-green-600 mt-1" style={{ fontFamily: 'var(--font-grotesk)' }}>
-                                You save ${tier.originalPrice - tier.price}
+                            {pct > 0 && (
+                              <p className="text-xs font-bold mt-1.5" style={{ fontFamily: 'var(--font-grotesk)', color: '#DC2626' }}>
+                                You save ${tier.originalPrice! - tier.price!}
                               </p>
                             )}
                           </div>
@@ -251,7 +296,11 @@ export default function PricingPage() {
                       >
                         <MagneticButton
                           as="a"
-                          href="/contact"
+                          href={getRazorpayLink(
+                            tier.id === 'expert' ? 'Advanced' : (tier.id.charAt(0).toUpperCase() + tier.id.slice(1))
+                          )}
+                          target="_blank"
+                          rel="noopener noreferrer"
                           strength={0.2}
                           className={`btn-tactile w-full px-5 py-3 text-sm justify-center ${
                             isPopular ? 'btn-tactile-primary' : 'btn-tactile-light'
@@ -282,7 +331,7 @@ export default function PricingPage() {
       <WaveDivider3D fromColor="#FFFFFF" toColor="#F8FAFC" />
 
       {/* ====== Trust badges ====== */}
-      <section className="relative py-16 sm:py-20 bg-slate-50 overflow-hidden">
+      <section className="relative py-16 sm:py-20 mesh-bg-soft-blue overflow-hidden">
         <ParallaxOrb color="rgba(22, 163, 74, 0.10)" size={360} speed={80} position="top-20 left-10" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-12">
@@ -357,7 +406,7 @@ export default function PricingPage() {
             <div className="hidden md:block card-3d overflow-hidden">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-slate-200 bg-slate-50">
+                  <tr className="border-b border-blue-100 mesh-bg-soft-blue">
                     <th className="text-left p-5 text-sm font-bold text-slate-900" style={{ fontFamily: 'var(--font-grotesk)' }}>
                       Feature
                     </th>
@@ -386,7 +435,7 @@ export default function PricingPage() {
                   {COMPARISON.map((row, ri) => (
                     <tr
                       key={row.label}
-                      className={ri % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'}
+                      className={ri % 2 === 0 ? 'bg-white' : 'mesh-bg-soft-blue'}
                     >
                       <td className="p-4 text-sm font-medium text-slate-700">{row.label}</td>
                       {row.values.map((v, vi) => (
@@ -453,7 +502,7 @@ export default function PricingPage() {
       <WaveDivider3D fromColor="#FFFFFF" toColor="#F8FAFC" />
 
       {/* ====== FAQ ====== */}
-      <section className="relative py-16 sm:py-20 bg-slate-50 overflow-hidden">
+      <section className="relative py-16 sm:py-20 mesh-bg-soft-blue overflow-hidden">
         <ParallaxOrb color="rgba(124, 58, 237, 0.08)" size={360} speed={90} position="bottom-10 right-10" />
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
@@ -475,19 +524,19 @@ export default function PricingPage() {
             {[
               {
                 q: 'Do you offer scholarships?',
-                a: 'Yes. We reserve 15% of every cohort for needs-based scholarships. Email hello@sariro.ai with a one-paragraph note about your situation.',
+                a: 'Yes. We reserve 15% of every cohort for needs-based scholarships. Email contact@sariro.com with a one-paragraph note about your situation.',
               },
               {
                 q: 'Can my employer pay for this?',
-                a: 'Absolutely. We send proper invoices and accept POs from companies. Most Builder-tier enrollments are now reimbursed through L&D budgets.',
+                a: 'Absolutely. We send proper invoices and accept POs from companies. Most Intermediate and Expert tier enrollments are now reimbursed through L&D budgets.',
               },
               {
                 q: 'What if I miss a live session?',
                 a: 'Every session is recorded and posted within 24 hours. You still get the project feedback even if you attend async.',
               },
               {
-                q: 'Is the School Pro price really custom?',
-                a: 'It depends on student count, training depth, and duration. Most schools land between $8K–$25K for a full semester. Book a call for a real quote.',
+                q: 'Is the Expert tier worth $699?',
+                a: 'Yes — the Agent Architect cohort is 16 weeks, 96 lessons, includes weekly 1:1 mentor sessions, a capstone shipped to production, open-source contribution review, and investor/employer intro calls. Most students land ML engineer roles or ship their own agent product within 3 months of finishing.',
               },
             ].map((item, i) => (
               <StaggerItem key={i}>

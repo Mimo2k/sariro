@@ -33,8 +33,6 @@ function TrackCard({ track, index, scrollYProgress }: { track: typeof TRACKS[num
       whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
       viewport={{ once: true, margin: '-80px' }}
       transition={{ duration: 0.7, delay: index * 0.12, ease: [0.22, 1, 0.36, 1] }}
-      whileHover={{ y: -8 }}
-      whileTap={{ scale: 0.98 }}
       className="perspective-1000"
     >
       <TiltCard3D className="card-3d p-7 h-full" maxTilt={10}>
@@ -92,7 +90,7 @@ export default function Tracks3D() {
     offset: ['start end', 'end start'],
   });
   const headerY = useTransform(scrollYProgress, [0, 1], [60, -60]);
-  // Removed headerRotate — was causing the "Three paths" text to tilt.
+  const headerRotate = useTransform(scrollYProgress, [0, 1], [3, -3]);
 
   return (
     <section id="tracks" ref={sectionRef} data-chapter="tracks" data-chapter-label="Tracks" className="relative py-24 sm:py-32 overflow-hidden">
@@ -110,7 +108,7 @@ export default function Tracks3D() {
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
-          style={{ y: headerY }}
+          style={{ y: headerY, rotate: headerRotate }}
           className="text-center max-w-3xl mx-auto mb-16"
         >
           <motion.span

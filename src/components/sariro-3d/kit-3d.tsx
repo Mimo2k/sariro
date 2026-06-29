@@ -28,13 +28,25 @@ export function FlipCard3D({
 }) {
   const [flipped, setFlipped] = useState(false);
 
+  // Only toggle the flip when the click lands on the card itself —
+  // NOT when it lands on a button or link inside the card. This lets
+  // inner buttons (Enroll, Syllabus, etc.) work without flipping the card.
+  const handleContainerClick = (e: MouseEvent) => {
+    const target = e.target as HTMLElement;
+    if (target.closest('button, a, input, select, textarea, [role="button"]')) {
+      // Click landed on an interactive element — let it do its thing
+      return;
+    }
+    setFlipped((v) => !v);
+  };
+
   return (
     <div
       className={`relative ${className}`}
       style={{ perspective: '1200px', height }}
       onMouseEnter={() => setFlipped(true)}
       onMouseLeave={() => setFlipped(false)}
-      onClick={() => setFlipped((v) => !v)}
+      onClick={handleContainerClick}
     >
       <motion.div
         animate={{ rotateY: flipped ? 180 : 0 }}

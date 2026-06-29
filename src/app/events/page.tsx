@@ -146,13 +146,6 @@ export default function EventsPage() {
                     <span className="relative flex items-center gap-1.5">
                       <f.icon className="w-3.5 h-3.5" />
                       {f.label}
-                      <span
-                        className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
-                          active ? 'bg-white/20' : 'bg-slate-100 text-slate-500'
-                        }`}
-                      >
-                        {count}
-                      </span>
                     </span>
                   </button>
                 );
@@ -303,7 +296,7 @@ export default function EventsPage() {
       </StickyScrollSection>
 
       {/* ====== Event types explainer ====== */}
-      <section className="relative py-16 sm:py-20 bg-slate-50 overflow-hidden">
+      <section className="relative py-16 sm:py-20 mesh-bg-soft-violet overflow-hidden">
         <ParallaxOrb color="rgba(37, 99, 235, 0.10)" size={380} speed={90} position="top-10 right-10" />
         <ParallaxOrb color="rgba(22, 163, 74, 0.08)" size={320} speed={-70} position="bottom-10 left-10" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

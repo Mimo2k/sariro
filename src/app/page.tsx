@@ -121,21 +121,8 @@ export default function Home() {
                 transition={{ duration: 0.7, delay: 0.4 }}
                 className="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl"
               >
-                {HERO_STATS.map((s, i) => (
-                  <motion.div
-                    key={s.label}
-                    whileHover={{ y: -6, scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    animate={{
-                      boxShadow: [
-                        '0 0 0 0 rgba(37, 99, 235, 0)',
-                        '0 0 20px 2px rgba(37, 99, 235, 0.15)',
-                        '0 0 0 0 rgba(37, 99, 235, 0)',
-                      ],
-                    }}
-                    transition={{ duration: 3, repeat: Infinity, delay: i * 0.5 }}
-                    className="glass-panel rounded-2xl px-4 py-4 text-center cursor-pointer"
-                  >
+                {HERO_STATS.map((s) => (
+                  <div key={s.label} className="glass-panel rounded-2xl px-4 py-4 text-center">
                     <div
                       className={`text-2xl sm:text-3xl font-extrabold ${
                         s.accent === 'blue' ? 'text-blue-600' :
@@ -150,24 +137,24 @@ export default function Home() {
                     <div className="text-xs font-semibold text-slate-500 mt-1 uppercase tracking-wide" style={{ fontFamily: 'var(--font-grotesk)' }}>
                       {s.label}
                     </div>
-                  </motion.div>
+                  </div>
                 ))}
               </motion.div>
             </motion.div>
 
-            {/* RIGHT: 3D Neural Network — BELOW stats on mobile, RIGHT on desktop */}
+            {/* RIGHT: 3D Neural Network — on mobile: BELOW the text+stats (order-last); on desktop: right column */}
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 1, delay: 0.3 }}
-              className="relative w-full aspect-square max-w-[280px] sm:max-w-[400px] lg:max-w-[500px] mx-auto"
+              className="relative w-full aspect-square max-w-[500px] mx-auto order-last"
             >
               <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-500/20 via-violet-500/20 to-green-500/20 blur-3xl" />
               <div className="relative w-full h-full">
                 {inView && <NeuralNetworkScene scrollProgress={scrollProgressRef} />}
               </div>
               <div className="absolute bottom-0 left-1/2 -translate-x-1/2 text-center">
-                <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.3em] text-slate-400" style={{ fontFamily: 'var(--font-grotesk)' }}>
+                <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-400" style={{ fontFamily: 'var(--font-grotesk)' }}>
                   Live AI Neural Network
                 </p>
               </div>
@@ -175,11 +162,11 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Where our learners are from — bottom marquee (desktop only, hidden on mobile to save space) */}
-        <div className="hidden sm:block absolute bottom-0 left-0 right-0 z-20 pb-4 pt-6 bg-gradient-to-t from-white via-white/80 to-transparent">
+        {/* Trusted by — bottom marquee */}
+        <div className="absolute bottom-0 left-0 right-0 z-20 pb-4 pt-6 bg-gradient-to-t from-white via-white/80 to-transparent">
           <div className="max-w-7xl mx-auto px-4">
             <p className="text-center text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-3" style={{ fontFamily: 'var(--font-grotesk)' }}>
-              Where our learners are from
+              Trusted by educators & learners at
             </p>
             <div className="relative overflow-hidden mask-fade">
               <div className="flex gap-10 animate-marquee whitespace-nowrap">
