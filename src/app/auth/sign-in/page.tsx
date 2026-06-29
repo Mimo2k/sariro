@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -8,13 +9,12 @@ import SignInButtons from '@/components/auth/sign-in-buttons';
 import { useAuth } from '@/components/auth/auth-provider';
 import { BRAND } from '@/lib/sariro-data';
 
-export default function SignInPage() {
+function SignInContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loading } = useAuth();
   const next = searchParams.get('next') || '/';
 
-  // Redirect to next page if already signed in
   useEffect(() => {
     if (!loading && user) {
       router.replace(next);
@@ -74,5 +74,13 @@ export default function SignInPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense>
+      <SignInContent />
+    </Suspense>
   );
 }
