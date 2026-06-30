@@ -437,3 +437,40 @@
   background: rgba(37, 99, 235, 0.25);
   color: #0F172A;
 }
+
+/* ============================================================
+   MOBILE MODAL FIXES
+   ============================================================ */
+
+/* When a modal/chat is open, we set data-scroll-locked on <html>.
+   Hide the companion orb (bottom-left), the chat bubble (bottom-right),
+   and the cookie consent banner so they can't overlap modal content on mobile. */
+html[data-scroll-locked="true"] .companion-orb-3d,
+html[data-scroll-locked="true"] .sariro-chat-bubble,
+html[data-scroll-locked="true"] .sariro-cookie-consent {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Ensure touch targets meet iOS 44px minimum on interactive buttons
+   inside modals/chat panels on mobile */
+@media (max-width: 640px) {
+  button[aria-label="Close chat"],
+  button[aria-label="Close syllabus"],
+  button[aria-label="Close profile completion"] {
+    min-width: 44px !important;
+    min-height: 44px !important;
+  }
+}
+
+/* Prevent text selection on button press (mobile flash) */
+button {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+/* Allow momentum scrolling inside modal content on iOS */
+[data-lenis-prevent] {
+  -webkit-overflow-scrolling: touch;
+}
+

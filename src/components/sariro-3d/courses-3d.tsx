@@ -3,7 +3,8 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef, useState } from 'react';
 import { ArrowRight, Clock, Layers, Calendar, Star, RotateCw, Check } from 'lucide-react';
-import { COURSES, getRazorpayLink } from '@/lib/sariro-data';
+import Link from 'next/link';
+import { COURSES, COURSE_TRACKS } from '@/lib/sariro-data';
 import { SplitText3D, TiltCard3D } from './scroll-effects';
 import { FlipCard3D } from './kit-3d';
 
@@ -15,8 +16,11 @@ const ACCENT_MAP: Record<string, { text: string; bg: string; soft: string; borde
   cyan:   { text: 'text-cyan-700',   bg: 'bg-cyan-600',   soft: 'bg-cyan-50',   border: 'border-cyan-200',   ring: 'ring-cyan-300' },
 };
 
-type Filter = 'All' | 'Students' | 'Professionals';
-const FILTERS: Filter[] = ['All', 'Students', 'Professionals'];
+type Filter = string; // trackId
+const FILTERS: { key: Filter; label: string }[] = COURSE_TRACKS.map((t) => ({
+  key: t.id as Filter,
+  label: t.short,
+}));
 
 function CourseCard({ course, index }: { course: typeof COURSES[number]; index: number }) {
   const a = ACCENT_MAP[course.accent] ?? ACCENT_MAP.blue;
@@ -98,16 +102,14 @@ function CourseCard({ course, index }: { course: typeof COURSES[number]; index: 
             </li>
           ))}
         </ul>
-        <a
-          href={getRazorpayLink(course.level)}
-          target="_blank"
-          rel="noopener noreferrer"
+        <Link
+          href={`/courses/${course.level.toLowerCase()}`}
           className={`group/btn inline-flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl text-sm font-bold text-white ${a.bg} shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all cursor-pointer`}
           style={{ fontFamily: 'var(--font-grotesk)' }}
         >
-          Enroll in cohort
+          Join cohort
           <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
-        </a>
+        </Link>
       </div>
     </div>
   );
@@ -125,7 +127,7 @@ function CourseCard({ course, index }: { course: typeof COURSES[number]; index: 
 }
 
 export default function Courses3D() {
-  const [filter, setFilter] = useState<Filter>('All');
+  const [filter, setFilter] = useState<Filter>(COURSE_TRACKS[0]?.id ?? 'ai-engineer');
   const sectionRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -133,7 +135,7 @@ export default function Courses3D() {
   });
   const headerY = useTransform(scrollYProgress, [0, 1], [50, -50]);
 
-  const filtered = filter === 'All' ? COURSES : COURSES.filter((c) => c.audience === filter);
+  const filtered = COURSES.filter((c) => c.trackId === filter);
 
   return (
     <section id="courses" ref={sectionRef} data-chapter="courses" data-chapter-label="Courses" className="relative py-24 sm:py-32 overflow-hidden bg-gradient-to-b from-white to-slate-50">
@@ -166,16 +168,16 @@ export default function Courses3D() {
           <div className="flex gap-1.5 p-1.5 rounded-2xl glass-panel self-start lg:self-end">
             {FILTERS.map((f) => (
               <button
-                key={f}
-                onClick={() => setFilter(f)}
+                key={f.key}
+                onClick={() => setFilter(f.key)}
                 className={`px-4 py-2 rounded-xl text-sm font-bold transition-all cursor-pointer ${
-                  filter === f
+                  filter === f.key
                     ? 'bg-slate-900 text-white shadow-lg'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
                 style={{ fontFamily: 'var(--font-grotesk)' }}
               >
-                {f}
+                {f.label}
               </button>
             ))}
           </div>

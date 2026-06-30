@@ -33,9 +33,14 @@ import {
   ParallaxOrb,
   StickyScrollSection,
 } from '@/components/brand/effects-kit';
-import { COURSES, discountPercent, DISCOUNT_LABEL, getRazorpayLink } from '@/lib/sariro-data';
+import { COURSES, COURSE_TRACKS, discountPercent, DISCOUNT_LABEL } from '@/lib/sariro-data';
 
-type FilterKey = 'All' | 'Students' | 'Professionals';
+// Filters are now track-based (no 'All' — user separates by track)
+type FilterKey = string; // trackId
+const FILTERS: { key: FilterKey; label: string }[] = COURSE_TRACKS.map((t) => ({
+  key: t.id,
+  label: t.short,
+}));
 
 type Course = (typeof COURSES)[number];
 
@@ -48,18 +53,10 @@ const ACCENT_HEX: Record<string, string> = {
 };
 
 export default function CoursesPage() {
-  const [filter, setFilter] = useState<FilterKey>('All');
+  const [filter, setFilter] = useState<FilterKey>(COURSE_TRACKS[0]?.id ?? 'ai-engineer');
   const [syllabusCourse, setSyllabusCourse] = useState<Course | null>(null);
 
-  const visible =
-    filter === 'All' ? COURSES : COURSES.filter((c) => c.audience === filter);
-
-  // Re-compute filter counts dynamically (in case COURSES changes)
-  const FILTERS: { key: FilterKey; label: string; count: number }[] = [
-    { key: 'All', label: 'All courses', count: COURSES.length },
-    { key: 'Students', label: 'Students', count: COURSES.filter((c) => c.audience === 'Students').length },
-    { key: 'Professionals', label: 'Professionals', count: COURSES.filter((c) => c.audience === 'Professionals').length },
-  ];
+  const visible = COURSES.filter((c) => c.trackId === filter);
 
   return (
     <BrandLayout>
@@ -167,7 +164,7 @@ export default function CoursesPage() {
                 </div>
               </div>
               <p className="text-xs text-slate-600 leading-relaxed mb-2">
-                5 courses · 5 modules · 30 lessons each. Zero experience required.
+                2 tracks · 5 modules · 30 lessons each. Zero experience required.
               </p>
               <div className="text-xs font-bold text-green-600 flex items-center gap-1 group-hover:gap-2 transition-all">
                 Explore beginner track
@@ -193,7 +190,7 @@ export default function CoursesPage() {
                 </div>
               </div>
               <p className="text-xs text-slate-600 leading-relaxed mb-2">
-                6 courses · 7 modules · 42 lessons each. Ship real products.
+                2 tracks · 7 modules · 42 lessons each. Ship real products.
               </p>
               <div className="text-xs font-bold text-blue-600 flex items-center gap-1 group-hover:gap-2 transition-all">
                 Explore intermediate track
@@ -219,7 +216,7 @@ export default function CoursesPage() {
                 </div>
               </div>
               <p className="text-xs text-slate-600 leading-relaxed mb-2">
-                1 flagship course · 16 modules · 96 lessons. Ship agent products.
+                2 tracks · 16 modules · 96 lessons. Ship production systems.
               </p>
               <div className="text-xs font-bold text-violet-600 flex items-center gap-1 group-hover:gap-2 transition-all">
                 Explore advanced track
@@ -616,16 +613,14 @@ function CourseBack({
               <BookOpen className="w-3.5 h-3.5" />
               Syllabus
             </button>
-            <a
-              href={getRazorpayLink(course.level)}
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href={`/courses/${course.level.toLowerCase()}`}
               className="px-3 py-2 rounded-xl bg-white text-slate-900 text-xs font-bold flex items-center gap-1.5 hover:bg-white/90 transition-colors"
               style={{ fontFamily: 'var(--font-grotesk)' }}
             >
-              Enroll
+              Join cohort
               <ArrowRight className="w-3.5 h-3.5" />
-            </a>
+            </Link>
           </div>
         </div>
       </div>
@@ -681,8 +676,8 @@ function SyllabusModal({ course, onClose }: { course: Course | null; onClose: ()
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="fixed inset-0 z-[60] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4"
-          style={{ overflowY: 'auto', overscrollBehavior: 'contain' }}
+          className="fixed inset-0 z-[60] bg-slate-950/80 backdrop-blur-md flex items-start sm:items-center justify-center p-0 sm:p-4"
+          style={{ overflowY: 'auto', overscrollBehavior: 'contain', WebkitOverflowScrolling: 'touch' }}
           data-lenis-prevent
         >
           <motion.div
@@ -691,7 +686,7 @@ function SyllabusModal({ course, onClose }: { course: Course | null; onClose: ()
             exit={{ scale: 0.92, y: 30, opacity: 0 }}
             transition={{ type: 'spring', stiffness: 240, damping: 26 }}
             onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-3xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col my-8"
+            className="bg-white rounded-3xl shadow-2xl max-w-3xl w-full max-h-[100vh] sm:max-h-[90vh] overflow-hidden flex flex-col my-0 sm:my-8"
           >
             {/* Header */}
             <div
@@ -711,9 +706,10 @@ function SyllabusModal({ course, onClose }: { course: Course | null; onClose: ()
               <button
                 onClick={onClose}
                 aria-label="Close syllabus"
-                className="absolute top-4 right-4 w-9 h-9 rounded-lg bg-white/15 hover:bg-white/25 flex items-center justify-center text-white transition-colors"
+                className="absolute top-3 right-3 sm:top-4 sm:right-4 w-11 h-11 sm:w-9 sm:h-9 rounded-xl sm:rounded-lg bg-white/15 hover:bg-white/25 active:bg-white/35 flex items-center justify-center text-white transition-colors z-10 touch-manipulation"
+                style={{ minHeight: '44px', minWidth: '44px' }}
               >
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5 sm:w-4 sm:h-4" />
               </button>
               <div className="relative">
                 <div className="flex items-center gap-2 mb-3 flex-wrap">
@@ -815,7 +811,10 @@ function SyllabusModal({ course, onClose }: { course: Course | null; onClose: ()
             </div>
 
             {/* Footer */}
-            <div className="shrink-0 p-5 border-t border-slate-200 bg-white flex items-center justify-between gap-3">
+            <div
+              className="shrink-0 p-4 sm:p-5 border-t border-slate-200 bg-white flex items-center justify-between gap-3"
+              style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}
+            >
               <div>
                 <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500" style={{ fontFamily: 'var(--font-grotesk)' }}>
                   Tuition
@@ -831,17 +830,15 @@ function SyllabusModal({ course, onClose }: { course: Course | null; onClose: ()
                   <span className="text-[10px] text-slate-500 uppercase tracking-wider" style={{ fontFamily: 'var(--font-grotesk)' }}>USD</span>
                 </div>
               </div>
-              <a
-                href={getRazorpayLink(course.level)}
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                href={`/courses/${course.level.toLowerCase()}`}
                 onClick={onClose}
                 className="btn-tactile btn-tactile-primary px-5 py-3 text-sm"
                 style={{ background: ACCENT_HEX[course.accent] ?? '#2563EB' }}
               >
-                Enroll now
+                Join cohort
                 <ArrowRight className="w-4 h-4" />
-              </a>
+              </Link>
             </div>
           </motion.div>
         </motion.div>

@@ -36,6 +36,11 @@ function seededValue(i: number, min: number, max: number): number {
 
 /* ============ MAGICAL SOUND (Web Audio API) ============ */
 let sharedAudioCtx: AudioContext | null = null;
+// Flag: sound was queued but couldn't play (AudioContext suspended at intro start).
+// Will be replayed on the first user gesture when the context can resume.
+let soundQueuedForGesture = false;
+// Flag: sound has played (or is currently playing) in this intro session — prevents double-play
+let soundHasPlayed = false;
 
 function getAudioCtx(): AudioContext | null {
   if (typeof window === 'undefined') return null;
@@ -51,17 +56,29 @@ function getAudioCtx(): AudioContext | null {
   return sharedAudioCtx;
 }
 
-function playMagicalSound(muted: boolean) {
+function playMagicalSound(muted: boolean, force: boolean = false) {
   if (muted) return;
+  if (soundHasPlayed) return; // don't double-play
   const ctx = getAudioCtx();
   if (!ctx) return;
 
-  // Resume if suspended (browser autoplay policy)
+  // Browser autoplay policy: if context is suspended and we're not being forced
+  // by a user gesture, queue the sound for later. The intro's gesture listener
+  // will pick it up on the first click/tap/keypress and replay it.
+  if (ctx.state === 'suspended' && !force) {
+    soundQueuedForGesture = true;
+    return;
+  }
+
+  // Try to resume (works if force=true OR there was a prior gesture in this tab session)
   if (ctx.state === 'suspended') {
     ctx.resume().catch(() => {
-      /* will retry on first user gesture */
+      /* still try to schedule — some browsers will play once resumed */
     });
   }
+
+  soundQueuedForGesture = false;
+  soundHasPlayed = true;
 
   const now = ctx.currentTime;
 
@@ -561,26 +578,41 @@ export default function CinematicIntro() {
     }
   }, [soundTrigger, show, muted]);
 
-  // Browser autoplay policy: if AudioContext is suspended, resume on first user gesture
+  // Browser autoplay policy: if AudioContext is suspended, resume on first user gesture.
+  // Also: if sound was queued at intro start (because context was suspended), replay it now.
   useEffect(() => {
     if (!show) return;
     const resumeOnGesture = () => {
       const ctx = getAudioCtx();
-      if (ctx && ctx.state === 'suspended') {
-        ctx.resume().catch(() => {});
+      if (!ctx) return;
+      if (ctx.state === 'suspended') {
+        ctx.resume()
+          .then(() => {
+            // If sound was queued but never played (because context was suspended at intro start),
+            // replay it now that the context is running.
+            if (soundQueuedForGesture && !soundHasPlayed && !muted) {
+              playMagicalSound(muted, true);
+            }
+          })
+          .catch(() => {});
+      } else if (soundQueuedForGesture && !soundHasPlayed && !muted) {
+        // Context already running — just play the queued sound
+        playMagicalSound(muted, true);
       }
     };
-    // One-time listeners — any click/key will resume audio
+    // One-time listeners — any click/key/tap will resume audio + play queued sound
     const opts = { once: true, passive: true };
     window.addEventListener('click', resumeOnGesture, opts);
     window.addEventListener('keydown', resumeOnGesture, opts);
     window.addEventListener('touchstart', resumeOnGesture, opts);
+    window.addEventListener('pointerdown', resumeOnGesture, opts);
     return () => {
       window.removeEventListener('click', resumeOnGesture);
       window.removeEventListener('keydown', resumeOnGesture);
       window.removeEventListener('touchstart', resumeOnGesture);
+      window.removeEventListener('pointerdown', resumeOnGesture);
     };
-  }, [show]);
+  }, [show, muted]);
 
   const skip = useCallback(() => {
     setShow(false);
@@ -591,8 +623,9 @@ export default function CinematicIntro() {
     setMuted((m) => {
       const newMuted = !m;
       if (!newMuted && show) {
-        // If unmuting, replay the sound from current position
-        playMagicalSound(false);
+        // If unmuting, replay the sound from current position (force = true)
+        soundHasPlayed = false; // allow replay
+        playMagicalSound(false, true);
       }
       return newMuted;
     });

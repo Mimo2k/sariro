@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
@@ -78,6 +79,10 @@ const COMPARISON: { label: string; values: (boolean | string)[] }[] = [
 ];
 
 export default function PricingPage() {
+  // 1:4 = standard cohort (1 teacher per 4 students) — default
+  // 1:1 = premium personal instruction (1 teacher per 1 student)
+  const [ratio, setRatio] = useState<'1:4' | '1:1'>('1:4');
+
   return (
     <BrandLayout>
       <PageHero
@@ -107,6 +112,63 @@ export default function PricingPage() {
         <ParallaxOrb color="rgba(37, 99, 235, 0.10)" size={420} speed={120} position="top-10 -left-20" />
         <ParallaxOrb color="rgba(124, 58, 237, 0.08)" size={340} speed={-90} position="bottom-10 -right-20" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* 1:4 vs 1:1 ratio toggle */}
+          <Reveal>
+            <div className="mb-8 flex flex-col items-center">
+              <p
+                className="text-xs font-bold uppercase tracking-[0.18em] text-slate-500 mb-3"
+                style={{ fontFamily: 'var(--font-grotesk)' }}
+              >
+                Choose your learning ratio
+              </p>
+              <div className="inline-flex p-1.5 rounded-2xl glass-panel gap-1">
+                <button
+                  onClick={() => setRatio('1:4')}
+                  className={`relative px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${
+                    ratio === '1:4' ? 'text-white' : 'text-slate-700 hover:text-blue-600'
+                  }`}
+                  style={{ fontFamily: 'var(--font-grotesk)' }}
+                >
+                  {ratio === '1:4' && (
+                    <motion.span
+                      layoutId="ratio-pill"
+                      className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 shadow-lg shadow-blue-500/30"
+                      transition={{ type: 'spring', stiffness: 320, damping: 28 }}
+                    />
+                  )}
+                  <span className="relative flex items-center gap-2">
+                    <span className="text-base font-extrabold">1:4</span>
+                    <span className="hidden sm:inline text-xs opacity-80">Cohort · 1 teacher / 4 students</span>
+                  </span>
+                </button>
+                <button
+                  onClick={() => setRatio('1:1')}
+                  className={`relative px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${
+                    ratio === '1:1' ? 'text-white' : 'text-slate-700 hover:text-blue-600'
+                  }`}
+                  style={{ fontFamily: 'var(--font-grotesk)' }}
+                >
+                  {ratio === '1:1' && (
+                    <motion.span
+                      layoutId="ratio-pill"
+                      className="absolute inset-0 rounded-xl bg-gradient-to-r from-violet-600 to-amber-500 shadow-lg shadow-violet-500/30"
+                      transition={{ type: 'spring', stiffness: 320, damping: 28 }}
+                    />
+                  )}
+                  <span className="relative flex items-center gap-2">
+                    <span className="text-base font-extrabold">1:1</span>
+                    <span className="hidden sm:inline text-xs opacity-80">Personal · 1 teacher / 1 student</span>
+                  </span>
+                </button>
+              </div>
+              <p className="text-[11px] text-slate-500 mt-2 text-center max-w-md">
+                {ratio === '1:4'
+                  ? 'Standard cohort. 1 teacher per 4 students. Best value — learn with peers.'
+                  : 'Premium personal instruction. 1 teacher dedicated to you. Faster progress, flexible scheduling.'}
+              </p>
+            </div>
+          </Reveal>
+
           {/* Summer launch discount banner */}
           <Reveal>
             <div
@@ -152,7 +214,9 @@ export default function PricingPage() {
             {PRICING_TIERS.map((tier) => {
               const accent = ACCENT_HEX[tier.accent] ?? '#2563EB';
               const isPopular = tier.popular;
-              const pct = discountPercent(tier.price, tier.originalPrice);
+              // Pick price based on 1:4 vs 1:1 ratio toggle
+              const displayPrice = ratio === '1:1' ? (tier.oneOnOnePrice ?? tier.price) : tier.price;
+              const pct = discountPercent(displayPrice, tier.originalPrice);
 
               return (
                 <StaggerItem key={tier.id}>
@@ -250,13 +314,23 @@ export default function PricingPage() {
                                 className="text-5xl font-extrabold"
                                 style={{ color: accent, fontFamily: 'var(--font-jakarta)' }}
                               >
-                                <CountUp value={tier.price} duration={2} />
+                                <CountUp value={displayPrice} duration={1.5} key={`${tier.id}-${ratio}`} />
                               </span>
                               <span className="text-sm text-slate-500">/ {tier.period}</span>
                             </div>
+                            {ratio === '1:1' && (
+                              <p className="text-[10px] font-bold uppercase tracking-wider mt-1.5" style={{ fontFamily: 'var(--font-grotesk)', color: '#7C3AED' }}>
+                                1:1 premium · personal instruction
+                              </p>
+                            )}
+                            {ratio === '1:4' && (
+                              <p className="text-[10px] font-bold uppercase tracking-wider mt-1.5" style={{ fontFamily: 'var(--font-grotesk)', color: '#16A34A' }}>
+                                1:4 cohort · 1 teacher per 4 students
+                              </p>
+                            )}
                             {pct > 0 && (
-                              <p className="text-xs font-bold mt-1.5" style={{ fontFamily: 'var(--font-grotesk)', color: '#DC2626' }}>
-                                You save ${tier.originalPrice! - tier.price!}
+                              <p className="text-xs font-bold mt-1" style={{ fontFamily: 'var(--font-grotesk)', color: '#DC2626' }}>
+                                You save ${tier.originalPrice! - displayPrice}
                               </p>
                             )}
                           </div>

@@ -250,7 +250,7 @@ export default function ChatBubble() {
             exit={{ scale: 0, opacity: 0, transition: { duration: 0.2 } }}
             whileHover={{ scale: 1.08 }}
             whileTap={{ scale: 0.92 }}
-            className="fixed bottom-5 right-5 sm:bottom-7 sm:right-7 z-50 group"
+            className="fixed bottom-5 right-5 sm:bottom-7 sm:right-7 z-[55] group sariro-chat-bubble"
           >
             {/* Idle bob — gentle vertical float */}
             <motion.div
@@ -337,7 +337,7 @@ export default function ChatBubble() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 60, scale: 0.85 }}
             transition={{ type: 'spring', stiffness: 220, damping: 22 }}
-            className="fixed bottom-0 right-0 sm:bottom-5 sm:right-5 sm:rounded-3xl z-50 w-full sm:w-[400px] h-[100vh] sm:h-[600px] sm:max-h-[80vh] flex flex-col overflow-hidden shadow-2xl border border-white/10"
+            className="fixed bottom-0 right-0 sm:bottom-5 sm:right-5 sm:rounded-3xl z-[55] w-full sm:w-[400px] h-[100vh] sm:h-[600px] sm:max-h-[80vh] flex flex-col overflow-hidden shadow-2xl border border-white/10 sariro-chat-panel"
             style={{
               background: 'linear-gradient(180deg, #0B1120 0%, #111827 100%)',
               backdropFilter: 'blur(20px) saturate(180%)',
@@ -378,9 +378,10 @@ export default function ChatBubble() {
               <button
                 onClick={() => setOpen(false)}
                 aria-label="Close chat"
-                className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+                className="w-11 h-11 sm:w-8 sm:h-8 rounded-xl sm:rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 active:bg-white/20 transition-colors z-10 touch-manipulation shrink-0"
+                style={{ minHeight: '44px', minWidth: '44px' }}
               >
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5 sm:w-4 sm:h-4" />
               </button>
             </div>
 

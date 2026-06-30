@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { motion, useScroll, useTransform, useMotionValueEvent, useInView } from 'framer-motion';
 import { useRef } from 'react';
-import { ArrowRight, Sparkles, Play } from 'lucide-react';
+import { ArrowRight, Sparkles } from 'lucide-react';
 import { BRAND, HERO_STATS, TRUSTED_BY } from '@/lib/sariro-data';
 import BrandLayout from '@/components/brand/brand-layout';
 import OryzoSection from '@/components/brand/oryzo-section';
@@ -108,9 +108,9 @@ export default function Home() {
                   Explore Courses
                   <ArrowRight className="w-5 h-5" />
                 </Link>
-                <Link href="/about" className="btn-tactile btn-tactile-light px-7 py-4 text-base">
-                  <Play className="w-4 h-4 fill-current" />
-                  Meet Mimo
+                <Link href="/auth/sign-up" className="btn-tactile btn-tactile-light px-7 py-4 text-base">
+                  <Sparkles className="w-4 h-4" />
+                  Sign up!
                 </Link>
               </motion.div>
 

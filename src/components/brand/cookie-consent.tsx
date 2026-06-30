@@ -99,7 +99,7 @@ export default function CookieConsent() {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 100, opacity: 0 }}
           transition={{ type: 'spring', stiffness: 220, damping: 26 }}
-          className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[9998] w-[calc(100%-1.5rem)] max-w-3xl"
+          className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[45] w-[calc(100%-1.5rem)] max-w-3xl sariro-cookie-consent"
           role="dialog"
           aria-live="polite"
           aria-label="Cookie consent"

@@ -514,7 +514,7 @@ function CourseDetailCard({
                 className="block w-full text-center mt-4 px-4 py-2.5 rounded-xl bg-white text-slate-900 text-xs font-bold hover:bg-white/90 transition-colors"
                 style={{ fontFamily: 'var(--font-grotesk)' }}
               >
-                Enroll
+                Reserve a seat
                 <ArrowRight className="w-3.5 h-3.5 inline ml-1" />
               </a>
             </div>

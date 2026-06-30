@@ -209,15 +209,8 @@ function BrandNavbar() {
                   );
                 })}
               </nav>
-              <div className="mt-auto pt-6 space-y-2">
+              <div className="mt-auto pt-6">
                 <AuthNavButton mobile />
-                <Link
-                  href="/courses"
-                  className="btn-tactile btn-tactile-primary px-5 py-3.5 w-full"
-                >
-                  <Sparkles className="w-4 h-4" />
-                  Start Learning
-                </Link>
               </div>
             </motion.div>
           </motion.div>
@@ -335,6 +328,21 @@ function BrandFooter() {
                   Contact
                 </Link>
               </li>
+              <li>
+                <Link href="/terms" className="text-sm text-slate-400 hover:text-white transition-colors">
+                  Terms of Service
+                </Link>
+              </li>
+              <li>
+                <Link href="/refunds" className="text-sm text-slate-400 hover:text-white transition-colors">
+                  Refund Policy
+                </Link>
+              </li>
+              <li>
+                <Link href="/privacy" className="text-sm text-slate-400 hover:text-white transition-colors">
+                  Privacy Policy
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -371,9 +379,9 @@ function BrandFooter() {
         <div className="pt-8 border-t border-white/5 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between text-xs text-slate-500">
           <p>© {new Date().getFullYear()} {BRAND.name}. Built with care by educators, for builders.</p>
           <div className="flex gap-4">
-            <Link href="/contact" className="hover:text-slate-300 transition-colors">Privacy</Link>
-            <Link href="/contact" className="hover:text-slate-300 transition-colors">Terms</Link>
-            <Link href="/contact" className="hover:text-slate-300 transition-colors">Refunds</Link>
+            <Link href="/privacy" className="hover:text-slate-300 transition-colors">Privacy</Link>
+            <Link href="/terms" className="hover:text-slate-300 transition-colors">Terms</Link>
+            <Link href="/refunds" className="hover:text-slate-300 transition-colors">Refunds</Link>
           </div>
         </div>
       </div>
