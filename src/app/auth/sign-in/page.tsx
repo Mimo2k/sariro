@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { GraduationCap, ArrowRight, LogIn, Zap } from 'lucide-react';
@@ -8,7 +8,7 @@ import SignInButtons from '@/components/auth/sign-in-buttons';
 import { useAuth } from '@/components/auth/auth-provider';
 import { BRAND } from '@/lib/sariro-data';
 
-export default function SignInPage() {
+function SignInForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loading } = useAuth();
@@ -91,5 +91,13 @@ export default function SignInPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense>
+      <SignInForm />
+    </Suspense>
   );
 }
