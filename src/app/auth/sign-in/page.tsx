@@ -12,7 +12,7 @@ export default function SignInPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loading } = useAuth();
-  const next = searchParams.get('next') || '/';
+  const next = searchParams.get('next') || '/dashboard';
 
   useEffect(() => {
     if (!loading && user) {

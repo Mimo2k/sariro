@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { motion, useScroll, useTransform, useMotionValueEvent, useInView } from 'framer-motion';
 import { useRef } from 'react';
 import { ArrowRight, Sparkles } from 'lucide-react';
+import { useAuth } from '@/components/auth/auth-provider';
 import { BRAND, HERO_STATS, TRUSTED_BY } from '@/lib/sariro-data';
 import BrandLayout from '@/components/brand/brand-layout';
 import OryzoSection from '@/components/brand/oryzo-section';
@@ -21,6 +22,7 @@ import { WaveDivider3D } from '@/components/sariro-3d/kit-3d';
 const NeuralNetworkScene = dynamic(() => import('@/components/brand/neural-scene'), { ssr: false });
 
 export default function Home() {
+  const { user } = useAuth();
   const heroRef = useRef<HTMLElement>(null);
   const scrollProgressRef = useRef(0);
   const inView = useInView(heroRef, { margin: '200px' });
@@ -108,10 +110,18 @@ export default function Home() {
                   Explore Courses
                   <ArrowRight className="w-5 h-5" />
                 </Link>
-                <Link href="/auth/sign-up" className="btn-tactile btn-tactile-light px-7 py-4 text-base">
-                  <Sparkles className="w-4 h-4" />
-                  Sign up!
-                </Link>
+                {!user && (
+                  <Link href="/auth/sign-up" className="btn-tactile btn-tactile-light px-7 py-4 text-base">
+                    <Sparkles className="w-4 h-4" />
+                    Sign up!
+                  </Link>
+                )}
+                {user && (
+                  <Link href="/dashboard" className="btn-tactile btn-tactile-light px-7 py-4 text-base">
+                    <Sparkles className="w-4 h-4" />
+                    My Dashboard
+                  </Link>
+                )}
               </motion.div>
 
               {/* Hero stats */}

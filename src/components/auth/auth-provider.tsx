@@ -22,8 +22,22 @@ export interface Profile {
   email_verified: boolean;
   phone_verified: boolean;
   profile_completed: boolean;
+  is_student: boolean;
+  is_teacher: boolean;
+  is_admin: boolean;
+  is_super_admin: boolean;
   created_at: string;
   updated_at: string;
+}
+
+export type UserRole = 'student' | 'teacher' | 'admin' | 'super_admin';
+
+export function getRole(profile: Profile | null): UserRole {
+  if (!profile) return 'student';
+  if (profile.is_super_admin) return 'super_admin';
+  if (profile.is_admin) return 'admin';
+  if (profile.is_teacher) return 'teacher';
+  return 'student';
 }
 
 interface AuthContextValue {
