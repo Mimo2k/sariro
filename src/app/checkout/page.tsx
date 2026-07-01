@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { Suspense, useState, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -16,7 +16,7 @@ const ACCENT_HEX: Record<string, string> = {
   blue: '#2563EB', green: '#16A34A', violet: '#7C3AED', amber: '#F59E0B', cyan: '#06B6D4',
 };
 
-export default function CheckoutPage() {
+function CheckoutContent() {
   const searchParams = useSearchParams();
   const courseId = searchParams.get('course') || '';
   const [ratio, setRatio] = useState<LearningRatio>('1:4');
@@ -166,5 +166,13 @@ export default function CheckoutPage() {
         </div>
       </section>
     </BrandLayout>
+  );
+}
+
+export default function CheckoutPage() {
+  return (
+    <Suspense>
+      <CheckoutContent />
+    </Suspense>
   );
 }
