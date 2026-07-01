@@ -349,15 +349,15 @@ export function CustomCursor() {
     }
     rafId = requestAnimationFrame(tick);
 
-    window.addEventListener('mousemove', onMove);
-    window.addEventListener('mousedown', onDown);
-    window.addEventListener('mouseup', onUp);
+    window.addEventListener('mousemove', onMove as EventListener);
+    window.addEventListener('mousedown', onDown as EventListener);
+    window.addEventListener('mouseup', onUp as EventListener);
 
     return () => {
       cancelAnimationFrame(rafId);
-      window.removeEventListener('mousemove', onMove);
-      window.removeEventListener('mousedown', onDown);
-      window.removeEventListener('mouseup', onUp);
+      window.removeEventListener('mousemove', onMove as EventListener);
+      window.removeEventListener('mousedown', onDown as EventListener);
+      window.removeEventListener('mouseup', onUp as EventListener);
       dot.remove();
       ring.remove();
       styleEl.remove();

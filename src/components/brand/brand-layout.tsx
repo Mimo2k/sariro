@@ -216,9 +216,9 @@ function BrandNavbar() {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 28, stiffness: 280 }}
-              className="absolute top-0 right-0 bottom-0 w-[82%] max-w-sm bg-white shadow-2xl p-6 pt-24 pb-6 flex flex-col overflow-hidden"
+              className="absolute top-0 right-0 bottom-0 w-[82%] max-w-sm bg-white shadow-2xl p-6 pt-24 flex flex-col"
             >
-                            <nav className="flex flex-col gap-1 flex-1 overflow-y-auto -mx-2 px-2" style={{ overscrollBehavior: 'contain' }} data-lenis-prevent>
+              <nav className="flex flex-col gap-1">
                 {NAV_ITEMS.map((item, i) => {
                   const active = pathname === item.href;
                   return (
@@ -243,7 +243,7 @@ function BrandNavbar() {
                   );
                 })}
               </nav>
-              <div className="shrink-0 pt-4 pb-6 border-t border-slate-100 mt-4">
+              <div className="mt-auto pt-6">
                 <AuthNavButton mobile />
               </div>
             </motion.div>
