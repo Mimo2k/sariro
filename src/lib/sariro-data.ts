@@ -126,19 +126,19 @@ export const TEAM = [
   },
   {
     name: "Hasnain Ali",
-    role: "Lead Developer & Co-Founder",
+    role: "IT Director & Co-Founder",
     bio: "We brought Sariro into real life. True power isn't adding until there is nothing left to give, but stripping away until there is nothing left to break.",
     avatar: "H",
     accent: "#06B6D4",
     isFounder: true,
   },
-  {
-    name: "Dr. Lena Okafor",
-    role: "Head of School Partnerships",
-    bio: "Former principal turned curriculum designer. Lena runs our school partnerships and trains teachers on the Sariro method.",
-    avatar: "L",
-    accent: "#16A34A",
-  },
+{
+     name: "Sumita Patra Co-Founder and CFO",
+     role: "Chief Financial Officer",
+     bio: "Financial strategist and co-founder. Sumita oversees Sariro's financial strategy, fundraising, and operations to ensure sustainable growth.",
+     avatar: "S",
+     accent: "#10B981",
+   },
   {
     name: "Marco Rossi",
     role: "Lead Mentor — LLM Applications",
@@ -806,14 +806,13 @@ export const TESTIMONIALS = [
     avatar: "A",
     accent: "blue",
   },
-  {
-    name: "Dr. Lena Okafor",
-    role: "Principal · Lakeside Academy",
-    quote:
-      "We brought Sariro in for a semester-long AI lab. The teacher training alone was worth it. Our students now lead the school's AI ethics club — they started it themselves.",
-    avatar: "L",
-    accent: "green",
-  },
+{
+  name: "Sumita Patra Co-Founder and CFO",
+  role: "Chief Financial Officer",
+  bio: "Financial strategist and co-founder with expertise in educational finance. Sumita oversees Sariro's financial strategy, fundraising, and unit economics while ensuring our school partnership programs remain financially sustainable and scalable.",
+  avatar: "S",
+  accent: "#10B981",
+},
   {
     name: "Marco Rossi",
     role: "Senior PM · Fintech",
