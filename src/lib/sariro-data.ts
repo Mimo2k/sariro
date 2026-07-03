@@ -18,16 +18,31 @@ export const BRAND = {
    Each tier has its own Razorpay Page link. When a user clicks
    "Enroll" on any course, we route them to the link matching
    the course's `level` field. */
-export const RAZORPAY_LINKS: Record<string, string> = {
-  Beginner: "https://pages.razorpay.com/sarirobeginner",
-  Intermediate: "https://pages.razorpay.com/sarirointermediate",
-  Advanced: "https://pages.razorpay.com/sariroadvanced",
+export type LearningRatio = "1:4" | "1:1";
+
+export const RAZORPAY_LINKS: Record<string, Record<LearningRatio, string>> = {
+  Beginner: {
+    "1:4": "https://pages.razorpay.com/sarirobeginner",
+    "1:1": "https://pages.razorpay.com/sarirobeginnerpremium",
+  },
+  Intermediate: {
+    "1:4": "https://pages.razorpay.com/sarirointermediate",
+    "1:1": "https://pages.razorpay.com/sarirointermediatepremium",
+  },
+  Advanced: {
+    "1:4": "https://pages.razorpay.com/sariroadvanced",
+    "1:1": "https://pages.razorpay.com/sariroadvancedpremium",
+  },
 };
 
-/** Returns the Razorpay payment link for a given course level.
- *  Falls back to the Beginner link if the level is unknown. */
-export function getRazorpayLink(level: string): string {
-  return RAZORPAY_LINKS[level] ?? RAZORPAY_LINKS.Beginner;
+/** Returns the Razorpay payment link for a given course level and ratio. */
+export function getRazorpayLink(level: string, ratio: LearningRatio = "1:4"): string {
+  const levelLinks = RAZORPAY_LINKS[level];
+  if (!levelLinks) {
+    return RAZORPAY_LINKS.Beginner[ratio];
+  }
+
+  return levelLinks[ratio] ?? levelLinks["1:4"];
 }
 
 /* ---------- Email directory (5 mailboxes — @sariro.com) ----------
