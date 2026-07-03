@@ -3,7 +3,7 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
 import { Check, Star, ArrowRight, Sparkles, Tag } from 'lucide-react';
-import { PRICING_TIERS, DISCOUNT_LABEL, DISCOUNT_DEADLINE, discountPercent } from '@/lib/sariro-data';
+import { PRICING_TIERS, DISCOUNT_LABEL, DISCOUNT_DEADLINE, discountPercent, getRazorpayLink } from '@/lib/sariro-data';
 import { SplitText3D, MagneticButton, TiltCard3D } from './scroll-effects';
 
 const ACCENT_MAP: Record<string, { text: string; bg: string; soft: string; border: string; gradient: string }> = {
@@ -189,17 +189,20 @@ export default function Pricing3D() {
                     </ul>
 
                     {/* CTA */}
-                    <MagneticButton
-                      strength={0.15}
-                      className={`btn-tactile w-full justify-center px-5 py-3.5 text-sm ${
+                    <a
+                      href={getRazorpayLink(
+                        tier.id === 'expert' ? 'Advanced' : (tier.id.charAt(0).toUpperCase() + tier.id.slice(1))
+                      )}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`btn-tactile w-full justify-center px-5 py-3.5 text-sm relative z-10 ${
                         tier.popular ? 'btn-tactile-primary' :
-                        tier.id === 'school-pro' ? 'btn-tactile-deep' :
                         'btn-tactile-light'
                       }`}
                     >
                       {tier.cta}
                       <ArrowRight className="w-4 h-4" />
-                    </MagneticButton>
+                    </a>
                   </div>
                 </TiltCard3D>
               </motion.div>

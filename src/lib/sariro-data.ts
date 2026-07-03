@@ -24,13 +24,9 @@ export const RAZORPAY_LINKS: Record<string, string> = {
   Advanced: "https://pages.razorpay.com/sariroadvanced",
 };
 
-export type LearningRatio = '1:4' | '1:1';
-
 /** Returns the Razorpay payment link for a given course level.
- *  Falls back to the Beginner link if the level is unknown.
- *  The ratio is accepted for compatibility with checkout components.
- */
-export function getRazorpayLink(level: string, ratio?: LearningRatio): string {
+ *  Falls back to the Beginner link if the level is unknown. */
+export function getRazorpayLink(level: string): string {
   return RAZORPAY_LINKS[level] ?? RAZORPAY_LINKS.Beginner;
 }
 
@@ -119,10 +115,20 @@ export const SARIRO_ABOUT = {
 };
 
 /* ---------- Team (after Mimo, on the About page) ---------- */
-export const TEAM = [
+type TeamMember = {
+  name: string;
+  role: string;
+  bio: string;
+  avatar: string;
+  image: string;
+  accent: string;
+  isFounder?: boolean;
+};
+
+export const TEAM: TeamMember[] = [
   {
     name: "Mimo Patra",
-    role: "Founder & CEO",
+    role: "Founder and CEO",
     bio: "12+ years teaching. 36 published papers. 7 patents. Mimo leads the flagship cohorts and writes most of the curriculum.",
     avatar: "M",
     image: "/images/team/mimo-patra.jpg",
@@ -131,7 +137,7 @@ export const TEAM = [
   },
   {
     name: "Sumita Patra",
-    role: "Co-Founder & CFO",
+    role: "Co-Founder and CFO",
     bio: "The financial backbone of Sariro. Sumita ensures every cohort runs sustainably and every student gets the resources they need to succeed.",
     avatar: "S",
     image: "/images/team/sumita-patra.jpg",
@@ -140,10 +146,10 @@ export const TEAM = [
   },
   {
     name: "Hasnain Ali",
-    role: "Co-Founder & IT Director",
+    role: "Co-Founder and IT Director",
     bio: "We brought Sariro into real life. True power isn't adding until there is nothing left to give, but stripping away until there is nothing left to break.",
     avatar: "H",
-    image: "",
+    image: "/images/team/hasnain-ali.jpg",
     accent: "#06B6D4",
     isFounder: true,
   },
@@ -152,7 +158,7 @@ export const TEAM = [
     role: "Head of School Partnerships",
     bio: "Former principal turned curriculum designer. Lena runs our school partnerships and trains teachers on the Sariro method.",
     avatar: "L",
-    image: "",
+    image: "/images/team/lena-okafor.jpg",
     accent: "#16A34A",
   },
   {
@@ -160,7 +166,7 @@ export const TEAM = [
     role: "Lead Mentor — LLM Applications",
     bio: "Senior PM at a fintech by day, Sariro mentor by night. Marco has shipped 4 RAG apps to production and reviews every Builder project.",
     avatar: "M",
-    image: "",
+    image: "/images/team/mimo-patra.jpg",
     accent: "#2563EB",
   },
   {
@@ -168,7 +174,7 @@ export const TEAM = [
     role: "Lead Mentor — Computer Vision",
     bio: "ML engineer at a stealth startup. Priya wrote our evals framework and mentors the CV and Agents cohorts.",
     avatar: "P",
-    image: "",
+    image: "/images/team/priya-nair.jpg",
     accent: "#7C3AED",
   },
   {
@@ -176,7 +182,7 @@ export const TEAM = [
     role: "Career Mentor",
     bio: "History teacher → AI engineer. James runs our career sessions and the alumni Slack. He has reviewed 1,000+ portfolios.",
     avatar: "J",
-    image: "",
+    image: "/images/team/james-chen.jpg",
     accent: "#06B6D4",
   },
   {
@@ -184,10 +190,10 @@ export const TEAM = [
     role: "Community & Mentor Program",
     bio: "Built her first neural net at 16 with Sariro. Now runs our mentor program and the student-led AI ethics club.",
     avatar: "S",
-    image:"",
+    image: "/images/team/sumita-patra.jpg",
     accent: "#EC4899",
   },
-] as const;
+];
 
 export const NAV_LINKS = [
   { id: "courses", label: "Courses" },

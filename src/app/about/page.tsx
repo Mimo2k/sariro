@@ -73,16 +73,6 @@ export default function AboutPage() {
     principlesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
-  const team = TEAM as ReadonlyArray<{
-    name: string;
-    role: string;
-    bio: string;
-    avatar: string;
-    image?: string;
-    accent: string;
-    isFounder?: boolean;
-  }>;
-
   return (
     <BrandLayout>
       <PageHero
@@ -234,7 +224,7 @@ export default function AboutPage() {
                 />
                 <div className="relative rounded-3xl overflow-hidden card-3d">
                   <Image
-                    src="/images/mimo-portrait.webp"
+                    src="/images/mimo-portrait.png"
                     alt={`${MIMO.name} — ${MIMO.title}`}
                     width={640}
                     height={720}
@@ -394,7 +384,7 @@ export default function AboutPage() {
           </div>
 
           <StaggerGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" stagger={0.08}>
-            {team.map((member: { name: string; role: string; bio: string; avatar: string; image?: string; accent: string; isFounder?: boolean }) => (
+            {TEAM.map((member) => (
               <StaggerItem key={member.name}>
                 <TiltCard className="card-3d p-6 h-full group" maxTilt={5}>
                   <div className="flex items-start gap-4">
@@ -408,7 +398,7 @@ export default function AboutPage() {
                         className="relative w-14 h-14 rounded-2xl overflow-hidden flex items-center justify-center text-white font-extrabold text-xl"
                         style={{ background: member.accent, fontFamily: 'var(--font-jakarta)' }}
                       >
-                        {member.image ? (
+                        {'image' in member && member.image ? (
                           <Image
                             src={member.image}
                             alt={member.name}
@@ -420,7 +410,7 @@ export default function AboutPage() {
                           member.avatar
                         )}
                       </div>
-                      {'isFounder' in member && member.isFounder && (
+                      {member.isFounder && (
                         <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-amber-400 flex items-center justify-center ring-2 ring-white">
                           <Sparkles className="w-3 h-3 text-white" />
                         </div>

@@ -4,7 +4,7 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef, useState } from 'react';
 import { ArrowRight, Clock, Layers, Calendar, Star, RotateCw, Check } from 'lucide-react';
 import Link from 'next/link';
-import { COURSES, TRACKS } from '@/lib/sariro-data';
+import { COURSES } from '@/lib/sariro-data';
 import { SplitText3D, TiltCard3D } from './scroll-effects';
 import { FlipCard3D } from './kit-3d';
 
@@ -16,11 +16,13 @@ const ACCENT_MAP: Record<string, { text: string; bg: string; soft: string; borde
   cyan:   { text: 'text-cyan-700',   bg: 'bg-cyan-600',   soft: 'bg-cyan-50',   border: 'border-cyan-200',   ring: 'ring-cyan-300' },
 };
 
-type Filter = string; // trackId
-const FILTERS: { key: Filter; label: string }[] = TRACKS.map((t) => ({
-  key: t.id as Filter,
-  label: t.short,
-}));
+type Filter = 'All' | 'Beginner' | 'Intermediate' | 'Advanced';
+const FILTERS: { key: Filter; label: string }[] = [
+  { key: 'All', label: 'All' },
+  { key: 'Beginner', label: 'Beginner' },
+  { key: 'Intermediate', label: 'Intermediate' },
+  { key: 'Advanced', label: 'Advanced' },
+];
 
 function CourseCard({ course, index }: { course: typeof COURSES[number]; index: number }) {
   const a = ACCENT_MAP[course.accent] ?? ACCENT_MAP.blue;
@@ -107,7 +109,7 @@ function CourseCard({ course, index }: { course: typeof COURSES[number]; index: 
           className={`group/btn inline-flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl text-sm font-bold text-white ${a.bg} shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all cursor-pointer`}
           style={{ fontFamily: 'var(--font-grotesk)' }}
         >
-          Join cohort
+          Enroll now
           <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
         </Link>
       </div>
@@ -127,7 +129,7 @@ function CourseCard({ course, index }: { course: typeof COURSES[number]; index: 
 }
 
 export default function Courses3D() {
-  const [filter, setFilter] = useState<Filter>(TRACKS[0]?.id ?? 'web');
+  const [filter, setFilter] = useState<Filter>('All');
   const sectionRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -135,7 +137,7 @@ export default function Courses3D() {
   });
   const headerY = useTransform(scrollYProgress, [0, 1], [50, -50]);
 
-  const filtered = COURSES.filter((c) => c.trackId === filter);
+  const filtered = filter === 'All' ? COURSES : COURSES.filter((c) => c.level === filter);
 
   return (
     <section id="courses" ref={sectionRef} data-chapter="courses" data-chapter-label="Courses" className="relative py-24 sm:py-32 overflow-hidden bg-gradient-to-b from-white to-slate-50">
@@ -165,12 +167,12 @@ export default function Courses3D() {
           </div>
 
           {/* Filters */}
-          <div className="flex gap-1.5 p-1.5 rounded-2xl glass-panel self-start lg:self-end">
+          <div className="flex gap-1.5 p-1.5 rounded-2xl glass-panel self-start lg:self-end flex-wrap justify-center">
             {FILTERS.map((f) => (
               <button
                 key={f.key}
                 onClick={() => setFilter(f.key)}
-                className={`px-4 py-2 rounded-xl text-sm font-bold transition-all cursor-pointer ${
+                className={`px-4 py-2 rounded-xl text-sm font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                   filter === f.key
                     ? 'bg-slate-900 text-white shadow-lg'
                     : 'text-slate-600 hover:text-slate-900'
