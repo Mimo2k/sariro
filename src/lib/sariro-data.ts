@@ -149,7 +149,7 @@ export const TEAM: TeamMember[] = [
     role: "Co-Founder and IT Director",
     bio: "We brought Sariro into real life. True power isn't adding until there is nothing left to give, but stripping away until there is nothing left to break.",
     avatar: "H",
-    image: "/images/team/hasnain-ali.jpg",
+    image: "",
     accent: "#06B6D4",
     isFounder: true,
   },
@@ -158,7 +158,7 @@ export const TEAM: TeamMember[] = [
     role: "Head of School Partnerships",
     bio: "Former principal turned curriculum designer. Lena runs our school partnerships and trains teachers on the Sariro method.",
     avatar: "L",
-    image: "/images/team/lena-okafor.jpg",
+    image: "",
     accent: "#16A34A",
   },
   {
@@ -166,7 +166,7 @@ export const TEAM: TeamMember[] = [
     role: "Lead Mentor — LLM Applications",
     bio: "Senior PM at a fintech by day, Sariro mentor by night. Marco has shipped 4 RAG apps to production and reviews every Builder project.",
     avatar: "M",
-    image: "/images/team/mimo-patra.jpg",
+    image: "",
     accent: "#2563EB",
   },
   {
@@ -174,7 +174,7 @@ export const TEAM: TeamMember[] = [
     role: "Lead Mentor — Computer Vision",
     bio: "ML engineer at a stealth startup. Priya wrote our evals framework and mentors the CV and Agents cohorts.",
     avatar: "P",
-    image: "/images/team/priya-nair.jpg",
+    image: "",
     accent: "#7C3AED",
   },
   {
@@ -182,7 +182,7 @@ export const TEAM: TeamMember[] = [
     role: "Career Mentor",
     bio: "History teacher → AI engineer. James runs our career sessions and the alumni Slack. He has reviewed 1,000+ portfolios.",
     avatar: "J",
-    image: "/images/team/james-chen.jpg",
+    image: "",
     accent: "#06B6D4",
   },
   {
@@ -190,7 +190,7 @@ export const TEAM: TeamMember[] = [
     role: "Community & Mentor Program",
     bio: "Built her first neural net at 16 with Sariro. Now runs our mentor program and the student-led AI ethics club.",
     avatar: "S",
-    image: "/images/team/sumita-patra.jpg",
+    image: "",
     accent: "#EC4899",
   },
 ];
