@@ -222,7 +222,7 @@ export const NAV_LINKS = [
 export const TRUSTED_BY = [
   "Microsoft",
   "Google",
-  "Codingal",
+  "IIT-Delhi"
   "IIT-Bombay",
   "Apple",
   "Amazon",
