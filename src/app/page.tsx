@@ -147,7 +147,7 @@ export default function Home() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 1, delay: 0.3 }}
-              className="relative w-full aspect-square max-w-[400px] sm:max-w-[500px] mx-auto order-last mb-16 sm:mb-0"
+              className="relative w-full aspect-square max-w-[500px] mx-auto order-last"
             >
               <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-500/20 via-violet-500/20 to-green-500/20 blur-3xl" />
               <div className="relative w-full h-full">

@@ -26,17 +26,27 @@ export interface Profile {
   is_teacher: boolean;
   is_admin: boolean;
   is_super_admin: boolean;
+  /* New fields added in v1.0 batch-management migration */
+  timezone?: string | null;
+  track?: string | null;
+  current_cohort_id?: string | null;
   created_at: string;
   updated_at: string;
 }
 
 export type UserRole = 'student' | 'teacher' | 'admin' | 'super_admin';
 
+/**
+ * Returns the user's highest-priority role.
+ * Prefers the new `role` column (set by v1.0 migration backfill);
+ * falls back to legacy booleans for older sessions.
+ */
 export function getRole(profile: Profile | null): UserRole {
   if (!profile) return 'student';
-  if (profile.is_super_admin) return 'super_admin';
-  if (profile.is_admin) return 'admin';
-  if (profile.is_teacher) return 'teacher';
+  // Prefer the new `role` column
+  if (profile.role === 'super_admin' || profile.is_super_admin) return 'super_admin';
+  if (profile.role === 'admin' || profile.is_admin) return 'admin';
+  if (profile.role === 'teacher' || profile.is_teacher) return 'teacher';
   return 'student';
 }
 
@@ -100,34 +110,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [supabase]);
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchProfile(session.user.id).finally(() => setLoading(false));
-      } else {
-        // Defer setState via microtask to satisfy react-hooks/set-state-in-effect lint
-        Promise.resolve().then(() => setLoading(false));
-      }
-    });
+    let subscription: { unsubscribe: () => void } | null = null;
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, newSession) => {
-        setSession(newSession);
-        setUser(newSession?.user ?? null);
-        if (newSession?.user) {
-          await fetchProfile(newSession.user.id);
+    try {
+      // Get initial session
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        if (session?.user) {
+          fetchProfile(session.user.id).finally(() => setLoading(false));
         } else {
-          setProfile(null);
+          // Defer setState via microtask to satisfy react-hooks/set-state-in-effect lint
+          Promise.resolve().then(() => setLoading(false));
         }
+      }).catch((err) => {
+        console.warn('[auth] getSession error:', err);
         Promise.resolve().then(() => setLoading(false));
-      }
-    );
+      });
+
+      // Listen for auth changes
+      const result = supabase.auth.onAuthStateChange(
+        async (_event, newSession) => {
+          setSession(newSession);
+          setUser(newSession?.user ?? null);
+          if (newSession?.user) {
+            await fetchProfile(newSession.user.id);
+          } else {
+            setProfile(null);
+          }
+          Promise.resolve().then(() => setLoading(false));
+        }
+      );
+      subscription = result.data?.subscription ?? null;
+    } catch (err) {
+      console.warn('[auth] setup error:', err);
+      Promise.resolve().then(() => setLoading(false));
+    }
 
     return () => {
-      subscription.unsubscribe();
+      try {
+        subscription?.unsubscribe();
+      } catch (err) {
+        console.warn('[auth] unsubscribe error:', err);
+      }
     };
   }, [supabase, fetchProfile]);
 

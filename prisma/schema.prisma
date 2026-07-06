@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,6 +10,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+/* Legacy models (kept for backward compat with any local sqlite tooling) */
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
@@ -29,4 +27,151 @@ model Post {
   authorId  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+/* ════════════════════════════════════════════════════════════════
+   SARIRO — Batch Management System (v1.0)
+   
+   NOTE: The production database is Supabase (Postgres). This Prisma
+   schema is kept in sync for local tooling, introspection, and type
+   generation. The actual tables live in Supabase and are managed via
+   SQL migrations (see scripts/migration.sql). Do NOT run prisma
+   migrate against production — use Supabase SQL Editor instead.
+   
+   Tables (mirror the Supabase schema exactly):
+   - profiles (extended with role, timezone, track, current_cohort_id)
+   - cohorts
+   - enrollments
+   - bookings
+   - purchase_intents
+   - admin_audit_logs
+   ════════════════════════════════════════════════════════════════ */
+
+model Profile {
+  id                String   @id @default(uuid())
+  email             String?  @unique
+  full_name         String?
+  phone             String?
+  avatar_url        String?
+  provider          String?
+  role              String?  // 'student' | 'teacher' | 'admin' | 'super_admin'
+  email_verified    Boolean  @default(false)
+  phone_verified    Boolean  @default(false)
+  profile_completed Boolean  @default(false)
+  // Legacy role booleans (kept for backfill fallback)
+  is_student        Boolean  @default(false)
+  is_teacher        Boolean  @default(false)
+  is_admin          Boolean  @default(false)
+  is_super_admin    Boolean  @default(false)
+  // New v1.0 columns
+  timezone          String?
+  track             String?
+  current_cohort_id String?
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+
+  enrollments       Enrollment[]
+  purchaseIntents   PurchaseIntent[]
+  bookingsTeacher   Booking[]       @relation("BookingTeacher")
+  auditLogs         AdminAuditLog[]
+
+  @@map("profiles")
+}
+
+model Cohort {
+  id              String   @id @default(uuid())
+  track           String
+  level           String   // 'beginner' | 'intermediate' | 'advanced'
+  ratio           String   // '1:1' | '1:4'
+  status          String   @default("gathering") // gathering | ready | active | completed
+  max_capacity    Int      @default(4)
+  google_meet_url String?
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+  activated_at    DateTime?
+  completed_at    DateTime?
+
+  enrollments     Enrollment[]
+  bookings        Booking[]
+
+  @@map("cohorts")
+}
+
+model Enrollment {
+  id                  String   @id @default(uuid())
+  user_id             String
+  track               String
+  level               String
+  ratio               String
+  status              String   @default("pending") // pending | active | completed | dropped
+  cohort_id           String?
+  started_at          DateTime?
+  completed_at        DateTime?
+  completion_shown_at DateTime? // NULL = upsell popup still pending
+  created_at          DateTime @default(now())
+  updated_at          DateTime @updatedAt
+
+  user                Profile  @relation(fields: [user_id], references: [id])
+  cohort              Cohort?  @relation(fields: [cohort_id], references: [id])
+
+  @@index([user_id])
+  @@index([cohort_id])
+  @@index([status])
+  @@index([track, level])
+  @@map("enrollments")
+}
+
+model Booking {
+  id              String   @id @default(uuid())
+  cohort_id       String
+  teacher_id      String
+  slot_start      DateTime
+  slot_end        DateTime
+  status          String   @default("scheduled") // scheduled | completed | cancelled | no_show
+  google_meet_url String?
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  cohort          Cohort   @relation(fields: [cohort_id], references: [id])
+  teacher         Profile  @relation("BookingTeacher", fields: [teacher_id], references: [id])
+
+  @@index([cohort_id])
+  @@index([teacher_id])
+  @@index([slot_start])
+  @@index([status])
+  @@map("bookings")
+}
+
+model PurchaseIntent {
+  id            String   @id @default(uuid())
+  user_id       String
+  track         String
+  level         String
+  ratio         String
+  razorpay_link String?
+  status        String   @default("pending") // pending | confirmed | expired
+  created_at    DateTime @default(now())
+  confirmed_at  DateTime?
+
+  user          Profile  @relation(fields: [user_id], references: [id])
+
+  @@index([user_id])
+  @@index([status])
+  @@map("purchase_intents")
+}
+
+model AdminAuditLog {
+  id          String   @id @default(uuid())
+  admin_id    String
+  action      String
+  target_type String?
+  target_id   String?
+  metadata    Json?
+  created_at  DateTime @default(now())
+
+  admin       Profile  @relation(fields: [admin_id], references: [id])
+
+  @@index([admin_id])
+  @@index([created_at])
+  @@map("admin_audit_logs")
 }

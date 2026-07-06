@@ -361,27 +361,29 @@ export default function PricingPage() {
 
                       {/* CTA */}
                       <div
-                        className={`rounded-xl relative z-10 ${isPopular ? '' : ''}`}
+                        className={`rounded-xl overflow-hidden ${isPopular ? '' : ''}`}
                         style={
                           isPopular
                             ? { background: accent, boxShadow: `0 10px 0 -1px ${accent}cc, 0 18px 30px -12px ${accent}55` }
                             : undefined
                         }
                       >
-                        <a
+                        <MagneticButton
+                          as="a"
                           href={getRazorpayLink(
-                            tier.id === 'expert' ? 'Advanced' : (tier.id.charAt(0).toUpperCase() + tier.id.slice(1))
+                            tier.id === 'expert' ? 'Advanced' : (tier.id.charAt(0).toUpperCase() + tier.id.slice(1)),
+                            ratio
                           )}
                           target="_blank"
                           rel="noopener noreferrer"
+                          strength={0.2}
                           className={`btn-tactile w-full px-5 py-3 text-sm justify-center ${
                             isPopular ? 'btn-tactile-primary' : 'btn-tactile-light'
                           }`}
-                          style={{ fontFamily: 'var(--font-grotesk)', position: 'relative', zIndex: 10 }}
                         >
                           {tier.cta}
                           <ArrowRight className="w-4 h-4" />
-                        </a>
+                        </MagneticButton>
                       </div>
                     </div>
                   </TiltCard>

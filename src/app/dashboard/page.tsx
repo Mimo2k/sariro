@@ -4,12 +4,21 @@ import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { useAuth, getRole } from '@/components/auth/auth-provider';
 
+/**
+ * /dashboard — role router
+ * Middleware already ensures the user is logged in.
+ * This page just redirects to the correct role dashboard.
+ */
 export default function DashboardRouter() {
   const router = useRouter();
   const { user, profile, loading } = useAuth();
+
   useEffect(() => {
     if (loading) return;
-    if (!user) { router.replace('/auth/sign-in?next=/dashboard'); return; }
+    if (!user) {
+      router.replace('/auth/sign-in?next=/dashboard');
+      return;
+    }
     const role = getRole(profile);
     switch (role) {
       case 'super_admin': router.replace('/dashboard/super-admin'); break;
@@ -18,6 +27,7 @@ export default function DashboardRouter() {
       default: router.replace('/dashboard/student'); break;
     }
   }, [user, profile, loading, router]);
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50">
       <div className="text-center">

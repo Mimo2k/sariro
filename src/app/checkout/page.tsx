@@ -1,8 +1,9 @@
 'use client';
 
-import { Suspense, useMemo, useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 import {
   ArrowLeft,
   ArrowRight,
@@ -37,7 +38,7 @@ const ACCENT_HEX: Record<string, string> = {
   cyan: '#06B6D4',
 };
 
-function CheckoutPageContent() {
+export default function CheckoutPage() {
   const searchParams = useSearchParams();
   const courseId = searchParams.get('course') || '';
   const [ratio, setRatio] = useState<LearningRatio>('1:4');
@@ -47,6 +48,7 @@ function CheckoutPageContent() {
     [courseId]
   );
 
+  // If course not found, show error
   if (!course) {
     return (
       <BrandLayout>
@@ -79,6 +81,8 @@ function CheckoutPageContent() {
         <ParallaxOrb color={`${accent}1A`} size={420} speed={110} position="top-10 -left-20" />
         <ParallaxOrb color="rgba(124, 58, 237, 0.08)" size={340} speed={-80} position="bottom-10 -right-20" />
         <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+
+          {/* Back link */}
           <Link
             href={`/courses/${course.level.toLowerCase()}`}
             className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-slate-900 mb-6 transition-colors"
@@ -88,6 +92,7 @@ function CheckoutPageContent() {
             Back to {course.level} courses
           </Link>
 
+          {/* Course header card */}
           <Reveal>
             <div
               className="rounded-3xl p-6 sm:p-8 text-white relative overflow-hidden mb-8"
@@ -145,8 +150,12 @@ function CheckoutPageContent() {
             </div>
           </Reveal>
 
+          {/* Two-column layout: syllabus summary + checkout panel */}
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+
+            {/* LEFT: Outcomes + syllabus preview (3 cols) */}
             <div className="lg:col-span-3 space-y-6">
+              {/* Outcomes */}
               <Reveal>
                 <div className="card-3d p-6">
                   <h3
@@ -172,6 +181,7 @@ function CheckoutPageContent() {
                 </div>
               </Reveal>
 
+              {/* Syllabus preview */}
               <Reveal delay={0.1}>
                 <div className="card-3d p-6">
                   <h3
@@ -203,9 +213,11 @@ function CheckoutPageContent() {
               </Reveal>
             </div>
 
+            {/* RIGHT: Checkout panel (2 cols) — sticky on desktop */}
             <div className="lg:col-span-2">
               <Reveal delay={0.15}>
                 <div className="card-3d p-6 lg:sticky lg:top-28">
+                  {/* Price + ratio selection */}
                   <h3
                     className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-4"
                     style={{ fontFamily: 'var(--font-grotesk)' }}
@@ -213,7 +225,9 @@ function CheckoutPageContent() {
                     Choose your batch
                   </h3>
 
+                  {/* Ratio options */}
                   <div className="space-y-3 mb-6">
+                    {/* 1:4 option */}
                     <button
                       onClick={() => setRatio('1:4')}
                       className={`w-full text-left rounded-2xl border-2 p-4 transition-all ${
@@ -352,25 +366,5 @@ function CheckoutPageContent() {
         </div>
       </section>
     </BrandLayout>
-  );
-}
-
-export default function CheckoutPage() {
-  return (
-    <Suspense
-      fallback={
-        <BrandLayout>
-          <section className="relative pt-28 sm:pt-36 pb-12 sm:pb-16 overflow-hidden">
-            <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="rounded-3xl bg-slate-100 p-8 text-center text-slate-600">
-                Loading checkout...
-              </div>
-            </div>
-          </section>
-        </BrandLayout>
-      }
-    >
-      <CheckoutPageContent />
-    </Suspense>
   );
 }

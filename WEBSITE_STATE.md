@@ -1,228 +1,297 @@
 # SARIRO Website State
 
 > Living record of the current site. READ THIS FIRST before any edits.
-> Last updated: 2026-06-29 (session 4)
+> Last updated: July 3, 2026 (FINAL STATE)
 
 ## Pages (all return 200, lint clean)
 
-| Route | File | Accent | Hero 3D variant |
-|---|---|---|---|
-| `/` | `src/app/page.tsx` | — | Neural hero (separate component) |
-| `/courses` | `src/app/courses/page.tsx` | blue #2563EB | courses (laptop+notebook+pen) |
-| `/schools` | `src/app/schools/page.tsx` | green #16A34A | **math theme** (Platonic solids + symbols) |
-| `/events` | `src/app/events/page.tsx` | violet #7C3AED | events (rooster+calendar+papers) |
-| `/pricing` | `src/app/pricing/page.tsx` | blue #2563EB | pricing (piggy bank+coins) |
-| `/about` | `src/app/about/page.tsx` | amber #F59E0B | about (AI orb + orbiting nodes) |
-| `/resources` | `src/app/resources/page.tsx` | cyan #06B6D4 | resources (floating books + paper) |
-| `/contact` | `src/app/contact/page.tsx` | green #16A34A | contact (child in thinking pose + 3 question marks + circling aeroplane) |
-| `/faq` | `src/app/faq/page.tsx` | cyan #06B6D4 | (none — uses PageHero only) |
-| `/story` | `src/app/story/page.tsx` | violet #7C3AED | (none) |
-| `/*` | `src/app/not-found.tsx` | — | simple server component (no BrandLayout) |
+| Route | File | Notes |
+|---|---|---|
+| `/` | `src/app/page.tsx` | Home — neural hero, tracks, courses, pricing, events, testimonials, CTA |
+| `/courses` | `src/app/courses/page.tsx` | Course catalog with flip cards + syllabus modal |
+| `/courses/beginner` | `src/app/courses/beginner/page.tsx` | Tier page (uses `_tier-page.tsx`) |
+| `/courses/intermediate` | `src/app/courses/intermediate/page.tsx` | Tier page |
+| `/courses/advanced` | `src/app/courses/advanced/page.tsx` | Tier page |
+| `/course-path/[id]` | `src/app/course-path/[id]/page.tsx` | Course path with 3 level cards + 1:1/1:4 selector + auto-scroll |
+| `/checkout` | `src/app/checkout/page.tsx` | Checkout page with course details + ratio selection + Razorpay link |
+| `/pricing` | `src/app/pricing/page.tsx` | Pricing with 1:1/1:4 dropdown + 3 tier cards |
+| `/about` | `src/app/about/page.tsx` | About Sariro → Mimo → Team (with images) |
+| `/schools` | `src/app/schools/page.tsx` | Schools page |
+| `/events` | `src/app/events/page.tsx` | Events page |
+| `/resources` | `src/app/resources/page.tsx` | Resources page |
+| `/story` | `src/app/story/page.tsx` | Story page |
+| `/faq` | `src/app/faq/page.tsx` | FAQ page |
+| `/contact` | `src/app/contact/page.tsx` | Contact page with 5-email directory |
+| `/terms` | `src/app/terms/page.tsx` | Terms of Service |
+| `/refunds` | `src/app/refunds/page.tsx` | Refund Policy |
+| `/privacy` | `src/app/privacy/page.tsx` | Privacy Policy |
+| `/auth/sign-in` | `src/app/auth/sign-in/page.tsx` | Sign in (blue theme) — redirects to `/dashboard` |
+| `/auth/sign-up` | `src/app/auth/sign-up/page.tsx` | Sign up (violet+amber theme) — redirects to `/dashboard` |
+| `/auth/callback` | `src/app/auth/callback/route.ts` | OAuth callback handler |
+| `/dashboard` | `src/app/dashboard/page.tsx` | Role router — auto-redirects based on role |
+| `/dashboard/student` | `src/app/dashboard/student/page.tsx` | Student dashboard |
+| `/dashboard/teacher` | `src/app/dashboard/teacher/page.tsx` | Teacher dashboard |
+| `/dashboard/admin` | `src/app/dashboard/admin/page.tsx` | Admin dashboard |
+| `/dashboard/super-admin` | `src/app/dashboard/super-admin/page.tsx` | Super admin dashboard |
+| `/settings` | `src/app/settings/page.tsx` | Account settings (edit name, phone, view email) |
 
-## Component Architecture
-
-- **BrandLayout** (`src/components/brand/brand-layout.tsx`) — wraps every page; provides navbar (10 items including FAQ+Story), footer, cinematic intro, cookie consent, mobile scroll-to-top, companion orb (desktop only), background particles, scroll hue shift
-- **PageHero** (`src/components/brand/page-hero.tsx`) — hero header pattern with eyebrow + title + subtitle + accent glow + optional 3D variant
-- **PageHero3D** (`src/components/brand/page-hero-3d.tsx`) — 7 themed 3D scenes (courses/schools/events/pricing/about/resources/contact)
-- **CinematicIntro** (`src/components/brand/cinematic-intro.tsx`) — 6-phase loading: field (drifting particles) → network (neural sphere) → collapse → logo burst → typing SARIRO wordmark → done. Plays ONLY on full page reload (module-level flag), NOT on route navigation. Skip button + mute toggle at top-right. **Magical sound** via Web Audio API (ascending chime + low drone + sparkle + whoosh + final chime — no external files).
-- **CookieConsent** (`src/components/brand/cookie-consent.tsx`) — bottom overlay, 4.2s delay, localStorage + cookie persistence
-- **OryzoSection** (`src/components/brand/oryzo-section.tsx`) — "Journey" section on home page. Arrow+swipe navigation (NO pinned scroll). 4 chapters cross-fade. 3D AICore camera orbits by activeIndex. 5s auto-play, pause on hover.
-- **Events3D** (`src/components/sariro-3d/events-3d.tsx`) — "Upcoming events" section on home page. Arrow+swipe navigation (NO pinned scroll). 3 event cards cross-fade. 5s auto-play, pause on hover.
-- **EffectsKit** (`src/components/brand/effects-kit.tsx`) — Reveal, StaggerGroup, StaggerItem, TiltCard, MagneticButton, SplitText, CountUp, ParallaxOrb, StickyScrollSection (still available but only used on inner pages for short emphasis)
-
-## Key Decisions (DO NOT REVERT)
-
-1. **CinematicIntro MUST be mounted in BrandLayout** (top of return, inside SmoothScrollProvider). Was previously exported but never imported.
-2. **CinematicIntro plays on FULL RELOAD only** — uses a module-level `hasPlayedInThisSession` flag. This flag persists across client-side route navigations (same JS context) but resets on full page reload (JS re-evaluates). User explicitly wanted: show on reload, NOT on route navigation.
-3. **CinematicIntro is ELABORATE (6 phases)**: field (200 particles drift in space) → network (particles form a neural-network sphere with 20 nodes + edges + traveling pulses) → collapse (everything sucked to center) → logo (burst flash + graduation cap icon) → type (SARIRO wordmark types in letter-by-letter with 3D rotateX) → done. Mouse parallax during field phase. Camera orbits during network phase.
-4. **CinematicIntro has MAGICAL SOUND** via Web Audio API (no external files). 5 sound layers: ascending chime (C5-E5-G5-C6), low drone (C3), high sparkle on network form, whoosh on logo burst, final chime on wordmark complete. Mute/unmute toggle button (Volume2/VolumeX icon) next to Skip. Browser autoplay policy handled: AudioContext resumes on first user gesture (click/key/touch).
-5. **CookieConsent MUST be mounted in BrandLayout** (bottom of return). Stores choice in localStorage + cookie. Plays after a 4.2s delay so it doesn't clash with cinematic intro.
-6. **NO pinned scroll on home page sections** — OryzoSection (Journey) and Events3D (Upcoming Events) both use arrow+swipe navigation now. Pattern: useState activeIdx + left/right arrow buttons + clickable dots + touch swipe handlers + 5s auto-play with pause on hover + AnimatePresence cross-fade.
-7. **NO cubes ANYWHERE — ZERO EXCEPTIONS** — removed from About page (was RotatingCube3D) AND removed from SchoolsScene (was a Platonic solid cube). The SchoolsScene math cluster now uses: tetrahedron, torus (replaces cube), octahedron, dodecahedron, icosahedron. Do NOT add a cube to any scene for any reason — not as a Platonic solid, not as a dice, not as a decorative element. If you need a 6-faced shape, use a hexagonal prism or a torus instead.
-8. **NO blank quotes** — the About page sticky quote (white text on white bg = invisible) was removed. The dark card quote below it (properly styled) remains.
-9. **Story page 5 chapters have hover/tap glow** — each card glows in its accent color on hover (box-shadow + radial glow overlay + scale 1.02 + icon rotates 3deg + border brightens). Active state scales down to 0.99 for tap feedback.
-10. **Hero 3D scroll behavior**: every hero scene uses `useScrollRotation()` hook → scroll DOWN rotates clockwise, scroll UP counter-clockwise. PricingScene keeps its own gentle auto-rotation (NOT scroll-driven).
-11. **Discount display** (Summer 2026 launch pricing): all courses + Starter/Builder tiers show originalPrice (strikethrough), live price (CountUp), Save X% badge, "You save $X" line — ALL IN RED (#DC2626). Defined in `src/lib/sariro-data.ts` with `originalPrice` fields + `discountPercent()` helper + `DISCOUNT_LABEL` + `DISCOUNT_DEADLINE` constants.
-12. **Filter pills**: PLAIN PILLS, no count badges. Active state uses gradient bg with brand colors. Inactive state uses `pill-tint-{accent}` CSS class (NOT slate-100).
-13. **Section backgrounds**: NO gray anywhere. Use `mesh-bg-soft-{blue|green|violet|amber|cyan|red}` CSS utility classes for section splits. Defined in `src/app/globals.css`.
-14. **FAQ + Story ARE in NAV_ITEMS** — both pages were previously unreachable (no nav links). Now in navbar (10 items), mobile menu, and footer (Learn column: Courses/Schools/Events/Pricing; Company column: About/Story/Resources/FAQ/Contact).
-15. **404 page**: simple server component, NO BrandLayout wrap (avoids cascading errors on 404).
-16. **Story + FAQ pages**: use plain text, NO unicode escape sequences for special characters (renders as literal text otherwise).
-17. **Mobile UX**: hamburger menu 44x44px, no overflow, "Start learning" button hidden on mobile (`hidden lg:block`).
-18. **Windows compatibility**: package.json scripts must work on Windows (no rm -rf, no POSIX-only commands).
-
-## Arrow+Swipe Navigation Pattern (for OryzoSection + Events3D)
-
-When building or modifying arrow+swipe sections, use this exact pattern:
-```typescript
-const [activeIdx, setActiveIdx] = useState(0);
-const [paused, setPaused] = useState(false);
-const touchStartX = useRef<number | null>(null);
-
-const goNext = () => setActiveIdx((i) => (i + 1) % count);
-const goPrev = () => setActiveIdx((i) => (i - 1 + count) % count);
-
-// Auto-play every 5s, pause on hover
-useEffect(() => {
-  if (paused) return;
-  const t = setInterval(() => setActiveIdx((i) => (i + 1) % count), 5000);
-  return () => clearInterval(t);
-}, [paused, count]);
-
-// Touch handlers for mobile swipe
-const onTouchStart = (e: React.TouchEvent) => { touchStartX.current = e.touches[0].clientX; };
-const onTouchEnd = (e: React.TouchEvent) => {
-  if (touchStartX.current === null) return;
-  const dx = e.changedTouches[0].clientX - touchStartX.current;
-  if (Math.abs(dx) > 50) { dx > 0 ? goPrev() : goNext(); }
-  touchStartX.current = null;
-};
-```
-Section wrapper gets: `onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}`
-
-UI elements:
-- Left arrow: `absolute left-4 top-1/2 -translate-y-1/2` (ChevronLeft in 12x12 rounded glass button)
-- Right arrow: `absolute right-4 top-1/2 -translate-y-1/2` (ChevronRight)
-- Dots: `absolute bottom-12 left-1/2 -translate-x-1/2` (active = 32px wide blue, inactive = 8px white/30)
-- Counter: `absolute top-20 right-8` (shows "0X / 0Y")
-
-## Brand Tokens (from globals.css)
-
-| Token | Value |
-|---|---|
-| Primary blue | #2563EB |
-| Brand green | #16A34A |
-| Violet | #7C3AED |
-| Amber | #F59E0B |
-| Cyan | #06B6D4 |
-| Red (discount) | #DC2626 |
-| Heading font | Plus Jakarta Sans (`var(--font-jakarta)`) |
-| Body font | Inter |
-| Button/badge font | Space Grotesk (`var(--font-grotesk)`) |
-| Tactile buttons | `.btn-tactile`, `.btn-tactile-primary`, `.btn-tactile-green`, `.btn-tactile-light`, `.btn-tactile-deep` |
-| Colorful mesh | `.mesh-bg`, `.mesh-bg-soft`, `.mesh-bg-soft-{accent}` |
-| Colorful pills | `.pill-tint`, `.pill-tint-{accent}` |
-| Gradient text | `.gradient-text` (blue→violet→green) |
-
-## Data File (`src/lib/sariro-data.ts`)
-
-Exports:
-- `BRAND`, `NAV_LINKS`, `TRUSTED_BY`, `HERO_STATS`, `TRACKS`
-- `COURSES` (6 items, each with `price` + `originalPrice`)
-- `EVENTS` (3 items)
-- `TESTIMONIALS` (6 items)
-- `PRICING_TIERS` (3 items, Starter/Builder have `price`+`originalPrice`, School Pro has `price: null`)
-- `MIMO` (bio, numbers[4], principles[4])
-- `FOOTER_LINKS`
-- `DISCOUNT_LABEL`, `DISCOUNT_DEADLINE`, `discountPercent(price, originalPrice)`
-
-## Five emails (footer)
-hello@sariro.ai, support@sariro.ai, schools@sariro.ai, partnerships@sariro.ai, careers@sariro.ai
-
-## Scripts (package.json — Windows compatible)
-- `dev`: next dev -p 3000
-- `build`: next build
-- `start`: next start -p 3000
-- `lint`: eslint .
-
-## Known Pre-existing Lint Warnings (leave alone)
-- `brand-layout.tsx:65` — setState-in-effect in BrandNavbar
-- `neural-hero-scene.tsx:133` — immutability mutation
-
-## Files Modified in Session 4 (this session)
-- `src/components/brand/cinematic-intro.tsx` — rewrote: 6-phase elaborate intro (field→network→collapse→logo→type→done), module-level flag for reload-only, magical sound via Web Audio API, mute toggle. **Mobile fix**: isMobile initialized from window.innerWidth BEFORE first render (no flash); 3D group offset groupY=-1.5 on mobile so neural network renders in bottom portion (logo stays at top).
-- `src/components/brand/oryzo-section.tsx` — rewrote: arrow+swipe (was pinned scroll), kept 3D AICore. **Text fix**: removed `filter: blur(8px)` from AnimatePresence (mobile-buggy rendering), changed container from `minHeight: 320px` to fixed `height: 340px` (prevents layout collapse during mode="wait" gap), reduced font sizes slightly for mobile fit.
-- `src/components/sariro-3d/events-3d.tsx` — rewrote: arrow+swipe (was pinned scroll)
-- `src/app/about/page.tsx` — removed RotatingCube3D + CUBE_FACES + CubeFace + sticky quote; added principle highlights grid
-- `src/app/story/page.tsx` — added hover/tap glow to 5 chapter cards
-
-## Session 5+ Changes (all sessions after session 4)
-
-### Hero button change
-- Removed "Meet Mimo" button (was linking to /about)
-- Added "Sign up!" button → links to `/auth/sign-up`
-
-### Legal pages created
-- `/terms` — Terms of Service (10 sections: acceptance, eligibility, enrollment, account, acceptable use, IP, disclaimers, liability, changes, contact)
-- `/refunds` — Refund Policy (14-day money-back guarantee, pro-rata after 14 days, transfer policy, non-refundable items)
-- `/privacy` — Privacy Policy (10 sections: data collection, usage, cookies, sharing, GDPR/CCPA rights, retention, security, children, changes, contact)
-- All 3 linked from footer Company section + bottom bar
-
-### Course tracks restructured (6 tracks, 16 courses)
-**File: `src/lib/sariro-data.ts`** → `TRACKS` array + `COURSES` array
-
-| Track | Beginner ($199) | Intermediate ($299) | Advanced ($699) |
-|---|---|---|---|
-| AI Engineer | Python with AI Foundations | Beyond Python: AI & Agents | Beyond Agents: Build SLMs & LLMs |
-| Web Developer | Build Your First Website | Beyond Frontend: Node/SQL/APIs/React | Production Web: Docker/AWS/K8s/Security |
-| Prompt Engineering | Prompt Engineering Mastery | — | — |
-| GTM Engineering | AI-Powered Outbound | RevOps & Pipeline Engineering | AI GTM Platform Engineering |
-| AI Security | Security Fundamentals | AI-Powered Security Tools | AI Red Team & Advanced SecOps |
-| Data Intelligence | Data Thinking & Python Basics | AI Analytics & Machine Learning | Data Platform Engineering |
-
-- Each track is a **continuous path** — no topic repeats across levels
-- Beginner: 5 modules, 30 lessons (6 per module)
-- Intermediate: 7 modules, 42 lessons (6 per module)
-- Advanced: 16 modules, 96 lessons (6 per module)
-- Filter buttons on home + courses page show 6 tracks (no "All" pill)
-
-### Stat pills (Mimo portrait)
-- Replaced 3D rotating cube on Mimo portrait with floating pill-shaped stat badges
-- 4 pills: 12+ Years teaching (orange), 7 Patents filed (green), 5,000+ Students mentored (blue), 36 Papers published (violet)
-- Mobile: pills stack in 2-col grid below portrait
-
-### About page restructured
-- Section 1: About Sariro (company narrative + stats + principles)
-- Section 2: Meet Mimo Patra (portrait + stat pills + bio + principles)
-- Section 3: The Team (6 members including Hasnain Ali as Lead Developer & Co-Founder)
-
-### Pricing
-- 3 tiers: Beginner ($199/$398), Intermediate ($299/$854), Expert ($699/$2330)
-- 1:4 vs 1:1 dropdown: switches price AND Razorpay payment link
-- 1:4 links: sarirobeginner, sarirointermediate, sariroadvanced
-- 1:1 links: sarirobeginner1on1, sarirointermediate1on1, sariroadvanced1on1 (placeholder — swap with real links)
-
-### Email directory (5 mailboxes @sariro.com)
-- contact@sariro.com (General), support@sariro.com (Support), dev@sariro.com (Development), hr@sariro.com (Careers), founder@sariro.com (Founder)
-- Shown on Contact page + footer Connect section
-
-### Razorpay payment links
-- `getRazorpayLink(level, ratio)` function in sariro-data.ts
-- Home + Courses page "Join cohort" → links to `/courses/{level}` tier page
-- Tier page "Reserve a seat" → opens Razorpay in new tab
-- Pricing page CTA buttons → open Razorpay based on dropdown ratio
+## Key Architecture
 
 ### Auth (Supabase)
-- Google One Tap, GitHub OAuth, Email/Password
-- Profile completion modal (asks for missing name/phone/email based on provider)
-- AuthNavButton in navbar (Sign in / avatar dropdown)
-- Sign-in page: blue theme, "Welcome back"
-- Sign-up page: violet+amber theme, "Become a Sariro builder" + benefit cards
+- **AuthProvider** is in `src/app/layout.tsx` (root layout) — wraps entire app
+- **Profile type** includes: `is_student`, `is_teacher`, `is_admin`, `is_super_admin`
+- **`getRole(profile)`** function returns highest-priority role: super_admin > admin > teacher > student
+- **Auth flow**: Login → `/auth/callback` → `/dashboard` → role router → correct dashboard
+- **Profile completion modal**: Asks for missing name/phone/email based on provider
+- **Sign-in page**: Blue theme, "Welcome back"
+- **Sign-up page**: Violet+amber theme, "Become a Sariro builder" + benefit cards
+- **Google One Tap**: Loads GIS script, exchanges ID token with Supabase
+- **GitHub OAuth**: `signInWithOAuth({provider:'github'})`
+- **Email/Password**: Standard Supabase `signUp` / `signInWithPassword`
 
-### Chat bubble (SLM)
+### Navbar (BrandLayout)
+- **AuthNavButton**: Shows "Sign in" when logged out, avatar+role badge+dropdown when logged in
+  - Role badge: Student (blue), Teacher (green), Admin (amber), Super Admin (violet)
+  - Dropdown: Dashboard link (role-based), Account settings (/settings), Sign out
+- **StartLearningButton**: Only shows when NOT logged in (hidden for logged-in users)
+- **Mobile sidebar**: Scrollable nav (`flex-1 overflow-y-auto`), auth button pinned to bottom (`shrink-0 border-t`), body scroll locked when open
+
+### Courses
+- **TRACKS**: 10 tracks from the HTML file (web, app, saas, agent, data, cloud, design, game, automation, security)
+- **COURSES**: 30 courses (10 tracks × 3 levels: Beginner $199, Intermediate $299, Advanced $699)
+- **AUDIENCE_TRACKS**: Separate array for the "Three Paths" section on home (Students/Schools/Professionals)
+- **Filter pills**: 4 level-based pills — All Courses / Beginner / Intermediate / Advanced (NOT track-based)
+- **Flip cards**: Front=info, Back=outcomes + "Enroll now" button
+- **Syllabus modal**: Opens on "Syllabus" button click, shows full module/lesson breakdown
+  - z-index: `z-[70]` (above navbar)
+  - Navbar HIDES when modal open (`data-syllabus-open` attribute on `<html>`)
+  - Body scroll locked, only modal content scrolls
+  - Close button: 44px touch target, `z-20`
+  - "Enroll now" button links to `/course-path/{trackId}`
+
+### Course Path Page (`/course-path/[id]`)
+- Shows 3 level cards (Beginner green / Intermediate blue / Advanced violet)
+- Click a card → auto-scrolls to details section (`detailsRef`)
+- Details: outcomes + full syllabus + 1:1/1:4 batch selector
+- "Reserve your seat" → opens Razorpay in new tab
+- Mobile: 3 cards stack vertically (`grid-cols-1 sm:grid-cols-3`)
+
+### Checkout Page (`/checkout?course=X`)
+- Shows course header + outcomes + syllabus preview
+- 1:4 vs 1:1 ratio selection (blue/violet cards)
+- Order summary + "Reserve your seat" → Razorpay
+- Sticky checkout panel on desktop
+
+### Pricing Page
+- 1:1/1:4 dropdown selector (NOT toggle)
+- 3 tier cards with prices that change based on ratio
+- CTA buttons are plain `<a>` tags (NOT MagneticButton) with `relative z-10` to stay above TiltCard
+- Home page pricing section also has `<a>` tags (NOT MagneticButton)
+
+### Razorpay Payment Links
+- **Single source**: `RAZORPAY_LINKS` in `sariro-data.ts`
+- **`getRazorpayLink(level, ratio)`** function
+- 6 links: 3 tiers × 2 ratios (1:4 and 1:1)
+- 1:4 links: `sarirobeginner`, `sarirointermediate`, `sariroadvanced`
+- 1:1 links: `sarirobeginner1on1`, `sarirointermediate1on1`, `sariroadvanced1on1` (PLACEHOLDERS — replace with real links)
+- Also stored in Supabase `settings` table (for future super-admin dashboard editing)
+- **Enroll flow**: "Enroll now" → `/course-path/{trackId}` → select level → "Reserve your seat" → Razorpay
+
+### Team
+- **Mimo Patra** — Founder and CEO (#F59E0B, isFounder)
+- **Sumita Patra** — Co-Founder and CFO (#EC4899, isFounder)
+- **Hasnain Ali** — Co-Founder and IT Director (#06B6D4, isFounder)
+- **Dr. Lena Okafor** — Head of School Partnerships (#16A34A)
+- **Marco Rossi** — Lead Mentor, LLM Applications (#2563EB)
+- **Priya Nair** — Lead Mentor, Computer Vision (#7C3AED)
+- **James Chen** — Career Mentor (#06B6D4)
+- **Sofia Alvarez** — Community & Mentor Program (#EC4899)
+- Each member has `image` field for real photos (`/images/team/{name}.jpg`)
+- About page renders `<Image>` if `image` exists, falls back to letter avatar
+
+### Emails (5 mailboxes @sariro.com)
+- `contact@sariro.com` — General (Mail icon, green)
+- `support@sariro.com` — Support (LifeBuoy icon, blue)
+- `dev@sariro.com` — Development (Briefcase icon, violet)
+- `hr@sariro.com` — Careers (Handshake icon, amber)
+- `founder@sariro.com` — Founder (Sparkles icon, cyan)
+- Shown on Contact page + footer Connect section
+
+### Stat Pills (Mimo portrait)
+- 4 floating pills around Mimo's portrait: 12+ Years (orange), 7 Patents (green), 5,000+ Students (blue), 36 Papers (violet)
+- Mobile: 2-col grid below portrait
+
+### Chat Bubble (SLM)
 - Floating bubble bottom-right with flying entrance animation
 - Keyword-based FAQ matching (28 FAQ entries)
 - Body scroll lock when open
 - `/api/chat` endpoint
+- Chat bubble + companion orb + cookie banner hidden when any modal open (via `data-scroll-locked`)
 
-### Mobile fixes
-- Chat panel close button: 44px touch target
-- Syllabus modal close button: 44px touch target
-- Syllabus modal: items-start on mobile (top not clipped)
-- Cookie consent: z-index lowered to 45 (was 9998)
-- Chat bubble + companion orb + cookie banner hidden when any modal open
-- Mobile sidebar: body scroll lock when open
-- Mobile sidebar: "Start Learning" button removed (hero "Explore Courses" is enough)
-- Mobile sidebar: nav scrollable, auth button pinned to bottom
+### 3D Hero Scenes (page-hero-3d.tsx)
+- 7 variants: courses, schools, events, pricing, about, resources, contact
+- PricingScene (piggy bank) + AboutScene (orb) — UNTOUCHED
+- ContactScene: glass envelope + orbiting bubbles + light trail
+- EventsScene: floating glass event ticket + confetti
+- StoryScene: open book + sparkles
+- FaqScene: floating question marks + answer card
+- SchoolsScene: Platonic solids + math symbols (positions use `as const` for tuples)
 
-### Sound fix (cinematic intro)
-- AudioContext starts suspended on browser reload (autoplay policy)
-- Sound queues on intro start, replays on first user gesture (click/tap/keypress)
+### Mobile Fixes
+- Syllabus modal: z-[70], pt-24 on mobile, navbar hidden via `data-syllabus-open`
+- Chat panel close: 44px touch target, z-[55]
+- Cookie consent: z-45 (was z-9998)
+- Mobile sidebar: scrollable nav, auth button pinned, body scroll locked
+- Filter pills: `flex-wrap justify-center` (no horizontal scroll)
+- Hero 3D: `max-w-[400px]` on mobile + `mb-16` to prevent overlap with trusted-by
+- Viewport: `viewportFit: "cover"` for iOS safe-area
+- All close buttons: 44px minimum, `touch-manipulation`
+
+### Sound Fix (Cinematic Intro)
+- AudioContext starts suspended on browser reload
+- Sound queues on intro start, replays on first user gesture
 - `soundHasPlayed` flag prevents double-play
-- `pointerdown` listener added for broader coverage
+- `pointerdown` listener for broader coverage
 
-### 3D scene changes
-- ContactScene: replaced cartoon child+plane with glass envelope + orbiting bubbles + light trail
-- EventsScene: replaced rooster with floating glass event ticket + confetti
-- StoryScene + FaqScene: new 3D variants added
-- PricingScene + AboutScene: UNTOUCHED
+### TypeScript Fixes
+- `about/page.tsx`: `'isFounder' in member && member.isFounder` (TEAM as const)
+- `brand-layout.tsx`: EMAIL_ICONS type includes `style?: React.CSSProperties`
+- `page-hero-3d.tsx`: Position arrays use `as const` for tuples
+- `page-hero-3d.tsx`: `useRef<(THREE.Group | null)[]>` (was `useRef<THREE.Group>([])`)
+- `footer-3d.tsx`: Same EMAIL_ICONS type fix
+- `scroll-effects.tsx`: `globalThis.MouseEvent` + `as EventListener` casts
+
+### Dashboards
+- **Student**: Welcome animation, course suggestion banner, My Courses (empty state with CTA), class schedule, learning path
+- **Teacher**: My Schedule (calendar), stats (classes/students/hours), student overview
+- **Admin**: Stats, edit courses link, user management link
+- **Super Admin**: Stats, edit courses, edit pricing, role management, payment links reference
+- **Settings**: Edit name, phone, view email (read-only), save to Supabase
+
+### SQL Schema (run in Supabase)
+- `profiles` table: extends `auth.users` with `is_student`, `is_teacher`, `is_admin`, `is_super_admin`
+- `enrollments` table: student ↔ course ownership
+- `class_schedules` table: teacher ↔ student classes
+- `faq_knowledge_base` table: 28 FAQ entries for SLM
+- `unanswered_questions` table: SLM improvement loop
+- `chat_conversations` + `chat_messages` tables: chat history
+- `settings` table: payment links + configurable values
+- RLS policies on all tables
+- Triggers: `handle_new_user` (auto-create profile), `touch_updated_at`, `touch_conversation_last_message`
+
+### .env (placeholders — replace with real keys)
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `NEXT_PUBLIC_GOOGLE_CLIENT_ID`
+
+## Files NOT to touch unless explicitly needed
+- All existing pages (home, courses, pricing, about, etc.) — only modify when fixing specific bugs
+- All existing 3D scenes (PricingScene, AboutScene are explicitly UNTOUCHED)
+- `sariro-data.ts` — only modify when adding/changing courses, team, pricing, or emails
+- `WEBSITE_STATE.md` — update after every change session
+
+## Known Working State
+- Lint: clean (zero errors)
+- All 20+ routes: HTTP 200
+- Mobile: no horizontal overflow on any page
+- Pricing buttons: all clickable, link to Razorpay
+- Syllabus modal: navbar hides, body locked, only content scrolls
+- Auth: redirects to `/dashboard` after login (not stuck on sign-in page)
+- Filter pills: 4 level-based (All/Beginner/Intermediate/Advanced), no scroll
+
+---
+
+## v1.0 Batch Management System — Added July 5, 2026
+
+### Database (Supabase) — Additive Migration
+**5 new tables** (all RLS-enabled, all with CHECK constraints):
+- `cohorts` — batch of students learning same course together. State machine: `gathering → ready → active → completed`. Has `google_meet_url` (single link per cohort, never public).
+- `enrollments` — student's enrollment in a course. Status: `pending | active | completed | dropped`. Has `completion_shown_at` (for upsell popup tracking).
+- `bookings` — scheduled session (1 cohort + 1 teacher + time slot). Status: `scheduled | completed | cancelled | no_show`.
+- `purchase_intents` — bridges Razorpay tier payment → exact course. Created before payment, confirmed by admin after.
+- `admin_audit_logs` — immutable append-only log of all admin actions.
+
+**4 new columns on `profiles`**: `role` (enum), `timezone`, `track`, `current_cohort_id`.
+
+**15 RLS policies** total. Students see only own data; teachers see assigned cohorts; admins see all; super-admins see all + audit logs.
+
+**13 indexes** for mobile-performance (fast queries on slow networks).
+
+**5 triggers**: `updated_at` auto-timestamp on 4 tables + `trg_cohorts_audit` (auto-logs cohort status changes).
+
+### Architecture — Single App, Logical Route Groups
+
+```
+src/app/
+├── (public)/     ← marketing site (uses BrandLayout)
+├── (auth)/       ← sign-in, sign-up (uses BrandLayout)
+└── (dashboard)/  ← login-gated app (uses DashboardLayout)
+```
+
+### New Files
+
+| File | Purpose |
+|---|---|
+| `src/middleware.ts` | Gates `/dashboard/*` + `/settings`; redirects `/` → `/dashboard` when logged in. Gracefully no-ops if Supabase env vars missing. |
+| `src/lib/dashboard/upsell-engine.ts` | Pure logic for next-track recommendation (Beginner→Intermediate→Advanced→next track Beginner) |
+| `src/components/dashboard/upsell-popup.tsx` | Popup UI — 3 pitch variants, mobile-first bottom-sheet |
+| `src/components/dashboard/global-upsell-popup.tsx` | Wrapper in root layout — fetches pending completed enrollments, renders popup on ANY page |
+| `src/components/dashboard/dashboard-layout.tsx` | Own topbar + sidebar (desktop) + bottom-nav (mobile). Replaces BrandLayout for dashboard routes. |
+
+### Modified Files
+
+| File | Change |
+|---|---|
+| `src/app/layout.tsx` | Added AuthProvider + GlobalUpsellPopup (popup works on every page now) |
+| `src/components/auth/auth-provider.tsx` | Profile type extended with `timezone`, `track`, `current_cohort_id`. `getRole()` prefers new `role` column. |
+| `src/components/brand/brand-layout.tsx` | Removed AuthProvider wrapper (now in root layout) |
+| `prisma/schema.prisma` | Added 6 models: Profile (extended), Cohort, Enrollment, Booking, PurchaseIntent, AdminAuditLog |
+| `src/app/dashboard/page.tsx` | Removed BrandLayout — plain loading page (middleware handles auth gate) |
+| `src/app/dashboard/student/page.tsx` | Full rebuild — real enrollments, schedule, recommended next card, explore tracks |
+| `src/app/dashboard/teacher/page.tsx` | Wrapped in DashboardLayout |
+| `src/app/dashboard/admin/page.tsx` | Wrapped in DashboardLayout |
+| `src/app/dashboard/super-admin/page.tsx` | Wrapped in DashboardLayout |
+| `src/app/settings/page.tsx` | Full rebuild — added timezone + track fields, "Detect" button for browser auto-fill |
+
+### Upsell Popup Behavior
+- **Trigger**: Logged-in user has enrollment with `status='completed'` AND `completion_shown_at IS NULL`
+- **Shows on ANY page** (public, dashboard, settings) — lives in root layout
+- **3 pitch variants** (one per completed-tier): different gradient, icon, copy
+- **Track cycle**: `web → app → saas → agent → data → cloud → design → game → automation → security → web...`
+- **On dismiss**: `UPDATE enrollments SET completion_shown_at = now()` — popup never shows again for that enrollment
+- **Persistent card**: Student dashboard shows a "Recommended next" card based on most recent completed enrollment (even after popup dismissed)
+
+### Dashboard Layout Structure
+- **Topbar**: Sariro logo (left, links to `/`) · notification bell · avatar dropdown (role badge + name + email + sign out)
+- **Sidebar (desktop ≥ lg)**: role-based nav items + "Back to website" link at bottom
+- **Bottom-nav (mobile < lg)**: 4 most important items per role, iOS safe-area-aware
+- **AuthGate**: shows spinner during auth load, redirects to `/auth/sign-in` if no user
+
+### Mobile-First Priorities
+- All buttons ≥ 44px touch target (Apple HIG)
+- Sidebar collapses to bottom-nav on mobile (no hamburger menu needed)
+- Body has `pb-20 lg:pb-0` so content doesn't hide behind bottom-nav
+- Popup is full-screen bottom-sheet on mobile, centered modal on desktop
+- Session times shown in user's timezone (from `profiles.timezone`)
+- Viewport already has `viewportFit: "cover"` for iOS safe-area
+
+### Security Priorities
+- Middleware enforces route-level access (`/dashboard/*` requires session)
+- RLS enforces row-level access (students see only own enrollments/bookings)
+- `GlobalUpsellPopup` query includes `.eq('user_id', user.id)` even though RLS would enforce it (belt + suspenders)
+- Audit logs are append-only (no UPDATE/DELETE policy = immutable)
+- `getRole()` prefers new `role` column over legacy booleans (migration backfilled correctly)
+
+### Quality Gates Passed (July 5, 2026)
+- Lint: clean (zero errors)
+- All 11 tested routes return HTTP 200: `/`, `/courses`, `/dashboard`, `/dashboard/{student,teacher,admin,super-admin}`, `/settings`, `/pricing`, `/about`, `/auth/sign-in`
+- Dev server runs without errors in `dev.log`
+- Graceful degradation: works without Supabase credentials (preview mode)
+
+### Next Phase (NOT in this build)
+- Teacher dashboard rebuild (real bookings + student roster)
+- Admin dashboard rebuild (cohort state machine UI: gathering → ready → active → completed)
+- Super-admin dashboard rebuild (pricing editor + payment-link manager + audit log viewer)
+- Purchase intent flow (login gate modal → purchase_intent row → Razorpay → admin confirms → enrollment created)
+- Cohort activation flow (admin "Lock Batch & Activate" → cohort.status=active, google_meet_url generated, bookings auto-created)

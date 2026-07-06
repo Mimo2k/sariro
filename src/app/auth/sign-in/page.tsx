@@ -1,14 +1,14 @@
 'use client';
 
-import { Suspense, useEffect } from 'react';
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { GraduationCap, ArrowRight, LogIn } from 'lucide-react';
+import { GraduationCap, ArrowRight, LogIn, Zap } from 'lucide-react';
 import SignInButtons from '@/components/auth/sign-in-buttons';
 import { useAuth } from '@/components/auth/auth-provider';
 import { BRAND } from '@/lib/sariro-data';
 
-function SignInPageContent() {
+export default function SignInPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loading } = useAuth();
@@ -91,19 +91,5 @@ function SignInPageContent() {
         </p>
       </div>
     </div>
-  );
-}
-
-export default function SignInPage() {
-  return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #0F172A 100%)' }}>
-          <div className="text-white">Loading...</div>
-        </div>
-      }
-    >
-      <SignInPageContent />
-    </Suspense>
   );
 }

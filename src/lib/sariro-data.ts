@@ -14,35 +14,32 @@ export const BRAND = {
   location: "San Francisco · Remote-first · Worldwide",
 };
 
-/* ---------- Razorpay payment links (one per tier) ----------
-   Each tier has its own Razorpay Page link. When a user clicks
-   "Enroll" on any course, we route them to the link matching
-   the course's `level` field. */
-export type LearningRatio = "1:4" | "1:1";
+/* ---------- Razorpay payment links ----------
+   Each tier (Beginner, Intermediate, Advanced) has TWO Razorpay Page links:
+     - 1:4 ratio (standard cohort, 1 teacher per 4 students) → base link
+     - 1:1 ratio (premium personal instruction) → base link + "premium"
 
-export const RAZORPAY_LINKS: Record<string, Record<LearningRatio, string>> = {
-  Beginner: {
-    "1:4": "https://pages.razorpay.com/sarirobeginner",
-    "1:1": "https://pages.razorpay.com/sarirobeginnerpremium",
-  },
-  Intermediate: {
-    "1:4": "https://pages.razorpay.com/sarirointermediate",
-    "1:1": "https://pages.razorpay.com/sarirointermediatepremium",
-  },
-  Advanced: {
-    "1:4": "https://pages.razorpay.com/sariroadvanced",
-    "1:1": "https://pages.razorpay.com/sariroadvancedpremium",
-  },
+   When a user clicks "Enroll" / "Reserve your seat", we route them to the
+   link matching the course's `level` AND the selected `ratio`. */
+export const RAZORPAY_LINKS: Record<string, string> = {
+  Beginner: "https://pages.razorpay.com/sarirobeginner",
+  Intermediate: "https://pages.razorpay.com/sarirointermediate",
+  Advanced: "https://pages.razorpay.com/sariroadvanced",
 };
 
-/** Returns the Razorpay payment link for a given course level and ratio. */
-export function getRazorpayLink(level: string, ratio: LearningRatio = "1:4"): string {
-  const levelLinks = RAZORPAY_LINKS[level];
-  if (!levelLinks) {
-    return RAZORPAY_LINKS.Beginner[ratio];
-  }
+/* 1:1 premium links = base link + "premium" suffix
+   (e.g. sarirobeginner → sarirobeginnerpremium) */
+export const RAZORPAY_LINKS_PREMIUM: Record<string, string> = Object.fromEntries(
+  Object.entries(RAZORPAY_LINKS).map(([tier, url]) => [tier, `${url}premium`])
+);
 
-  return levelLinks[ratio] ?? levelLinks["1:4"];
+/** Returns the Razorpay payment link for a given course level + ratio.
+ *  - ratio='1:4' (or omitted) → standard cohort link
+ *  - ratio='1:1' → premium personal instruction link (base + "premium")
+ *  Falls back to the Beginner link if the level is unknown. */
+export function getRazorpayLink(level: string, ratio?: '1:4' | '1:1'): string {
+  const baseLinks = ratio === '1:1' ? RAZORPAY_LINKS_PREMIUM : RAZORPAY_LINKS;
+  return baseLinks[level] ?? baseLinks.Beginner;
 }
 
 /* ---------- Email directory (5 mailboxes — @sariro.com) ----------
@@ -130,17 +127,7 @@ export const SARIRO_ABOUT = {
 };
 
 /* ---------- Team (after Mimo, on the About page) ---------- */
-type TeamMember = {
-  name: string;
-  role: string;
-  bio: string;
-  avatar: string;
-  image: string;
-  accent: string;
-  isFounder?: boolean;
-};
-
-export const TEAM: TeamMember[] = [
+export const TEAM = [
   {
     name: "Mimo Patra",
     role: "Founder and CEO",
@@ -155,7 +142,7 @@ export const TEAM: TeamMember[] = [
     role: "Co-Founder and CFO",
     bio: "The financial backbone of Sariro. Sumita ensures every cohort runs sustainably and every student gets the resources they need to succeed.",
     avatar: "S",
-    image: "/images/team/sumitra-patra.webp",
+    image: "/images/team/sumita-patra.webp",
     accent: "#EC4899",
     isFounder: true,
   },
@@ -208,7 +195,7 @@ export const TEAM: TeamMember[] = [
     image: "",
     accent: "#EC4899",
   },
-];
+] as const;
 
 export const NAV_LINKS = [
   { id: "courses", label: "Courses" },
@@ -222,10 +209,10 @@ export const NAV_LINKS = [
 export const TRUSTED_BY = [
   "Microsoft",
   "Google",
-  "IIT-Delhi",
-  "IIT-Bombay",
-  "Apple",
+  "Meta",
   "Amazon",
+  "IIT-Bombay",
+  "IIT-Delhi",
 ];
 
 export const HERO_STATS = [

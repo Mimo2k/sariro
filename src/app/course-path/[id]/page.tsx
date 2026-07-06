@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useRef, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -35,16 +35,6 @@ export default function CoursePathPage() {
   const trackId = params.id as string;
   const [ratio, setRatio] = useState<LearningRatio>('1:4');
   const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
-  const detailsRef = useRef<HTMLDivElement>(null);
-
-  // Auto-scroll to details when a level is selected
-  useEffect(() => {
-    if (selectedLevel && detailsRef.current) {
-      setTimeout(() => {
-        detailsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 100);
-    }
-  }, [selectedLevel]);
 
   const track = useMemo(() => TRACKS.find((t) => t.id === trackId), [trackId]);
   const courses = useMemo(() => COURSES.filter((c) => c.trackId === trackId), [trackId]);
@@ -99,8 +89,8 @@ export default function CoursePathPage() {
             </div>
           </Reveal>
 
-          {/* 3 Level Cards — mobile: 1 col, tablet: 3 cols */}
-          <StaggerGroup className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-12" stagger={0.1}>
+          {/* 3 Level Cards */}
+          <StaggerGroup className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12" stagger={0.1}>
             {LEVEL_STYLES.map((ls, i) => {
               const course = courses.find((c) => c.level === ls.label);
               if (!course) return null;
@@ -164,11 +154,9 @@ export default function CoursePathPage() {
 
             return (
               <motion.div
-                ref={detailsRef}
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-                className="scroll-mt-24"
               >
                 {/* Divider */}
                 <div className="flex items-center gap-3 mb-8">

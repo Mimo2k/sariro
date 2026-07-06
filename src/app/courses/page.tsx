@@ -35,10 +35,11 @@ import {
 } from '@/components/brand/effects-kit';
 import { COURSES, TRACKS, discountPercent, DISCOUNT_LABEL } from '@/lib/sariro-data';
 
-// Filters are level-based: All / Beginner / Intermediate / Advanced
-type FilterKey = 'All' | 'Beginner' | 'Intermediate' | 'Advanced';
+// Filters are LEVEL-based: All / Beginner / Intermediate / Advanced
+// (NOT track-based — track selection happens on /course-path/[id])
+type FilterKey = 'all' | 'Beginner' | 'Intermediate' | 'Advanced';
 const FILTERS: { key: FilterKey; label: string }[] = [
-  { key: 'All', label: 'All Courses' },
+  { key: 'all', label: 'All' },
   { key: 'Beginner', label: 'Beginner' },
   { key: 'Intermediate', label: 'Intermediate' },
   { key: 'Advanced', label: 'Advanced' },
@@ -55,10 +56,12 @@ const ACCENT_HEX: Record<string, string> = {
 };
 
 export default function CoursesPage() {
-  const [filter, setFilter] = useState<FilterKey>('All');
+  const [filter, setFilter] = useState<FilterKey>('all');
   const [syllabusCourse, setSyllabusCourse] = useState<Course | null>(null);
 
-  const visible = filter === 'All' ? COURSES : COURSES.filter((c) => c.level === filter);
+  const visible = filter === 'all'
+    ? COURSES
+    : COURSES.filter((c) => c.level === filter);
 
   return (
     <BrandLayout>
@@ -111,12 +114,11 @@ export default function CoursesPage() {
               </Reveal>
             </div>
 
-            {/* Filter pills — horizontally scrollable on mobile */}
+            {/* Filter pills */}
             <div
               className="inline-flex p-1.5 rounded-2xl glass-panel gap-1 self-start md:self-auto flex-wrap justify-center"
               role="tablist"
-              aria-label="Filter courses by track"
-              style={{ scrollbarWidth: 'thin', WebkitOverflowScrolling: 'touch' }}
+              aria-label="Filter courses by level"
             >
               {FILTERS.map((f) => {
                 const active = filter === f.key;
@@ -126,7 +128,7 @@ export default function CoursesPage() {
                     onClick={() => setFilter(f.key)}
                     role="tab"
                     aria-selected={active}
-                    className={`relative px-4 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap shrink-0 ${
+                    className={`relative px-4 py-2.5 rounded-xl text-sm font-bold transition-all ${
                       active ? 'text-white' : 'text-slate-700 hover:text-blue-600'
                     }`}
                     style={{ fontFamily: 'var(--font-grotesk)' }}
@@ -145,6 +147,87 @@ export default function CoursesPage() {
                 );
               })}
             </div>
+          </div>
+
+          {/* Tier explorer — links to dedicated tier pages (not in navbar) */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
+            <Link
+              href="/courses/beginner"
+              className="group rounded-2xl p-5 border-2 border-green-200 hover:border-green-400 hover:shadow-lg hover:shadow-green-500/10 transition-all bg-green-50/50"
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center text-green-600">
+                  <GraduationCap className="w-5 h-5" strokeWidth={2.2} />
+                </div>
+                <div>
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-green-700" style={{ fontFamily: 'var(--font-grotesk)' }}>
+                    Tier 1 · From $199
+                  </div>
+                  <div className="text-base font-extrabold text-slate-900" style={{ fontFamily: 'var(--font-jakarta)' }}>
+                    Beginner
+                  </div>
+                </div>
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed mb-2">
+                2 tracks · 5 modules · 30 lessons each. Zero experience required.
+              </p>
+              <div className="text-xs font-bold text-green-600 flex items-center gap-1 group-hover:gap-2 transition-all">
+                Explore beginner track
+                <ArrowRight className="w-3 h-3" />
+              </div>
+            </Link>
+
+            <Link
+              href="/courses/intermediate"
+              className="group rounded-2xl p-5 border-2 border-blue-200 hover:border-blue-400 hover:shadow-lg hover:shadow-blue-500/10 transition-all bg-blue-50/50"
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600">
+                  <Briefcase className="w-5 h-5" strokeWidth={2.2} />
+                </div>
+                <div>
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-blue-700" style={{ fontFamily: 'var(--font-grotesk)' }}>
+                    Tier 2 · From $299
+                  </div>
+                  <div className="text-base font-extrabold text-slate-900" style={{ fontFamily: 'var(--font-jakarta)' }}>
+                    Intermediate
+                  </div>
+                </div>
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed mb-2">
+                2 tracks · 7 modules · 42 lessons each. Ship real products.
+              </p>
+              <div className="text-xs font-bold text-blue-600 flex items-center gap-1 group-hover:gap-2 transition-all">
+                Explore intermediate track
+                <ArrowRight className="w-3 h-3" />
+              </div>
+            </Link>
+
+            <Link
+              href="/courses/advanced"
+              className="group rounded-2xl p-5 border-2 border-violet-200 hover:border-violet-400 hover:shadow-lg hover:shadow-violet-500/10 transition-all bg-violet-50/50"
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center text-violet-600">
+                  <Sparkles className="w-5 h-5" strokeWidth={2.2} />
+                </div>
+                <div>
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-violet-700" style={{ fontFamily: 'var(--font-grotesk)' }}>
+                    Tier 3 · From $699
+                  </div>
+                  <div className="text-base font-extrabold text-slate-900" style={{ fontFamily: 'var(--font-jakarta)' }}>
+                    Advanced
+                  </div>
+                </div>
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed mb-2">
+                2 tracks · 16 modules · 96 lessons. Ship production systems.
+              </p>
+              <div className="text-xs font-bold text-violet-600 flex items-center gap-1 group-hover:gap-2 transition-all">
+                Explore advanced track
+                <ArrowRight className="w-3 h-3" />
+              </div>
+            </Link>
           </div>
 
           {/* Catalog grid */}
@@ -179,90 +262,6 @@ export default function CoursesPage() {
               <p className="text-slate-500">No courses match this filter yet.</p>
             </div>
           )}
-
-          {/* Browse all courses in depth — tier explorer moved below catalog */}
-          <div className="mt-12 pt-8 border-t border-slate-100">
-            <h3 className="text-lg font-extrabold text-slate-900 mb-4 text-center" style={{ fontFamily: 'var(--font-jakarta)' }}>
-              Browse all courses in depth
-            </h3>
-            <p className="text-xs text-slate-500 text-center mb-6">Choose a level to explore all tracks at that depth</p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <Link
-                href="/courses/beginner"
-                className="group rounded-2xl p-5 border-2 border-green-200 hover:border-green-400 hover:shadow-lg hover:shadow-green-500/10 transition-all bg-green-50/50"
-              >
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center text-green-600">
-                    <GraduationCap className="w-5 h-5" strokeWidth={2.2} />
-                  </div>
-                  <div>
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-green-700" style={{ fontFamily: 'var(--font-grotesk)' }}>
-                      From $199
-                    </div>
-                    <div className="text-base font-extrabold text-slate-900" style={{ fontFamily: 'var(--font-jakarta)' }}>
-                      Beginner
-                    </div>
-                  </div>
-                </div>
-                <p className="text-xs text-slate-600 leading-relaxed mb-2">
-                  5 modules · 30 lessons each. Zero experience required.
-                </p>
-                <div className="text-xs font-bold text-green-600 flex items-center gap-1 group-hover:gap-2 transition-all">
-                  Explore beginner <ArrowRight className="w-3 h-3" />
-                </div>
-              </Link>
-
-              <Link
-                href="/courses/intermediate"
-                className="group rounded-2xl p-5 border-2 border-blue-200 hover:border-blue-400 hover:shadow-lg hover:shadow-blue-500/10 transition-all bg-blue-50/50"
-              >
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600">
-                    <Briefcase className="w-5 h-5" strokeWidth={2.2} />
-                  </div>
-                  <div>
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-blue-700" style={{ fontFamily: 'var(--font-grotesk)' }}>
-                      From $299
-                    </div>
-                    <div className="text-base font-extrabold text-slate-900" style={{ fontFamily: 'var(--font-jakarta)' }}>
-                      Intermediate
-                    </div>
-                  </div>
-                </div>
-                <p className="text-xs text-slate-600 leading-relaxed mb-2">
-                  7 modules · 42 lessons each. Ship real products.
-                </p>
-                <div className="text-xs font-bold text-blue-600 flex items-center gap-1 group-hover:gap-2 transition-all">
-                  Explore intermediate <ArrowRight className="w-3 h-3" />
-                </div>
-              </Link>
-
-              <Link
-                href="/courses/advanced"
-                className="group rounded-2xl p-5 border-2 border-violet-200 hover:border-violet-400 hover:shadow-lg hover:shadow-violet-500/10 transition-all bg-violet-50/50"
-              >
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center text-violet-600">
-                    <Sparkles className="w-5 h-5" strokeWidth={2.2} />
-                  </div>
-                  <div>
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-violet-700" style={{ fontFamily: 'var(--font-grotesk)' }}>
-                      From $699
-                    </div>
-                    <div className="text-base font-extrabold text-slate-900" style={{ fontFamily: 'var(--font-jakarta)' }}>
-                      Advanced
-                    </div>
-                  </div>
-                </div>
-                <p className="text-xs text-slate-600 leading-relaxed mb-2">
-                  16 modules · 96 lessons. Ship production systems.
-                </p>
-                <div className="text-xs font-bold text-violet-600 flex items-center gap-1 group-hover:gap-2 transition-all">
-                  Explore advanced <ArrowRight className="w-3 h-3" />
-                </div>
-              </Link>
-            </div>
-          </div>
         </div>
       </section>
 
@@ -624,7 +623,7 @@ function CourseBack({
               className="px-3 py-2 rounded-xl bg-white text-slate-900 text-xs font-bold flex items-center gap-1.5 hover:bg-white/90 transition-colors"
               style={{ fontFamily: 'var(--font-grotesk)' }}
             >
-              Enroll now
+              Join cohort
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -641,36 +640,35 @@ function SyllabusModal({ course, onClose }: { course: Course | null; onClose: ()
   /* ---------- Body scroll lock when modal is open ----------
      Same pattern as ChatBubble: lock body in place + pause Lenis
      so only the modal's content area scrolls. Restored on close. */
-    useEffect(() => {
+  useEffect(() => {
     if (typeof window === 'undefined') return;
 
     if (course) {
       const scrollY = window.scrollY;
       const scrollX = window.scrollX;
-      const o = {
-        overflow: document.body.style.overflow,
-        position: document.body.style.position,
-        top: document.body.style.top,
-        left: document.body.style.left,
-        width: document.body.style.width,
-      };
+      const originalOverflow = document.body.style.overflow;
+      const originalPosition = document.body.style.position;
+      const originalTop = document.body.style.top;
+      const originalLeft = document.body.style.left;
+      const originalWidth = document.body.style.width;
+
       document.body.style.overflow = 'hidden';
       document.body.style.position = 'fixed';
       document.body.style.top = `-${scrollY}px`;
       document.body.style.left = `-${scrollX}px`;
       document.body.style.width = '100%';
       document.documentElement.setAttribute('data-scroll-locked', 'true');
-      document.documentElement.setAttribute('data-syllabus-open', 'true');  // ← ADD THIS
+      document.documentElement.setAttribute('data-syllabus-open', 'true');
       window.dispatchEvent(new CustomEvent('sariro:scroll-lock', { detail: { locked: true } }));
 
       return () => {
-        document.body.style.overflow = o.overflow;
-        document.body.style.position = o.position;
-        document.body.style.top = o.top;
-        document.body.style.left = o.left;
-        document.body.style.width = o.width;
+        document.body.style.overflow = originalOverflow;
+        document.body.style.position = originalPosition;
+        document.body.style.top = originalTop;
+        document.body.style.left = originalLeft;
+        document.body.style.width = originalWidth;
         document.documentElement.removeAttribute('data-scroll-locked');
-        document.documentElement.removeAttribute('data-syllabus-open');  // ← ADD THIS
+        document.documentElement.removeAttribute('data-syllabus-open');
         window.dispatchEvent(new CustomEvent('sariro:scroll-lock', { detail: { locked: false } }));
         window.scrollTo(scrollX, scrollY);
       };
@@ -685,8 +683,8 @@ function SyllabusModal({ course, onClose }: { course: Course | null; onClose: ()
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="fixed inset-0 z-[70] bg-slate-950/80 backdrop-blur-md flex items-start sm:items-center justify-center p-0 sm:p-4 pt-24 sm:pt-4"
-          style={{ overscrollBehavior: 'contain' }}
+          className="fixed inset-0 z-[60] bg-slate-950/80 backdrop-blur-md flex items-start sm:items-center justify-center p-0 sm:p-4 pt-20 sm:pt-4"
+          style={{ overflowY: 'auto', overscrollBehavior: 'contain', WebkitOverflowScrolling: 'touch' }}
           data-lenis-prevent
         >
           <motion.div
@@ -845,7 +843,7 @@ function SyllabusModal({ course, onClose }: { course: Course | null; onClose: ()
                 className="btn-tactile btn-tactile-primary px-5 py-3 text-sm"
                 style={{ background: ACCENT_HEX[course.accent] ?? '#2563EB' }}
               >
-                Enroll now
+                Join cohort
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </div>

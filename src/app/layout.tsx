@@ -2,6 +2,9 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Plus_Jakarta_Sans, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
+import { AuthProvider } from "@/components/auth/auth-provider";
+import { GlobalUpsellPopup } from "@/components/dashboard/global-upsell-popup";
+import ProfileCompletionModal from "@/components/auth/profile-completion-modal";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -58,8 +61,17 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${jakarta.variable} ${grotesk.variable} antialiased`}
       >
-        {children}
-        <Toaster />
+        <AuthProvider>
+          {children}
+          {/* Profile completion modal — lives in root so it works on EVERY page
+              (public + dashboard). Auto-shows when user is logged in but
+              profile_completed = false (e.g. GitHub login missing phone). */}
+          <ProfileCompletionModal />
+          {/* Global upsell popup — shows on ANY page when a logged-in user
+              has a completed enrollment whose completion_shown_at is NULL. */}
+          <GlobalUpsellPopup />
+          <Toaster />
+        </AuthProvider>
       </body>
     </html>
   );

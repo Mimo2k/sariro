@@ -13,8 +13,7 @@ import SmoothScrollProvider from '@/components/sariro-3d/smooth-scroll-provider'
 import CinematicIntro from '@/components/brand/cinematic-intro';
 import CookieConsent from '@/components/brand/cookie-consent';
 import ChatBubble from '@/components/sariro-3d/chat-bubble';
-import { AuthProvider, useAuth } from '@/components/auth/auth-provider';
-import ProfileCompletionModal from '@/components/auth/profile-completion-modal';
+import { useAuth } from '@/components/auth/auth-provider';
 
 /* Map the icon name string from EMAILS data to a real icon component. */
 const EMAIL_ICONS: Record<string, React.ComponentType<{ className?: string; strokeWidth?: number }>> = {
@@ -71,6 +70,8 @@ function BrandNavbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
+  const { user } = useAuth();
+  const isLoggedIn = !!user;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -180,13 +181,15 @@ function BrandNavbar() {
             {/* Desktop CTA */}
             <div className="hidden lg:flex items-center gap-2">
               <AuthNavButton />
-              <Link
-                href="/courses"
-                className="btn-tactile btn-tactile-primary px-5 py-2.5 text-sm"
-              >
-                <Sparkles className="w-4 h-4" />
-                Start Learning
-              </Link>
+              {!isLoggedIn && (
+                <Link
+                  href="/courses"
+                  className="btn-tactile btn-tactile-primary px-5 py-2.5 text-sm"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  Start Learning
+                </Link>
+              )}
             </div>
 
             {/* Mobile toggle */}
@@ -216,9 +219,9 @@ function BrandNavbar() {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 28, stiffness: 280 }}
-              className="absolute top-0 right-0 bottom-0 w-[82%] max-w-sm bg-white shadow-2xl p-6 pt-24 pb-6 flex flex-col overflow-hidden"
+              className="absolute top-0 right-0 bottom-0 w-[82%] max-w-sm bg-white shadow-2xl p-6 pt-24 flex flex-col"
             >
-              <nav className="flex flex-col gap-1 flex-1 overflow-y-auto -mx-2 px-2" style={{ overscrollBehavior: 'contain' }} data-lenis-prevent>
+              <nav className="flex flex-col gap-1">
                 {NAV_ITEMS.map((item, i) => {
                   const active = pathname === item.href;
                   return (
@@ -243,7 +246,7 @@ function BrandNavbar() {
                   );
                 })}
               </nav>
-              <div className="shrink-0 pt-4 pb-2 border-t border-slate-100 mt-4">
+              <div className="mt-auto pt-6">
                 <AuthNavButton mobile />
               </div>
             </motion.div>
@@ -441,30 +444,27 @@ function PageTransition({ children }: { children: ReactNode }) {
 
 export default function BrandLayout({ children }: { children: ReactNode }) {
   return (
-    <AuthProvider>
-      <SmoothScrollProvider>
-        <CinematicIntro />
-        <CustomCursor />
-        <BackgroundParticles3D />
-        <ScrollHueShift />
-        <ChapterNav />
-        <CompanionOrb3D />
-        <ScrollProgressBar />
-        <NeuralMotifBg />
-        <BrandNavbar />
-        <PageTransition>
-          <div className="relative min-h-screen flex flex-col bg-white text-slate-900" style={{ zIndex: 1 }}>
-            <main className="flex-1 relative" style={{ zIndex: 2 }}>
-              {children}
-            </main>
-            <BrandFooter />
-          </div>
-        </PageTransition>
-        <ChatBubble />
-        <ProfileCompletionModal />
-        <CookieConsent />
-      </SmoothScrollProvider>
-    </AuthProvider>
+    <SmoothScrollProvider>
+      <CinematicIntro />
+      <CustomCursor />
+      <BackgroundParticles3D />
+      <ScrollHueShift />
+      <ChapterNav />
+      <CompanionOrb3D />
+      <ScrollProgressBar />
+      <NeuralMotifBg />
+      <BrandNavbar />
+      <PageTransition>
+        <div className="relative min-h-screen flex flex-col bg-white text-slate-900" style={{ zIndex: 1 }}>
+          <main className="flex-1 relative" style={{ zIndex: 2 }}>
+            {children}
+          </main>
+          <BrandFooter />
+        </div>
+      </PageTransition>
+      <ChatBubble />
+      <CookieConsent />
+    </SmoothScrollProvider>
   );
 }
 
@@ -495,6 +495,29 @@ function AuthNavButton({ mobile = false }: { mobile?: boolean }) {
   // Logged in — show avatar with dropdown
   const initial = (profile?.full_name || user.email || '?').charAt(0).toUpperCase();
   const displayName = profile?.full_name || user.email?.split('@')[0] || 'there';
+
+  // Determine role-based menu items
+  const role = profile?.role
+    || (profile?.is_super_admin ? 'super_admin'
+        : profile?.is_admin ? 'admin'
+        : profile?.is_teacher ? 'teacher'
+        : 'student');
+  const roleLabel = role === 'super_admin' ? 'Super Admin'
+                  : role === 'admin' ? 'Admin'
+                  : role === 'teacher' ? 'Teacher'
+                  : 'Student';
+
+  // Role-specific quick links
+  const roleLinks: { href: string; label: string }[] = [];
+  if (role === 'student') {
+    roleLinks.push({ href: '/dashboard/student', label: 'My Courses' });
+    roleLinks.push({ href: '/dashboard/student#schedule', label: 'My Schedule' });
+  } else if (role === 'teacher') {
+    roleLinks.push({ href: '/dashboard/teacher', label: 'My Schedule' });
+    roleLinks.push({ href: '/dashboard/teacher#students', label: 'My Students' });
+  } else if (role === 'admin' || role === 'super_admin') {
+    roleLinks.push({ href: `/dashboard/${role === 'super_admin' ? 'super-admin' : 'admin'}`, label: 'Admin Panel' });
+  }
 
   return (
     <details className={`${mobile ? 'w-full' : 'relative'} group`}>
@@ -528,15 +551,22 @@ function AuthNavButton({ mobile = false }: { mobile?: boolean }) {
           {user.email && (
             <div className="text-[10px] text-slate-500 truncate mt-0.5">{user.email}</div>
           )}
+          <div className="inline-block mt-1.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-700" style={{ fontFamily: 'var(--font-grotesk)' }}>
+            {roleLabel}
+          </div>
         </div>
+        {/* Role-specific quick links */}
+        {roleLinks.map((link) => (
+          <Link
+            key={link.href}
+            href={link.href}
+            className="block px-3 py-2 rounded-lg text-sm text-slate-700 hover:bg-slate-50"
+          >
+            {link.label}
+          </Link>
+        ))}
         <Link
-          href="/courses"
-          className="block px-3 py-2 rounded-lg text-sm text-slate-700 hover:bg-slate-50"
-        >
-          My courses
-        </Link>
-        <Link
-          href="/contact"
+          href="/settings"
           className="block px-3 py-2 rounded-lg text-sm text-slate-700 hover:bg-slate-50"
         >
           Account settings
