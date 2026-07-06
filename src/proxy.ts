@@ -66,11 +66,11 @@ function isSupabaseConfigured(): boolean {
   return !!url && !!key && url.startsWith('http') && !url.includes('PUT_YOUR');
 }
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const res = NextResponse.next();
   const pathname = req.nextUrl.pathname;
 
-  // If Supabase isn't configured, no-op the middleware (dev/preview mode)
+  // If Supabase isn't configured, no-op the proxy (dev/preview mode)
   if (!isSupabaseConfigured()) {
     return res;
   }
