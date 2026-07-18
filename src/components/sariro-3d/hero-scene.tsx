@@ -1,9 +1,10 @@
 'use client';
 
-import { useRef, useMemo } from 'react';
+import { useRef, useMemo, Suspense } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Float, MeshDistortMaterial, Environment, Sparkles } from '@react-three/drei';
+import { Float, MeshDistortMaterial, Sparkles } from '@react-three/drei';
 import * as THREE from 'three';
+import { StudioEnvironment } from '@/components/sariro-3d/studio-environment';
 
 /* -----------------------------------------------------------
    3D HERO SCENE — scroll-reactive
@@ -203,8 +204,9 @@ export default function HeroScene3D({
 
       <Sparkles count={30} scale={10} size={2} speed={0.4} opacity={0.6} color="#2563EB" />
       <Sparkles count={20} scale={8} size={3} speed={0.3} opacity={0.4} color="#7C3AED" />
-
-      <Environment preset="city" />
+      <Suspense fallback={null}>
+        <StudioEnvironment />
+      </Suspense>
     </Canvas>
   );
 }

@@ -23,6 +23,7 @@ import {
   calculateProgress, getCourseSyllabus, dropCourse, fetchCohortMaterials,
   type LessonProgressRow,
 } from '@/lib/dashboard/student-data';
+import { useRealtime } from '@/lib/dashboard/use-realtime';
 
 /* ───── Types ───── */
 interface Enrollment {
@@ -724,6 +725,14 @@ function StudentDashboardInner() {
     loadAll();
     return () => { cancelledRef.current = true; };
   }, [loadAll]);
+
+  // Realtime sync — auto-refresh when enrollments / bookings / cohorts /
+  // notifications / lesson_progress / session_attendance change.
+  useRealtime({
+    tables: ['enrollments', 'bookings', 'cohorts', 'notifications', 'lesson_progress', 'session_attendance'],
+    onRefresh: () => { loadAll(); },
+    enabled: !!user,
+  });
 
   return (
     <section className="relative pt-6 sm:pt-10 pb-16 px-4 sm:px-6 lg:px-10">

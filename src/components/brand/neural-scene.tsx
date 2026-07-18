@@ -1,9 +1,10 @@
 'use client';
 
-import { useRef, useMemo } from 'react';
+import { useRef, useMemo, Suspense } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Sparkles, Environment } from '@react-three/drei';
+import { Sparkles } from '@react-three/drei';
 import * as THREE from 'three';
+import { StudioEnvironment } from '@/components/sariro-3d/studio-environment';
 
 /* ===============================================================
    AI NEURAL NETWORK HERO SCENE
@@ -219,8 +220,9 @@ export default function NeuralNetworkScene({
 
       <Sparkles count={40} scale={10} size={2} speed={0.3} opacity={0.5} color="#2563EB" />
       <Sparkles count={20} scale={8} size={3} speed={0.2} opacity={0.3} color="#7C3AED" />
-
-      <Environment preset="city" />
+      <Suspense fallback={null}>
+        <StudioEnvironment />
+      </Suspense>
     </Canvas>
   );
 }

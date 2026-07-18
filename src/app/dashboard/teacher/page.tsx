@@ -17,6 +17,7 @@ import {
   type SessionStudentRow, type TeacherCohortRow,
 } from '@/lib/dashboard/teacher-data';
 import { getTrackName } from '@/lib/dashboard/upsell-engine';
+import { useRealtime } from '@/lib/dashboard/use-realtime';
 
 /* ───── Helpers ───── */
 function levelDisplay(level: string): string {
@@ -907,6 +908,14 @@ function TeacherDashboardInner() {
   useEffect(() => {
     Promise.resolve().then(() => loadAll());
   }, [loadAll]);
+
+  // Realtime sync — auto-refresh when bookings / cohorts / session_attendance /
+  // session_notes / enrollments / notifications change.
+  useRealtime({
+    tables: ['bookings', 'cohorts', 'session_attendance', 'session_notes', 'enrollments', 'notifications'],
+    onRefresh: () => { loadAll(); },
+    enabled: !!user,
+  });
 
   useEffect(() => {
     if (!toast) return;

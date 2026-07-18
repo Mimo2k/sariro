@@ -41,6 +41,7 @@ export interface CohortRow {
   status: 'gathering' | 'ready' | 'active' | 'completed';
   max_capacity: number;
   google_meet_url: string | null;
+  materials_url: string | null;
   created_at: string;
   activated_at: string | null;
   completed_at: string | null;
@@ -158,6 +159,7 @@ export async function fetchCohorts(statusFilter?: string): Promise<CohortRow[]> 
       status: c.status,
       max_capacity: c.max_capacity,
       google_meet_url: c.google_meet_url,
+      materials_url: (c as { materials_url?: string | null }).materials_url ?? null,
       created_at: c.created_at,
       activated_at: c.activated_at,
       completed_at: c.completed_at,
@@ -389,6 +391,72 @@ export async function transitionCohortStatus(
     return { success: true };
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Unknown error';
+    return { success: false, error: msg };
+  }
+}
+
+/* ───── Update Google Meet URL for a cohort (independent of state) ─────
+   Lets admin set / replace / clear the Meet URL on a cohort card
+   without going through the "Lock & Activate" flow. Useful for
+   rotating Meet links mid-cohort or pre-populating before activation.
+   Pass an empty string to clear. */
+export async function updateCohortMeetUrl(
+  cohortId: string,
+  meetUrl: string
+): Promise<{ success: boolean; error?: string }> {
+  if (!cohortId) return { success: false, error: 'Missing cohort id' };
+
+  const trimmed = (meetUrl || '').trim();
+  // Allow empty (clear). If non-empty, must look like a URL.
+  if (trimmed && !/^https?:\/\/.+/i.test(trimmed)) {
+    return { success: false, error: 'URL must start with http:// or https://' };
+  }
+  // Soft warning for non-me.google.com URLs — but we still allow them
+  // (admin may use Zoom or other platforms).
+
+  try {
+    const supabase = createClient();
+    const { error } = await supabase
+      .from('cohorts')
+      .update({ google_meet_url: trimmed || null })
+      .eq('id', cohortId);
+
+    if (error) throw error;
+    return { success: true };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : 'Unknown error';
+    console.warn('[admin] updateCohortMeetUrl error:', err);
+    return { success: false, error: msg };
+  }
+}
+
+/* ───── Update Materials URL for a cohort (independent of state) ─────
+   The single-URL materials column (added by student-v2-migration).
+   Pastes a Google Drive / Notion / etc. link that students see in
+   their dashboard under "Course Materials". Pass empty string to clear. */
+export async function updateCohortMaterialsUrl(
+  cohortId: string,
+  materialsUrl: string
+): Promise<{ success: boolean; error?: string }> {
+  if (!cohortId) return { success: false, error: 'Missing cohort id' };
+
+  const trimmed = (materialsUrl || '').trim();
+  if (trimmed && !/^https?:\/\/.+/i.test(trimmed)) {
+    return { success: false, error: 'URL must start with http:// or https://' };
+  }
+
+  try {
+    const supabase = createClient();
+    const { error } = await supabase
+      .from('cohorts')
+      .update({ materials_url: trimmed || null })
+      .eq('id', cohortId);
+
+    if (error) throw error;
+    return { success: true };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : 'Unknown error';
+    console.warn('[admin] updateCohortMaterialsUrl error:', err);
     return { success: false, error: msg };
   }
 }

@@ -28,10 +28,8 @@ import {
 import {
   COURSES,
   getRazorpayLink,
+  type LearningRatio,
 } from '@/lib/sariro-data';
-
-// Learning ratio types used in checkout selections
-type LearningRatio = '1:4' | '1:1';
 
 const ACCENT_HEX: Record<string, string> = {
   blue: '#2563EB',

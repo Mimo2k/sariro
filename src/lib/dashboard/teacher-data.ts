@@ -385,39 +385,43 @@ export async function fetchSessionStudents(bookingId: string): Promise<SessionSt
 
 /* ───── 2. markAttendance ─────
    Upserts a session_attendance row for (booking_id, user_id).
-   Sets recorded_by to the current teacher. */
+   Sets recorded_by to the current teacher.
+   Also triggers lesson progress automation when status is 'present' or
+   'late' — the corresponding lesson for this session is auto-marked
+   complete for the student. The automation runs server-side via
+   /api/teacher/attendance so the service-role client can write to
+   lesson_progress (RLS would block teacher → student writes). */
 export async function markAttendance(
   bookingId: string,
   studentId: string,
   status: 'present' | 'absent' | 'late' | 'excused' | 'unknown'
-): Promise<{ success: boolean; error?: string }> {
+): Promise<{ success: boolean; error?: string; lessonMarked?: boolean; lessonName?: string }> {
   if (!bookingId || !studentId) {
     return { success: false, error: 'Missing required fields' };
   }
   try {
-    const supabase = createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    const teacherId = user?.id ?? null;
-
-    // Upsert via insert + onConflict — Supabase JS exposes this via
-    // `upsert()` with the conflict target.
-    const { error } = await supabase
-      .from('session_attendance')
-      .upsert(
-        {
-          booking_id: bookingId,
-          user_id: studentId,
-          status,
-          recorded_by: teacherId,
-          recorded_at: new Date().toISOString(),
-        },
-        { onConflict: 'booking_id,user_id' }
-      );
-
-    if (error) throw error;
-    return { success: true };
+    const res = await fetch('/api/teacher/attendance', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ bookingId, studentId, status }),
+    });
+    const json = (await res.json()) as {
+      ok: boolean;
+      error?: string;
+      message?: string;
+      lessonMarked?: boolean;
+      lessonName?: string;
+      moduleNum?: string;
+      reason?: string;
+    };
+    if (!res.ok || !json.ok) {
+      return { success: false, error: json.error || json.message || 'mark_attendance_failed' };
+    }
+    return {
+      success: true,
+      lessonMarked: json.lessonMarked,
+      lessonName: json.lessonName ? `${json.moduleNum ?? ''} · ${json.lessonName}`.trim() : undefined,
+    };
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Unknown error';
     console.warn('[teacher] markAttendance error:', err);

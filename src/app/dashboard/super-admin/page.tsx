@@ -6,6 +6,7 @@ import {
   Crown, Users, BookOpen, Clock, GraduationCap, ScrollText,
   DollarSign, Loader2, AlertCircle, CheckCircle2, XCircle, Plus,
   Lock, Trophy, ArrowRight, X, Video, Copy, ShieldCheck, Link as LinkIcon,
+  FolderOpen,
 } from 'lucide-react';
 import DashboardLayout from '@/components/dashboard/dashboard-layout';
 import { useAuth } from '@/components/auth/auth-provider';
@@ -13,11 +14,13 @@ import { TRACKS, COURSES, RAZORPAY_LINKS, RAZORPAY_LINKS_PREMIUM } from '@/lib/s
 import {
   fetchAdminStats, fetchPendingPurchaseIntents, fetchCohorts,
   confirmPurchaseIntent, rejectPurchaseIntent, transitionCohortStatus, createCohort,
+  updateCohortMeetUrl, updateCohortMaterialsUrl,
   fetchAuditLogs, fetchAuditActions,
   type AdminStats, type PurchaseIntentRow, type CohortRow, type AuditLogRow,
 } from '@/lib/dashboard/super-admin-data';
 import { getTrackName } from '@/lib/dashboard/upsell-engine';
 import { TeacherManagementModal } from '@/components/dashboard/teacher-management';
+import { useRealtime } from '@/lib/dashboard/use-realtime';
 
 /* ───── Helpers (shared with admin) ───── */
 function levelDisplay(level: string): string {
@@ -134,14 +137,20 @@ function PendingEnrollmentCard({
 
 /* ───── Cohort card ───── */
 function CohortCard({
-  cohort, onTransition,
+  cohort, onTransition, onSetMeetUrl, onSetMaterialsUrl,
 }: {
   cohort: CohortRow;
   onTransition: (cohort: CohortRow, newStatus: 'gathering' | 'ready' | 'active' | 'completed', meetUrl?: string) => void;
+  onSetMeetUrl?: (cohort: CohortRow, url: string) => Promise<void>;
+  onSetMaterialsUrl?: (cohort: CohortRow, url: string) => Promise<void>;
 }) {
   const [processing, setProcessing] = useState(false);
   const [showMeetModal, setShowMeetModal] = useState(false);
+  const [showEditMeetModal, setShowEditMeetModal] = useState(false);
+  const [showMaterialsModal, setShowMaterialsModal] = useState(false);
   const [meetUrl, setMeetUrl] = useState(cohort.google_meet_url || '');
+  const [editMeetUrl, setEditMeetUrl] = useState(cohort.google_meet_url || '');
+  const [materialsUrl, setMaterialsUrl] = useState(cohort.materials_url || '');
   const [error, setError] = useState<string | null>(null);
 
   const status = STATUS_COLORS[cohort.status] || STATUS_COLORS.gathering;
@@ -166,6 +175,32 @@ function CohortCard({
     setShowMeetModal(false);
   };
 
+  const handleSaveEditMeet = async () => {
+    if (!onSetMeetUrl) return;
+    if (editMeetUrl.trim() && !/^https?:\/\/.+/i.test(editMeetUrl.trim())) {
+      setError('URL must start with http:// or https://');
+      return;
+    }
+    setProcessing(true);
+    setError(null);
+    await onSetMeetUrl(cohort, editMeetUrl.trim());
+    setProcessing(false);
+    setShowEditMeetModal(false);
+  };
+
+  const handleSaveMaterials = async () => {
+    if (!onSetMaterialsUrl) return;
+    if (materialsUrl.trim() && !/^https?:\/\/.+/i.test(materialsUrl.trim())) {
+      setError('URL must start with http:// or https://');
+      return;
+    }
+    setProcessing(true);
+    setError(null);
+    await onSetMaterialsUrl(cohort, materialsUrl.trim());
+    setProcessing(false);
+    setShowMaterialsModal(false);
+  };
+
   return (
     <>
       <div className="card-3d p-5">
@@ -184,7 +219,7 @@ function CohortCard({
           </span>
         </div>
 
-        <div className="grid grid-cols-2 gap-2 mb-4 text-xs">
+        <div className="grid grid-cols-2 gap-2 mb-3 text-xs">
           <div>
             <div className="text-slate-400 mb-0.5">Students</div>
             <div className="font-bold text-slate-700">{cohort.student_count} / {cap}</div>
@@ -199,7 +234,41 @@ function CohortCard({
               ) : <span className="text-slate-400">—</span>}
             </div>
           </div>
+          <div className="col-span-2">
+            <div className="text-slate-400 mb-0.5">Materials link</div>
+            <div className="font-bold text-slate-700 truncate">
+              {cohort.materials_url ? (
+                <a href={cohort.materials_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline flex items-center gap-1">
+                  <FolderOpen className="w-3 h-3" /> View materials
+                </a>
+              ) : <span className="text-slate-400">—</span>}
+            </div>
+          </div>
         </div>
+
+        {/* Set Meet / Materials URL buttons (always visible) */}
+        {(onSetMeetUrl || onSetMaterialsUrl) && (
+          <div className="flex gap-2 mb-2">
+            {onSetMeetUrl && (
+              <button
+                onClick={() => { setEditMeetUrl(cohort.google_meet_url || ''); setError(null); setShowEditMeetModal(true); }}
+                className="flex-1 min-h-[36px] px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold flex items-center justify-center gap-1.5"
+                style={{ fontFamily: 'var(--font-grotesk)' }}>
+                <Video className="w-3 h-3" />
+                {cohort.google_meet_url ? 'Edit Meet' : 'Set Meet'}
+              </button>
+            )}
+            {onSetMaterialsUrl && (
+              <button
+                onClick={() => { setMaterialsUrl(cohort.materials_url || ''); setError(null); setShowMaterialsModal(true); }}
+                className="flex-1 min-h-[36px] px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold flex items-center justify-center gap-1.5"
+                style={{ fontFamily: 'var(--font-grotesk)' }}>
+                <FolderOpen className="w-3 h-3" />
+                {cohort.materials_url ? 'Edit Materials' : 'Set Materials'}
+              </button>
+            )}
+          </div>
+        )}
 
         <div className="flex gap-2">
           {cohort.status === 'gathering' && (
@@ -231,6 +300,7 @@ function CohortCard({
         </div>
       </div>
 
+      {/* Meet URL modal — activation flow */}
       <AnimatePresence>
         {showMeetModal && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -263,6 +333,88 @@ function CohortCard({
                   {processing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Lock className="w-4 h-4" />} Lock & Activate
                 </button>
                 <button onClick={() => !processing && setShowMeetModal(false)}
+                  className="min-h-[44px] px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold"
+                  style={{ fontFamily: 'var(--font-grotesk)' }}>Cancel</button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Edit Meet URL modal — independent of state */}
+      <AnimatePresence>
+        {showEditMeetModal && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[80] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4"
+            onClick={() => !processing && setShowEditMeetModal(false)}>
+            <motion.div initial={{ scale: 0.95, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 20 }}
+              className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6"
+              onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-extrabold text-slate-900" style={{ fontFamily: 'var(--font-jakarta)' }}>Set Google Meet URL</h3>
+                <button onClick={() => !processing && setShowEditMeetModal(false)} className="w-9 h-9 rounded-full hover:bg-slate-100 flex items-center justify-center">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <p className="text-sm text-slate-600 mb-4">
+                Paste the Google Meet URL for this cohort's sessions. Leave blank to clear.
+              </p>
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1.5" style={{ fontFamily: 'var(--font-grotesk)' }}>
+                Google Meet URL
+              </label>
+              <input type="url" value={editMeetUrl} onChange={(e) => setEditMeetUrl(e.target.value)}
+                placeholder="https://meet.google.com/xxx-xxxx-xxx"
+                className="w-full h-11 px-4 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/50 mb-2"
+                autoFocus />
+              {error && <div className="px-3 py-2 rounded-lg bg-red-50 border border-red-200 text-xs text-red-700 mb-3">{error}</div>}
+              <div className="flex gap-2">
+                <button onClick={handleSaveEditMeet} disabled={processing}
+                  className="flex-1 min-h-[44px] px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-sm font-bold flex items-center justify-center gap-2 disabled:opacity-50"
+                  style={{ fontFamily: 'var(--font-grotesk)' }}>
+                  {processing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Video className="w-4 h-4" />} Save Meet URL
+                </button>
+                <button onClick={() => !processing && setShowEditMeetModal(false)}
+                  className="min-h-[44px] px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold"
+                  style={{ fontFamily: 'var(--font-grotesk)' }}>Cancel</button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Materials URL modal */}
+      <AnimatePresence>
+        {showMaterialsModal && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[80] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4"
+            onClick={() => !processing && setShowMaterialsModal(false)}>
+            <motion.div initial={{ scale: 0.95, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 20 }}
+              className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6"
+              onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-extrabold text-slate-900" style={{ fontFamily: 'var(--font-jakarta)' }}>Set Materials URL</h3>
+                <button onClick={() => !processing && setShowMaterialsModal(false)} className="w-9 h-9 rounded-full hover:bg-slate-100 flex items-center justify-center">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <p className="text-sm text-slate-600 mb-4">
+                Paste a link to the cohort's materials folder (Google Drive, Notion, etc.). Students will see this in their dashboard. Leave blank to clear.
+              </p>
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-600 mb-1.5" style={{ fontFamily: 'var(--font-grotesk)' }}>
+                Materials URL
+              </label>
+              <input type="url" value={materialsUrl} onChange={(e) => setMaterialsUrl(e.target.value)}
+                placeholder="https://drive.google.com/..."
+                className="w-full h-11 px-4 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/50 mb-2"
+                autoFocus />
+              {error && <div className="px-3 py-2 rounded-lg bg-red-50 border border-red-200 text-xs text-red-700 mb-3">{error}</div>}
+              <div className="flex gap-2">
+                <button onClick={handleSaveMaterials} disabled={processing}
+                  className="flex-1 min-h-[44px] px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-sm font-bold flex items-center justify-center gap-2 disabled:opacity-50"
+                  style={{ fontFamily: 'var(--font-grotesk)' }}>
+                  {processing ? <Loader2 className="w-4 h-4 animate-spin" /> : <FolderOpen className="w-4 h-4" />} Save Materials URL
+                </button>
+                <button onClick={() => !processing && setShowMaterialsModal(false)}
                   className="min-h-[44px] px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold"
                   style={{ fontFamily: 'var(--font-grotesk)' }}>Cancel</button>
               </div>
@@ -476,6 +628,13 @@ function SuperAdminDashboardInner() {
     Promise.resolve().then(() => loadAll());
   }, [loadAll]);
 
+  // Realtime sync — auto-refresh when relevant tables change.
+  useRealtime({
+    tables: ['enrollments', 'bookings', 'cohorts', 'notifications', 'purchase_intents', 'session_attendance'],
+    onRefresh: () => { loadAll(); },
+    enabled: !!user,
+  });
+
   useEffect(() => {
     if (!toast) return;
     const t = setTimeout(() => setToast(null), 3000);
@@ -513,6 +672,26 @@ function SuperAdminDashboardInner() {
       await loadAll();
     } else {
       setToast({ type: 'error', message: result.error || 'Failed to update course' });
+    }
+  };
+
+  const handleSetMeetUrl = async (cohort: CohortRow, url: string) => {
+    const result = await updateCohortMeetUrl(cohort.id, url);
+    if (result.success) {
+      setToast({ type: 'success', message: url ? 'Meet URL updated' : 'Meet URL cleared' });
+      await loadAll();
+    } else {
+      setToast({ type: 'error', message: result.error || 'Failed to update Meet URL' });
+    }
+  };
+
+  const handleSetMaterialsUrl = async (cohort: CohortRow, url: string) => {
+    const result = await updateCohortMaterialsUrl(cohort.id, url);
+    if (result.success) {
+      setToast({ type: 'success', message: url ? 'Materials URL updated' : 'Materials URL cleared' });
+      await loadAll();
+    } else {
+      setToast({ type: 'error', message: result.error || 'Failed to update Materials URL' });
     }
   };
 
@@ -622,7 +801,7 @@ function SuperAdminDashboardInner() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {cohorts.map(c => <CohortCard key={c.id} cohort={c} onTransition={handleCohortTransition} />)}
+              {cohorts.map(c => <CohortCard key={c.id} cohort={c} onTransition={handleCohortTransition} onSetMeetUrl={handleSetMeetUrl} onSetMaterialsUrl={handleSetMaterialsUrl} />)}
             </div>
           )}
         </div>

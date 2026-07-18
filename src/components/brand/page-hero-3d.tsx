@@ -1,9 +1,10 @@
 'use client';
 
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Sparkles, Environment, Float, MeshDistortMaterial } from '@react-three/drei';
+import { Sparkles, Float, MeshDistortMaterial } from '@react-three/drei';
 import { useRef, useMemo, Suspense, type ReactNode } from 'react';
 import * as THREE from 'three';
+import { StudioEnvironment } from '@/components/sariro-3d/studio-environment';
 
 /* ===============================================================
    PAGE HERO 3D — Reusable 3D scene for EVERY inner page hero.
@@ -917,7 +918,7 @@ export default function PageHero3D({
       <Suspense fallback={null}>
         {scene}
         <Sparkles count={25} scale={8} size={2} speed={0.3} opacity={0.4} color={accentColor} />
-        <Environment preset="city" />
+        <StudioEnvironment />
       </Suspense>
     </Canvas>
   );

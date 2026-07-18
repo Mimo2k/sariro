@@ -1,11 +1,37 @@
 'use client';
 
 import { Canvas, useFrame } from '@react-three/fiber';
-import { MeshDistortMaterial, Environment, Sparkles } from '@react-three/drei';
+import { MeshDistortMaterial, Sparkles } from '@react-three/drei';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useRef, useState, useEffect, Suspense } from 'react';
+import { Component, useRef, useState, useEffect, Suspense, type ReactNode } from 'react';
 import * as THREE from 'three';
 import { Brain, Hammer, Rocket, Users, ChevronLeft, ChevronRight } from 'lucide-react';
+import { StudioEnvironment } from '@/components/sariro-3d/studio-environment';
+
+/* ───── Canvas error boundary ─────
+   If WebGL fails (driver issue, context loss, HDR fetch failure, etc.),
+   swallow the error and render null. The gradient background behind
+   the canvas still shows, so the page never crashes — it just loses
+   the 3D effect. */
+class CanvasErrorBoundary extends Component<
+  { children: ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: { children: ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  componentDidCatch(error: unknown) {
+    console.warn('[OryzoSection] 3D scene crashed — falling back to gradient only:', error);
+  }
+  render() {
+    if (this.state.hasError) return null;
+    return this.props.children;
+  }
+}
 
 /* ===============================================================
    ORYZO SECTION — Arrow + Swipe navigation (NO pinned scroll)
@@ -184,25 +210,31 @@ export default function OryzoSection({ id = 'oryzo' }: { id?: string }) {
         }} />
       </div>
 
-      {/* 3D Canvas — fixed behind text */}
+      {/* 3D Canvas — fixed behind text. Wrapped in error boundary so
+          any WebGL failure (driver crash, HDR fetch error, context loss)
+          doesn't crash the whole page — the gradient bg still shows. */}
       <div className="absolute inset-0">
-        <Canvas
-          dpr={[1, 1.5]}
-          camera={{ position: [0, 0, 5.5], fov: 55 }}
-          gl={{ antialias: true, alpha: true, depth: false, powerPreference: 'high-performance' }}
-          style={{ background: 'transparent' }}
-          performance={{ min: 0.5 }}
-        >
-          <ambientLight intensity={0.4} />
-          <directionalLight position={[5, 5, 5]} intensity={1.2} />
-          <directionalLight position={[-5, -3, -5]} intensity={0.4} color="#7C3AED" />
-          <Suspense fallback={null}>
-            <AICore activeIdx={activeIdx} count={count} />
-            <Sparkles count={40} scale={10} size={2} speed={0.3} opacity={0.5} color="#2563EB" />
-            <Sparkles count={20} scale={8} size={3} speed={0.2} opacity={0.3} color="#7C3AED" />
-            <Environment preset="city" />
-          </Suspense>
-        </Canvas>
+        <CanvasErrorBoundary>
+          <Canvas
+            dpr={[1, 1.5]}
+            camera={{ position: [0, 0, 5.5], fov: 55 }}
+            gl={{ antialias: true, alpha: true, depth: false, powerPreference: 'high-performance' }}
+            style={{ background: 'transparent' }}
+            performance={{ min: 0.5 }}
+          >
+            <ambientLight intensity={0.4} />
+            <directionalLight position={[5, 5, 5]} intensity={1.2} />
+            <directionalLight position={[-5, -3, -5]} intensity={0.4} color="#7C3AED" />
+            <pointLight position={[0, 0, 3]} intensity={0.6} color="#2563EB" />
+            <pointLight position={[3, -2, 2]} intensity={0.4} color="#7C3AED" />
+            <Suspense fallback={null}>
+              <AICore activeIdx={activeIdx} count={count} />
+              <Sparkles count={40} scale={10} size={2} speed={0.3} opacity={0.5} color="#2563EB" />
+              <Sparkles count={20} scale={8} size={3} speed={0.2} opacity={0.3} color="#7C3AED" />
+              <StudioEnvironment />
+            </Suspense>
+          </Canvas>
+        </CanvasErrorBoundary>
       </div>
 
       {/* Content — single screen height, no pinning */}

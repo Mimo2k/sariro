@@ -2,8 +2,9 @@
 
 import { useRef, useEffect, useState, Suspense } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { MeshDistortMaterial, Sparkles, Environment } from '@react-three/drei';
+import { MeshDistortMaterial, Sparkles } from '@react-three/drei';
 import * as THREE from 'three';
+import { StudioEnvironment } from '@/components/sariro-3d/studio-environment';
 
 /* ===============================================================
    SHARED CHAPTER STATE — module-level, zero React re-renders.
@@ -287,7 +288,7 @@ export function CompanionOrb3D() {
             <directionalLight position={[-3, -2, -3]} intensity={0.4} color="#7C3AED" />
             <Suspense fallback={null}>
               <Orb scrollProgressRef={scrollProgressRef} />
-              <Environment preset="city" />
+              <StudioEnvironment />
             </Suspense>
           </Canvas>
         </div>

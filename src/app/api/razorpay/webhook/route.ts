@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createHmac } from 'crypto';
+import { rateLimit, getClientIp, rateLimitedResponse } from '@/lib/rate-limit';
 
 /**
  * SARIRO — Razorpay Webhook Handler
@@ -246,6 +247,20 @@ export async function POST(req: NextRequest) {
       '[razorpay-webhook] Missing RAZORPAY_WEBHOOK_SECRET or SUPABASE_SERVICE_ROLE_KEY — no-op.'
     );
     return NextResponse.json({ received: true, ok: false, reason: 'not_configured' }, { status: 200 });
+  }
+
+  // ── Rate limit: 60 webhook calls / minute per source IP ────────────
+  // Razorpay retries on non-2xx responses, so we need some headroom.
+  // Signature verification is the real trust anchor; this just blocks
+  // outright flood attacks from a single IP.
+  const ip = getClientIp(req);
+  const rl = rateLimit({
+    key: `webhook:${ip}`,
+    limit: 60,
+    windowMs: 60_000,
+  });
+  if (!rl.ok) {
+    return rateLimitedResponse(rl.retryAfterMs, 'Webhook flood — retrying later.');
   }
 
   // Get raw body for signature verification

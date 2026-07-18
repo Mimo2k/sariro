@@ -7,6 +7,8 @@ import {
   thanksResponse,
   fallbackResponse,
 } from '@/lib/faq-data';
+import { rateLimit, getClientIp, rateLimitedResponse } from '@/lib/rate-limit';
+import { assertSameOrigin } from '@/lib/security/origin-check';
 
 /**
  * SARIRO Chat API — SLM Preview (keyword-based FAQ matching)
@@ -22,6 +24,23 @@ import {
  */
 export async function POST(req: NextRequest) {
   try {
+    // ── CSRF check — same-origin only ──────────────────────────────────
+    const csrfFail = assertSameOrigin(req);
+    if (csrfFail) return csrfFail;
+
+    // ── Rate limit: 30 messages / minute per IP ────────────────────────
+    // Public endpoint — no auth. Generous enough for normal use, blocks
+    // spam / scraping.
+    const ip = getClientIp(req);
+    const rl = rateLimit({
+      key: `chat:${ip}`,
+      limit: 30,
+      windowMs: 60_000,
+    });
+    if (!rl.ok) {
+      return rateLimitedResponse(rl.retryAfterMs, 'Slow down — too many messages.');
+    }
+
     const body = await req.json();
     const message: string = (body?.message ?? '').toString().trim();
 

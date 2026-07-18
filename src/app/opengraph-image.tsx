@@ -1,0 +1,24 @@
+import { buildOgImage } from '@/lib/og/brand-frame';
+
+/**
+ * Default OG image — used by the home page and as a fallback for any
+ * route that doesn't define its own opengraph-image.tsx.
+ *
+ * File name `opengraph-image.tsx` is a Next.js convention — placed at
+ * the app root, it's automatically picked up and the meta tag injected
+ * into the layout's <head>.
+ */
+
+export const alt = 'Sariro — AI & Technology Education by Mimo Patra';
+export const size = { width: 1200, height: 630 };
+export const contentType = 'image/png';
+
+export default function HomeOgImage() {
+  return buildOgImage({
+    eyebrow: 'Cohort-based AI education',
+    title: 'Teaching the future.',
+    subtitle: 'We teach thinking, not just coding. Live cohorts, real projects, ship-and-defend learning.',
+    accent: 'amber',
+    footerRight: 'sariro.com',
+  });
+}

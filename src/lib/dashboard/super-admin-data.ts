@@ -8,11 +8,13 @@ import { createClient } from '@/lib/supabase/client';
 import {
   fetchAdminStats, fetchPendingPurchaseIntents, fetchCohorts,
   confirmPurchaseIntent, rejectPurchaseIntent, transitionCohortStatus, createCohort,
+  updateCohortMeetUrl, updateCohortMaterialsUrl,
 } from '@/lib/dashboard/admin-data';
 
 export {
   fetchAdminStats, fetchPendingPurchaseIntents, fetchCohorts,
   confirmPurchaseIntent, rejectPurchaseIntent, transitionCohortStatus, createCohort,
+  updateCohortMeetUrl, updateCohortMaterialsUrl,
 };
 
 export interface AuditLogRow {
