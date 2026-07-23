@@ -32,8 +32,8 @@ export function FlipCard3D({
   // NOT when it lands on a button or link inside the card. This lets
   // inner buttons (Enroll, Syllabus, etc.) work without flipping the card.
   const handleContainerClick = (e: MouseEvent) => {
-    const target = e.target as HTMLElement;
-    if (target.closest('button, a, input, select, textarea, [role="button"]')) {
+    const target = e.target;
+    if (target instanceof Element && target.closest('button, a, input, select, textarea, [role="button"]')) {
       // Click landed on an interactive element — let it do its thing
       return;
     }

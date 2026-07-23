@@ -379,10 +379,10 @@ export default function ChatBubble() {
               <button
                 onClick={() => setOpen(false)}
                 aria-label="Close chat"
-                className="w-11 h-11 sm:w-8 sm:h-8 rounded-xl sm:rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 active:bg-white/20 transition-colors z-10 touch-manipulation shrink-0"
+                className="w-11 h-11 sm:w-9 sm:h-9 rounded-xl bg-white/15 border border-white/25 flex items-center justify-center text-white hover:bg-white/25 hover:scale-105 active:scale-95 transition-all z-30 touch-manipulation shrink-0 shadow-lg"
                 style={{ minHeight: '44px', minWidth: '44px' }}
               >
-                <X className="w-5 h-5 sm:w-4 sm:h-4" />
+                <X className="w-6 h-6 sm:w-5 sm:h-5" strokeWidth={2.5} />
               </button>
             </div>
 

@@ -92,7 +92,7 @@ export default function Tracks3D() {
     offset: ['start end', 'end start'],
   });
   const headerY = useTransform(scrollYProgress, [0, 1], [60, -60]);
-  const headerRotate = useTransform(scrollYProgress, [0, 1], [3, -3]);
+  const headerRotate = useTransform(scrollYProgress, [0, 1], [0, 0]);
 
   return (
     <section id="tracks" ref={sectionRef} data-chapter="tracks" data-chapter-label="Tracks" className="relative py-24 sm:py-32 overflow-hidden">
