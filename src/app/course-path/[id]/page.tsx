@@ -18,8 +18,11 @@ import {
   TiltCard,
   CountUp,
   ParallaxOrb,
+  
 } from '@/components/brand/effects-kit';
-import { COURSES, TRACKS, getRazorpayLink, type LearningRatio } from '@/lib/sariro-data';
+import { COURSES, TRACKS, getRazorpayLink } from '@/lib/sariro-data';
+
+type LearningRatio = '1:4' | '1:1';
 
 const ACCENT_HEX: Record<string, string> = {
   blue: '#2563EB', green: '#16A34A', violet: '#7C3AED', amber: '#F59E0B', cyan: '#06B6D4',

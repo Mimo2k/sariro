@@ -1045,7 +1045,7 @@ export const COURSES = [
     title: "Java Basics — Elementary",
     tagline: "Learn Java from scratch — the language behind AP Computer Science and enterprise apps.",
     level: "Elementary", audience: "Students", durationWeeks: 12, modules: 8, lessons: 48,
-    price: 248, originalPrice: 496, nextCohort: "Aug 12, 2026", featured: true, accent: "blue",
+    price: 249, originalPrice: 498, nextCohort: "Aug 12, 2026", featured: true, accent: "blue",
     outcomes: ["Set up Java + write your first programs", "Understand variables, types, and methods", "Build object-oriented programs", "Prepare for AP Computer Science"],
     syllabus: [
       { num: "01", name: "Java Setup + First Program", project: "Hello World + a personal greeting", lessons: ["Installing the JDK", "Installing an IDE (IntelliJ / VS Code)", "public static void main", "System.out.println", "Comments + code style", "Compiling + running .java files"] },
@@ -1066,7 +1066,7 @@ export const COURSES = [
     title: "Website Development Basics — Elementary",
     tagline: "Build your first website with HTML, CSS, and JavaScript — no experience needed.",
     level: "Elementary", audience: "Students", durationWeeks: 12, modules: 8, lessons: 48,
-    price: 248, originalPrice: 496, nextCohort: "Aug 12, 2026", featured: false, accent: "cyan",
+    price: 249, originalPrice: 498, nextCohort: "Aug 12, 2026", featured: false, accent: "cyan",
     outcomes: ["Build a real website from scratch", "Understand HTML structure + CSS styling", "Add interactivity with JavaScript", "Deploy your site live to the web"],
     syllabus: [
       { num: "01", name: "HTML Foundations", project: "Build a personal about-me page", lessons: ["What is a website?", "HTML tags + structure", "Headings, paragraphs, lists", "Links (a href) + images", "Semantic HTML (header, nav, main)", "About-me page project"] },
@@ -1087,7 +1087,7 @@ export const COURSES = [
     title: "Scratch with Machine Learning — Elementary",
     tagline: "Learn coding and AI with MIT Scratch — build games and train ML models visually.",
     level: "Elementary", audience: "Students", durationWeeks: 12, modules: 8, lessons: 48,
-    price: 248, originalPrice: 496, nextCohort: "Aug 12, 2026", featured: true, accent: "amber",
+    price: 249, originalPrice: 498, nextCohort: "Aug 12, 2026", featured: true, accent: "amber",
     outcomes: ["Build animated games in Scratch", "Understand coding logic without typing", "Train ML models with Teachable Machine", "Create AI-powered Scratch projects"],
     syllabus: [
       { num: "01", name: "Scratch Basics", project: "Make a sprite dance", lessons: ["What is Scratch?", "The stage + sprites", "Blocks + scripts", "Events (green flag, key press)", "Movement blocks (move, glide)", "Dancing sprite project"] },

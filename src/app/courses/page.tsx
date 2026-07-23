@@ -183,7 +183,7 @@ function CoursesPageInner() {
                 </div>
                 <div>
                   <div className="text-[10px] font-bold uppercase tracking-wider text-amber-700" style={{ fontFamily: 'var(--font-grotesk)' }}>
-                    Tier 0 · From $248
+                    Tier 0 · From $249
                   </div>
                   <div className="text-base font-extrabold text-slate-900" style={{ fontFamily: 'var(--font-jakarta)' }}>
                     Elementary
@@ -191,7 +191,7 @@ function CoursesPageInner() {
                 </div>
               </div>
               <p className="text-xs text-slate-600 leading-relaxed mb-2">
-                4 tracks · 5 modules each. Absolute beginners + kids.
+                4 tracks · 8 modules · 48 lessons each. Absolute beginners + kids.
               </p>
               <div className="text-xs font-bold text-amber-600 flex items-center gap-1 group-hover:gap-2 transition-all">
                 Explore elementary track
@@ -217,7 +217,7 @@ function CoursesPageInner() {
                 </div>
               </div>
               <p className="text-xs text-slate-600 leading-relaxed mb-2">
-                2 tracks · 5 modules · 30 lessons each. Zero experience required.
+                10 tracks · 5 modules · 30 lessons each. Zero experience required.
               </p>
               <div className="text-xs font-bold text-green-600 flex items-center gap-1 group-hover:gap-2 transition-all">
                 Explore beginner track
@@ -243,7 +243,7 @@ function CoursesPageInner() {
                 </div>
               </div>
               <p className="text-xs text-slate-600 leading-relaxed mb-2">
-                2 tracks · 7 modules · 42 lessons each. Ship real products.
+                11 tracks · 7 modules · 42 lessons each. Ship real products.
               </p>
               <div className="text-xs font-bold text-blue-600 flex items-center gap-1 group-hover:gap-2 transition-all">
                 Explore intermediate track
@@ -269,7 +269,7 @@ function CoursesPageInner() {
                 </div>
               </div>
               <p className="text-xs text-slate-600 leading-relaxed mb-2">
-                2 tracks · 16 modules · 96 lessons. Ship production systems.
+                10 tracks · 16 modules · 96 lessons. Ship production systems.
               </p>
               <div className="text-xs font-bold text-violet-600 flex items-center gap-1 group-hover:gap-2 transition-all">
                 Explore advanced track
