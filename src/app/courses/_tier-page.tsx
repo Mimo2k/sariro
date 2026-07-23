@@ -64,12 +64,12 @@ const TIER_CFG: Record<
     subtitle:
       'Four cohort-based courses for absolute beginners and kids. Python, Java, Website Basics, and Scratch + ML — no experience needed, just curiosity.',
     intro:
-      'Elementary courses are designed for first-time coders, young learners, and anyone who has never written a line of code. Every course is 5 modules with hands-on projects from day one. You will build real things — games, websites, calculators, and AI-powered Scratch projects — while learning the fundamentals that set you up for Beginner and beyond.',
+      'Elementary courses are designed for first-time coders, young learners, and anyone who has never written a line of code. Every course is 8 modules, 48 lessons, with hands-on projects from day one. You will build real things — games, websites, calculators, and AI-powered Scratch projects — while learning the fundamentals that set you up for Beginner and beyond.',
     stats: [
-      { value: 149, suffix: '', label: 'USD per cohort' },
-      { value: 5, suffix: '', label: 'Modules' },
-      { value: 24, suffix: '+', label: 'Lessons' },
-      { value: 6, suffix: '', label: 'Weeks' },
+      { value: 248, suffix: '', label: 'USD per cohort' },
+      { value: 8, suffix: '', label: 'Modules' },
+      { value: 48, suffix: '', label: 'Lessons' },
+      { value: 12, suffix: '', label: 'Weeks' },
     ],
     pageHeroVariant: 'courses',
     icon: GraduationCap,

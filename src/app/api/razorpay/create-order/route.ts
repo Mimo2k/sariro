@@ -38,11 +38,11 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 export const runtime = 'nodejs';
 
 const DEFAULT_PRICES: Record<string, number> = {
-  [SETTING_KEYS.elementaryPrice]: 149,
+  [SETTING_KEYS.elementaryPrice]: 248,
   [SETTING_KEYS.beginnerPrice]: 199,
   [SETTING_KEYS.intermediatePrice]: 299,
   [SETTING_KEYS.advancedPrice]: 699,
-  [SETTING_KEYS.elementaryPrice1on1]: 199,
+  [SETTING_KEYS.elementaryPrice1on1]: 348,
   [SETTING_KEYS.beginnerPrice1on1]: 299,
   [SETTING_KEYS.intermediatePrice1on1]: 399,
   [SETTING_KEYS.advancedPrice1on1]: 899,

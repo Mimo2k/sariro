@@ -6,10 +6,10 @@ export const contentType = 'image/png';
 
 export default function ElementaryOgImage() {
   return buildOgImage({
-    eyebrow: 'Elementary · 6-8 weeks · 1:4 cohort',
+    eyebrow: 'Elementary · 12 weeks · 8 modules · 48 lessons',
     title: 'Start coding from zero.',
     subtitle: 'Python, Java, Web Basics, and Scratch + ML. Built for absolute beginners and kids. No experience needed.',
     accent: 'amber',
-    footerRight: 'From $149 · sariro.com/courses/elementary',
+    footerRight: 'From $248 · sariro.com/courses/elementary',
   });
 }

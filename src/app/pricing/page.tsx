@@ -392,7 +392,7 @@ export default function PricingPage() {
           {/* Below-grid note */}
           <Reveal>
             <p className="text-center text-xs text-slate-500 mt-8">
-              All prices in USD. Stripe-secured checkout. Need an invoice for your school or employer? <Link href="/contact" className="text-blue-600 font-bold underline">Get in touch</Link>.
+              All prices in USD. Razorpay-secured checkout. Need an invoice for your school or employer? <Link href="/contact" className="text-blue-600 font-bold underline">Get in touch</Link>.
             </p>
           </Reveal>
         </div>

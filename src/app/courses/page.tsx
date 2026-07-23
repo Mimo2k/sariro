@@ -183,7 +183,7 @@ function CoursesPageInner() {
                 </div>
                 <div>
                   <div className="text-[10px] font-bold uppercase tracking-wider text-amber-700" style={{ fontFamily: 'var(--font-grotesk)' }}>
-                    Tier 0 · From $149
+                    Tier 0 · From $248
                   </div>
                   <div className="text-base font-extrabold text-slate-900" style={{ fontFamily: 'var(--font-jakarta)' }}>
                     Elementary
