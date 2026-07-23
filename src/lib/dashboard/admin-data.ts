@@ -206,17 +206,21 @@ export async function createCohort(params: {
   max_capacity: number;
 }): Promise<string | null> {
   try {
-    const res = await fetch('/api/admin/create-cohort', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(params),
-    });
-    const data = await res.json() as { ok: boolean; cohortId?: string; error?: string };
-    if (!data.ok || !data.cohortId) {
-      console.warn('[admin] createCohort failed:', data.error);
-      return null;
-    }
-    return data.cohortId;
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from('cohorts')
+      .insert({
+        track: params.track,
+        level: params.level,
+        ratio: params.ratio,
+        max_capacity: params.max_capacity,
+        status: 'gathering',
+      })
+      .select('id')
+      .single();
+
+    if (error) throw error;
+    return data?.id ?? null;
   } catch (err) {
     console.warn('[admin] createCohort error:', err);
     return null;

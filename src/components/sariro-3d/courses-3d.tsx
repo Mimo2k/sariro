@@ -16,9 +16,10 @@ const ACCENT_MAP: Record<string, { text: string; bg: string; soft: string; borde
   cyan:   { text: 'text-cyan-700',   bg: 'bg-cyan-600',   soft: 'bg-cyan-50',   border: 'border-cyan-200',   ring: 'ring-cyan-300' },
 };
 
-type Filter = 'all' | 'Beginner' | 'Intermediate' | 'Advanced';
+type Filter = 'all' | 'Elementary' | 'Beginner' | 'Intermediate' | 'Advanced';
 const FILTERS: { key: Filter; label: string }[] = [
   { key: 'all', label: 'All' },
+  { key: 'Elementary', label: 'Elementary' },
   { key: 'Beginner', label: 'Beginner' },
   { key: 'Intermediate', label: 'Intermediate' },
   { key: 'Advanced', label: 'Advanced' },

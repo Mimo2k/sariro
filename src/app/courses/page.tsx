@@ -36,11 +36,12 @@ import {
 } from '@/components/brand/effects-kit';
 import { COURSES, TRACKS, discountPercent, DISCOUNT_LABEL } from '@/lib/sariro-data';
 
-// Filters are LEVEL-based: All / Beginner / Intermediate / Advanced
+// Filters are LEVEL-based: All / Elementary / Beginner / Intermediate / Advanced
 // (NOT track-based — track selection happens on /course-path/[id])
-type FilterKey = 'all' | 'Beginner' | 'Intermediate' | 'Advanced';
+type FilterKey = 'all' | 'Elementary' | 'Beginner' | 'Intermediate' | 'Advanced';
 const FILTERS: { key: FilterKey; label: string }[] = [
   { key: 'all', label: 'All' },
+  { key: 'Elementary', label: 'Elementary' },
   { key: 'Beginner', label: 'Beginner' },
   { key: 'Intermediate', label: 'Intermediate' },
   { key: 'Advanced', label: 'Advanced' },
@@ -171,7 +172,33 @@ function CoursesPageInner() {
           </div>
 
           {/* Tier explorer — links to dedicated tier pages (not in navbar) */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+            <Link
+              href="/courses/elementary"
+              className="group rounded-2xl p-5 border-2 border-amber-200 hover:border-amber-400 hover:shadow-lg hover:shadow-amber-500/10 transition-all bg-amber-50/50"
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center text-amber-600">
+                  <GraduationCap className="w-5 h-5" strokeWidth={2.2} />
+                </div>
+                <div>
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-amber-700" style={{ fontFamily: 'var(--font-grotesk)' }}>
+                    Tier 0 · From $149
+                  </div>
+                  <div className="text-base font-extrabold text-slate-900" style={{ fontFamily: 'var(--font-jakarta)' }}>
+                    Elementary
+                  </div>
+                </div>
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed mb-2">
+                4 tracks · 5 modules each. Absolute beginners + kids.
+              </p>
+              <div className="text-xs font-bold text-amber-600 flex items-center gap-1 group-hover:gap-2 transition-all">
+                Explore elementary track
+                <ArrowRight className="w-3 h-3" />
+              </div>
+            </Link>
+
             <Link
               href="/courses/beginner"
               className="group rounded-2xl p-5 border-2 border-green-200 hover:border-green-400 hover:shadow-lg hover:shadow-green-500/10 transition-all bg-green-50/50"

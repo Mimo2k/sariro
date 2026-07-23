@@ -46,12 +46,15 @@ export interface PriceEntry {
 export const SETTING_KEYS = {
   razorpayLinks: 'razorpay_links',
   razorpayLinksPremium: 'razorpay_links_premium',
+  elementaryPrice: 'price_elementary',
   beginnerPrice: 'price_beginner',
   intermediatePrice: 'price_intermediate',
   advancedPrice: 'price_advanced',
+  elementaryPrice1on1: 'price_elementary_1on1',
   beginnerPrice1on1: 'price_beginner_1on1',
   intermediatePrice1on1: 'price_intermediate_1on1',
   advancedPrice1on1: 'price_advanced_1on1',
+  elementaryOriginalPrice: 'price_elementary_original',
   beginnerOriginalPrice: 'price_beginner_original',
   intermediateOriginalPrice: 'price_intermediate_original',
   advancedOriginalPrice: 'price_advanced_original',
@@ -63,18 +66,21 @@ export const DEFAULT_RAZORPAY_LINKS: Record<string, string> = { ...RAZORPAY_LINK
 export const DEFAULT_RAZORPAY_LINKS_PREMIUM: Record<string, string> = { ...RAZORPAY_LINKS_PREMIUM };
 
 const DEFAULT_PRICES: Record<string, number> = {
+  [SETTING_KEYS.elementaryPrice]: 149,
   [SETTING_KEYS.beginnerPrice]: 199,
   [SETTING_KEYS.intermediatePrice]: 299,
   [SETTING_KEYS.advancedPrice]: 699,
+  [SETTING_KEYS.elementaryPrice1on1]: 199,
   [SETTING_KEYS.beginnerPrice1on1]: 299,
   [SETTING_KEYS.intermediatePrice1on1]: 399,
   [SETTING_KEYS.advancedPrice1on1]: 899,
+  [SETTING_KEYS.elementaryOriginalPrice]: 298,
   [SETTING_KEYS.beginnerOriginalPrice]: 398,
   [SETTING_KEYS.intermediateOriginalPrice]: 854,
   [SETTING_KEYS.advancedOriginalPrice]: 2330,
 };
 
-const ALL_LEVELS = ['Beginner', 'Intermediate', 'Advanced'];
+const ALL_LEVELS = ['Elementary', 'Beginner', 'Intermediate', 'Advanced'];
 
 /* ─────────────────────── fetchAllSettings ───────────────────────
    Returns every row from app_settings as a key→value map. */
